@@ -11,23 +11,12 @@ import static org.dmkr.chess.api.utils.BoardUtils.getX;
 public class EvaluationFunctionPownsStructure extends EvaluationFunctionPownStructureAbstract<BoardEngine> {
 	
 	public static final EvaluationFunction<BoardEngine> INSTANCE = new EvaluationFunctionPownsStructure();
-	
-	
-	@Override
-	public int value(BoardEngine board) {
-		int result = 0;
-		result += pownsValue(board);
-		board.invert();
-		result -= pownsValue(board);
-		board.invert();
-		return result;
-	}
 
-	private int pownsValue(BoardEngine board) {
+	@Override
+	public int calculateOneSidedValue(BoardEngine board) {
 		int result = 0;
 
 		final byte[] pownOnFiles = new byte[SIZE];
-		final byte[] pownOnFilesOponent = new byte[SIZE];
 		for (int i = SIZE; i < SIZE * (SIZE - 1); i ++) {
 			final int x = getX(i);
 			switch (board.at(i)) {
@@ -46,16 +35,12 @@ public class EvaluationFunctionPownsStructure extends EvaluationFunctionPownStru
 					}
 					continue;
 					
-				case -VALUE_POWN : 
-					pownOnFilesOponent[x] += 1;
-					continue;
-			
 				default :
 					continue;
 			}
 		}
 		
-		result += isolatedAndDoubledPowns(pownOnFiles, pownOnFilesOponent);
+		result += isolatedAndDoubledPowns(pownOnFiles);
 		
 		return result;
 	}

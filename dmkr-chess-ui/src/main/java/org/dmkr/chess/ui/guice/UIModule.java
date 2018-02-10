@@ -30,8 +30,8 @@ public class UIModule extends AbstractModule {
         	.treeStrategyCreator(() -> 
         		treeBuildingStrategy()
         			.onFirstLevel(allMovesProvider())
-					.onSecondLevel(bestNMovesProvider(12, evaluationFunctionAware))
-					.onThirdLevel(bestNMovesProvider(12, evaluationFunctionAware))
+					.onSecondLevel(bestNMovesProvider(20, evaluationFunctionAware))
+					.onThirdLevel(bestNMovesProvider(20, evaluationFunctionAware))
 					.onFourthLevel(capturedMovesProvider())
 					.build())
     		.evaluationFunctionAware(evaluationFunctionAware)

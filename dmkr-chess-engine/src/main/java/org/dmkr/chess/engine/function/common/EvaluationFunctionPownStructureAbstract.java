@@ -5,7 +5,7 @@ import static org.dmkr.chess.api.model.Constants.SIZE;
 import org.dmkr.chess.api.BoardEngine;
 import org.dmkr.chess.engine.function.EvaluationFunction;
 
-public abstract class EvaluationFunctionPownStructureAbstract<T extends BoardEngine> implements EvaluationFunction<T> {
+public abstract class EvaluationFunctionPownStructureAbstract<T extends BoardEngine> extends EvaluationFunctionBasedBoardInversion<T> {
 	protected static final int POWNS_CHAIN_VALUE = 4;
 	protected static final int ISOLATED_POWN_VALUE_SINGLE = -20;
 	protected static final int ISOLATED_POWN_VALUE_DOUBLE = -40;
@@ -15,7 +15,7 @@ public abstract class EvaluationFunctionPownStructureAbstract<T extends BoardEng
 	protected static final int POWN_VALUE_MULTIPLE = -30;	
 	
 	
-	protected int isolatedAndDoubledPowns(byte[] numPownsOnFiles, byte[] numPownsOnFilesOponent) {
+	protected int isolatedAndDoubledPowns(byte[] numPownsOnFiles) {
 		int result = 0;
 		
 		for (int i = 0; i < SIZE; i ++) {
