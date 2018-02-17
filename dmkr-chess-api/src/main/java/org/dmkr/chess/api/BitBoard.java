@@ -5,4 +5,8 @@ public interface BitBoard extends BoardEngine {
 	long items(byte itemType);
 
 	long oponentItems(byte itemType);
+
+	long itemPositions();
+
+	long itemPositionsOponent();
 }

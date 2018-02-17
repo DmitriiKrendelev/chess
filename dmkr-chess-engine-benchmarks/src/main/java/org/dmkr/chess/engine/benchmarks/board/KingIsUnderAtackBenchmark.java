@@ -44,12 +44,12 @@ public class KingIsUnderAtackBenchmark {
 			.build();	
 	
 	@Benchmark
-	public void testIsKingUnderAtackBoard(Blackhole blackHole) {
+	public void boardIsKingUnderAtack(Blackhole blackHole) {
 		blackHole.consume(BOARD.calculateIsKingUnderAtack());
 	}
 	
 	@Benchmark
-	public void testIsKingUnderAtackBitBoard(Blackhole blackHole) {
+	public void bitIsKingUnderAtack(Blackhole blackHole) {
 		blackHole.consume(BIT_BOARD.calculateIsKingUnderAtack());
 	}
 }

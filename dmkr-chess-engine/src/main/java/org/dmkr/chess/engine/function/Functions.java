@@ -3,15 +3,9 @@ package org.dmkr.chess.engine.function;
 import org.dmkr.chess.api.BitBoard;
 import org.dmkr.chess.api.BoardEngine;
 import org.dmkr.chess.engine.api.EvaluationFunctionAware;
-import org.dmkr.chess.engine.function.bit.EvaluationFunctionItemsPositionsBit;
-import org.dmkr.chess.engine.function.bit.EvaluationFunctionItemsValuesBit;
-import org.dmkr.chess.engine.function.bit.EvaluationFunctionPownsStructureBit;
-import org.dmkr.chess.engine.function.bit.EvaluationFunctionQueenInTheCenterBit;
+import org.dmkr.chess.engine.function.bit.*;
 import org.dmkr.chess.engine.function.common.EvaluationFunctionMoves;
-import org.dmkr.chess.engine.function.impl.EvaluationFunctionItemsPositions;
-import org.dmkr.chess.engine.function.impl.EvaluationFunctionItemsValues;
-import org.dmkr.chess.engine.function.impl.EvaluationFunctionPownsStructure;
-import org.dmkr.chess.engine.function.impl.EvaluationFunctionQueenInTheCenter;
+import org.dmkr.chess.engine.function.impl.*;
 
 import lombok.RequiredArgsConstructor;
 import static org.dmkr.chess.engine.function.EvaluationFunctionUtils.composite;
@@ -33,11 +27,14 @@ public enum Functions {
 			EvaluationFunctionItemsPositionsBit.INSTANCE),
 	@SuppressWarnings("unchecked")
 	ITEM_MOVES(
-			(EvaluationFunction<BoardEngine>) EvaluationFunctionMoves.INSTANCE, 
+			(EvaluationFunction<BoardEngine>) EvaluationFunctionMoves.INSTANCE,
 			(EvaluationFunction<BitBoard>) EvaluationFunctionMoves.INSTANCE),
 	POWN_STRUCTURE(
 			EvaluationFunctionPownsStructure.INSTANCE, 
-			EvaluationFunctionPownsStructureBit.INSTANCE);
+			EvaluationFunctionPownsStructureBit.INSTANCE),
+	ROOKS(
+			EvaluationFunctionRooks.INSTANCE,
+			EvaluationFunctionRooksBit.INSTANCE);
 	
 	
 	private final EvaluationFunction<BoardEngine> evaluationFunction;

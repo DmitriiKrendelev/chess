@@ -90,20 +90,16 @@ public class BitBoardImpl extends AbstractBoard implements BitBoard {
 		
 		if (isEmpty(field)) {
 			return VALUE_EMPTY;
-		} else if ((field & itemPositions()) != 0) {
-			for (int i = 0; i < ITEMS_LENGTH; i ++) {
-				if ((items[i] & field) != 0) {
-					return (byte) (i + 1);
-				}
-			}
-		} else {
-			for (int i = 0; i < ITEMS_LENGTH; i ++) {
-				if ((oponentItems[i] & field) != 0) {
-					return (byte) (-i - 1);
-				}
+		}
+
+		for (int i = 0; i < ITEMS_LENGTH; i ++) {
+			if ((items[i] & field) != 0) {
+				return (byte) (i + 1);
+			} else if ((oponentItems[i] & field) != 0) {
+				return (byte) (-i - 1);
 			}
 		}
-		
+
 		throw new IllegalStateException("index = " + index + "\n");
 	}
 	
@@ -454,10 +450,20 @@ public class BitBoardImpl extends AbstractBoard implements BitBoard {
 		empty = reverse(empty);
 	}
 
-	private long itemPositions() {
+	@Override
+	public long itemPositions() {
 		long result = 0;
 		for (long itemPositions : items) {
 			result |= itemPositions;
+		}
+		return result;
+	}
+
+	@Override
+	public long itemPositionsOponent() {
+		long result = 0;
+		for (long itemPositionsOponent : oponentItems) {
+			result |= itemPositionsOponent;
 		}
 		return result;
 	}

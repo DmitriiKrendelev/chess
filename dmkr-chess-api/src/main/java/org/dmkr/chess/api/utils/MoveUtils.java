@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.IntPredicate;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.dmkr.chess.api.BoardEngine;
 import org.dmkr.chess.api.model.Move;
@@ -21,33 +22,39 @@ import com.google.common.collect.ImmutableList;
 
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.UtilityClass;
+import org.dmkr.chess.common.primitives.IntArrayBuilder;
 
 @UtilityClass
 public class MoveUtils {
 	public static final IntPredicate IS_CAPTURE_MOVE = move -> byte3(move) != VALUE_EMPTY;
 	
 	@RequiredArgsConstructor
-	public static class LimitedMovesSelector implements IntPredicate {
-		private final IntPredicate wrappedSelector;
-		private final int maxNumberOfMoves;
-		private int currentNumberOfMoves;
-		
+	public static class CaptureMovesFilter implements MovesFilter {
+		private final IntArrayBuilder capturedMovesBuilder = new IntArrayBuilder();
+		private final IntArrayBuilder notCapturedMovesBuilder = new IntArrayBuilder();
+		private final int maxNumberOfNotCaptured;
+		private final int maxNumberOfCaptured;
+
 		@Override
-		public boolean test(int move) {
-			if (wrappedSelector.test(move)) {
-				if (currentNumberOfMoves == maxNumberOfMoves) {
-					return false;
+		public void addMove(int move) {
+			final byte captured = byte3(move);
+
+			if (captured == VALUE_EMPTY) {
+				if (notCapturedMovesBuilder.size() < maxNumberOfNotCaptured) {
+					notCapturedMovesBuilder.add(move);
 				}
-				
-				currentNumberOfMoves ++;
-				return true;
+			} else {
+				if (capturedMovesBuilder.size() < maxNumberOfCaptured) {
+					capturedMovesBuilder.add(move);
+				} else {
+					capturedMovesBuilder.substituteLowest(previousMove -> byte3(previousMove), move);
+				}
 			}
-		
-			return true;
 		}
-		
-		public void reset() {
-			this.currentNumberOfMoves = 0;
+
+		@Override
+		public int[] build() {
+			return IntArrayBuilder.build(capturedMovesBuilder, notCapturedMovesBuilder);
 		}
 	}
 	
@@ -68,19 +75,19 @@ public class MoveUtils {
 	
 		return toInt(from, to);
 	}
-	
+
 	public static boolean isCapturedMove(int move) {
 		return IS_CAPTURE_MOVE.test(move);
-	}
-	
-	public static int[] getCaptureMoves(BoardEngine board) {
-		return board.allowedMoves(IS_CAPTURE_MOVE);
 	}
 	
 	public static Set<Move> toSet(int[] moves, boolean isInverted) {
 		return IntStream.of(moves).mapToObj(move -> Move.moveOf(move, isInverted)).collect(StreamUtils.toImmutableSet());
 	}
-	
+
+	public static Set<Move> toSet(String ... moves) {
+		return Stream.of(moves).map(Move::moveOf).collect(StreamUtils.toImmutableSet());
+	}
+
 	public static List<Move> toMovesHistory(int[] moves, boolean isInverted) {
 		if ((moves.length & 1) == 1) {
 			isInverted = !isInverted;

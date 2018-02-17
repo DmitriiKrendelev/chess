@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
+import java.util.function.Function;
 import java.util.function.IntPredicate;
 
 import org.dmkr.chess.api.model.Color;
@@ -41,7 +42,7 @@ public interface BoardEngine extends Board {
 	
 	int[] allowedMoves();
 	
-	int[] allowedMoves(IntPredicate moveSelector);
+	int[] allowedMoves(Function<int[], int[]> movesFilter);
 
 	int[] allowedMovesOponent();
 	

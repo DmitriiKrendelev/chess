@@ -20,6 +20,7 @@ import static org.dmkr.chess.common.primitives.Bytes.byte4;
 import static org.dmkr.chess.common.primitives.Bytes.intByte4;
 import static org.dmkr.chess.common.primitives.Bytes.toInt;
 
+import java.util.function.Function;
 import java.util.function.IntPredicate;
 
 import org.dmkr.chess.api.BoardEngine;
@@ -126,13 +127,8 @@ public abstract class AbstractBoard implements BoardEngine {
 	}
 	
 	@Override
-	public int[] allowedMoves(IntPredicate moveSelector) {
-		for (int move : allowedMoves()) {
-			if (moveSelector.test(move))
-				movesBuilder.add(move);
-		}
-
-		return movesBuilder.build();
+	public int[] allowedMoves(Function<int[], int[]> movesFilter) {
+		return movesFilter.apply(allowedMoves());
 	}
 	
 	@Override

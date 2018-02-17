@@ -93,7 +93,7 @@ public class UIBoardTextHelper {
 		builder.textLine("Position Evaluation :");
 		final BoardEngine boardCopy = board.clone();
 		
-		boardCopy.rollback();
+		boardCopy.invert();
 		getEvaluationDetails(engine.getEvaluationFunction(), boardCopy).forEach((name, value) -> builder.textLine("     " + name + " : " + formatValue(value)));
 		
 		builder.textLine(EMPTY);

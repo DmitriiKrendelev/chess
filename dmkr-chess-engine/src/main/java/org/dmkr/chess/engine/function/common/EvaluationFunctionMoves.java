@@ -34,12 +34,9 @@ public class EvaluationFunctionMoves extends EvaluationFunctionBasedBoardInversi
 
     @Override
 	public int calculateOneSidedValue(BoardEngine board) {
-        return value(board.calculateAllowedMoves(MOVES_SELECTOR), board);
-    }
-
-	private static int value(int moves[], BoardEngine board) {
+    	final int[] moves = board.calculateAllowedMoves(MOVES_SELECTOR);
 		return valueOfAtacks(moves, board) + valueOfNumberPotentialMoves(moves, board);
-	}
+    }
 
 	public static int valueOfAtacks(int moves[], BoardEngine board) {
 		int checks = 0;

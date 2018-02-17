@@ -51,22 +51,22 @@ public class GetMovesBenchmark {
 			.build();	
 	
 	@Benchmark
-	public void testGetMovesBoard(Blackhole blackHole) {
+	public void boardGetMoves(Blackhole blackHole) {
 		blackHole.consume(BOARD.calculateAllowedMoves(MovesSelectorImpl.DEFAULT));
 	}
 	
 	@Benchmark
-	public void testGetMovesBitBoard(Blackhole blackHole) {
+	public void bitGetMoves(Blackhole blackHole) {
 		blackHole.consume(BIT_BOARD.calculateAllowedMoves(MovesSelectorImpl.DEFAULT));
 	}
 	
 	@Benchmark
-	public void testGetMovesAllowChecksBoard(Blackhole blackHole) {
+	public void boardGetMovesAllowChacks(Blackhole blackHole) {
 		blackHole.consume(BOARD.calculateAllowedMoves(MOVES_SELECTOR_ALLOW_CHECKS));
 	}
 	
 	@Benchmark
-	public void testGetMovesAllowChecksBitBoard(Blackhole blackHole) {
+	public void bitGetMovesAllowChacks(Blackhole blackHole) {
 		blackHole.consume(BIT_BOARD.calculateAllowedMoves(MOVES_SELECTOR_ALLOW_CHECKS));
 	}
 }

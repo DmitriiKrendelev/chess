@@ -4,6 +4,7 @@ import static org.dmkr.chess.api.utils.BoardUtils.applayMoves;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -121,7 +122,11 @@ public class EvaluationFunctionUtils {
 	}
 	
 	public static Map<String, Integer> getEvaluationDetails(EvaluationFunction<BoardEngine> function, BoardEngine board) {
-		return function.getEvaluationDetails(board);
+		final Map<String, Integer> functionDetails = function.getEvaluationDetails(board);
+
+	    final Map<String, Integer> result = new HashMap<>(functionDetails);
+		result.put("Total", functionDetails.values().stream().reduce(0, Integer::sum));
+	    return result;
 	}
 
 	public static Map<String, Integer> getEvaluationDetails(EvaluationFunction<BoardEngine> function, BoardEngine board, BestLine bestLine) {
