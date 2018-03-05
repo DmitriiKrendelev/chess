@@ -15,8 +15,9 @@ public class BestLine {
 	List<Move> moves;
 	int lineValue;
 	int lineValueChange;
+	long duration;
 	
-	BestLine(int[] movesArray, boolean inverted, int lineValue, int lineValueChange) {
+	BestLine(int[] movesArray, boolean inverted, int lineValue, int lineValueChange, long duration) {
 		final List<Move> moves = new ArrayList<>();
 		
 		for (int move : movesArray) {
@@ -31,6 +32,7 @@ public class BestLine {
 		this.moves = ImmutableList.copyOf(moves);
 		this.lineValue = lineValue;
 		this.lineValueChange = lineValueChange;
+		this.duration = duration;
 	}
 	
 	@Override

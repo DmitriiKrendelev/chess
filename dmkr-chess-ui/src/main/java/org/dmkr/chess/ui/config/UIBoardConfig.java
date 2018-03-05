@@ -21,7 +21,8 @@ public class UIBoardConfig {
 	private final Color arrowColor;
 	private final UIRect boardCoords;
 	private final int itemMovingSpeed;
-	private final String backGroundPath;
+	private final String backGroundPathForWhite;
+	private final String backGroundPathForBlack;
 	private final String itemsFolderPath;
 	private final String cursorsFolderPath;
 	private final UIPoint textPosition;

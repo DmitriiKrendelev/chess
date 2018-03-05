@@ -13,6 +13,7 @@ import org.dmkr.chess.api.model.ColoredItem;
 import org.dmkr.chess.api.model.Field;
 import org.dmkr.chess.api.model.Move;
 import org.dmkr.chess.common.lang.Procedure;
+import org.dmkr.chess.ui.Player;
 import org.dmkr.chess.ui.api.model.UIArrow;
 import org.dmkr.chess.ui.api.model.UIPoint;
 import org.dmkr.chess.ui.api.model.UIRect;
@@ -35,7 +36,8 @@ public class UIBoardCoordsHelper {
 	private final double ySize;
 	private final Map<Field, UIPoint> fieldCenters;
 	private final Map<Field, UIRect> fields;
-	
+	private final boolean isWhite;
+
 	public class MovingItem {
 		@Getter
 		private final Field from, to;
@@ -95,7 +97,7 @@ public class UIBoardCoordsHelper {
 	}
 	
 	@Inject
-	public UIBoardCoordsHelper(UIBoardConfig config) {
+	public UIBoardCoordsHelper(UIBoardConfig config, Player player) {
 		final UIRect boardCoords = config.getBoardCoords();
 		
 		this.lowX = boardCoords.x();
@@ -106,20 +108,21 @@ public class UIBoardCoordsHelper {
 		
 		this.xSize = (double) (highX - lowX) / SIZE;
 		this.ySize = (double) (highY - lowY) / SIZE;
-		
+		this.isWhite = player.isWhite();
+
 		final ImmutableMap.Builder<Field, UIPoint> fieldCentersBuilder = ImmutableMap.builder();
 		final ImmutableMap.Builder<Field, UIRect> fieldsBuilder = ImmutableMap.builder();
 		for (int x = 0; x < SIZE; x ++) {
 			for (int y = 0; y < SIZE; y ++) {
 				final double leftUpperX = lowX + xSize * x;
 				final double leftUpperY = lowY + ySize * y;
-				final double backgroundX = leftUpperX + xSize * 0.5d;
-				final double backgroundY = leftUpperY + ySize * 0.5d;
+				final double centerX = leftUpperX + xSize * 0.5d;
+				final double centerY = leftUpperY + ySize * 0.5d;
 				
-				final UIPoint fieldCenter = new UIPoint(backgroundX, backgroundY);
+				final UIPoint fieldCenter = new UIPoint(centerX, centerY);
 				final UIRect fieldRect = newRect(leftUpperX, leftUpperY, xSize, ySize);
 				
-				final Field field = Field.resolve(x, SIZE - 1 - y);
+				final Field field = isWhite ? Field.resolve(x, SIZE - 1 - y) : Field.resolve(SIZE - 1 - x, y);
 				fieldCentersBuilder.put(field, fieldCenter);
 				fieldsBuilder.put(field, fieldRect);
 			}
@@ -141,7 +144,9 @@ public class UIBoardCoordsHelper {
 	}
 	
 	public Field resolveField(int x, int y) {
-		return Field.resolve(getBoardX(x), getBoardY(y));
+		final int boardX = getBoardX(x);
+		final int boardY = getBoardY(y);
+		return isWhite ? Field.resolve(boardX, boardY) : Field.resolve(SIZE - 1 - boardX, SIZE - 1 - boardY);
 	}
 	
 	public int getBoardX(int x) {

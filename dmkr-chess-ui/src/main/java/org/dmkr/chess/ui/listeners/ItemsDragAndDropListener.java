@@ -9,6 +9,7 @@ import javax.inject.Inject;
 
 import org.dmkr.chess.api.model.Field;
 import org.dmkr.chess.api.model.Move;
+import org.dmkr.chess.ui.Player;
 import org.dmkr.chess.ui.UIBoardJComponent;
 import org.dmkr.chess.ui.api.model.UIPoint;
 import org.dmkr.chess.ui.helpers.UIBoardCoordsHelper;
@@ -21,7 +22,8 @@ public class ItemsDragAndDropListener extends MouseAdapter {
 	@Inject private UIBoardCoordsHelper coordsHelper;
 	@Inject private UIMousePositionHelper mousePositionHelper;
 	@Inject private UIBoardJComponent uiComponent;
-	
+	@Inject private Player player;
+
 	@Override
 	public void mousePressed(MouseEvent e) {
 		final UIPoint uiPoint = mousePositionHelper.getMouseLocation();
@@ -32,9 +34,10 @@ public class ItemsDragAndDropListener extends MouseAdapter {
 		if (!coordsHelper.isOnBoard(x, y)) {
 			return;
 		}
-		
+		final Field field = coordsHelper.resolveField(x, y);
+
 		mousePressed.set(true);
-		pressedField.set(coordsHelper.resolveField(x, y));
+		pressedField.set(field);
 	}
 
 	@Override

@@ -21,19 +21,23 @@ public interface TreeLevelMovesProvider {
 		return false;
 	}
 	
-	public static TreeLevelMovesProvider allMovesProvider() {
+	static TreeLevelMovesProvider allMovesProvider() {
 		return new AllMovesProvider();
 	}
 	
-	public static TreeLevelMovesProvider bestNMovesProvider(int numberOfBestMoves, EvaluationFunctionAware<? extends BoardEngine> evaluationFunctionAware) {
+	static TreeLevelMovesProvider bestNMovesProvider(int numberOfBestMoves, EvaluationFunctionAware<? extends BoardEngine> evaluationFunctionAware) {
 		return new BestEvaluationProvider(new IntsValuesCollector(numberOfBestMoves), evaluationFunctionAware);
 	}
-	
-	public static TreeLevelMovesProvider capturedMovesProvider() {
+
+	static TreeLevelMovesProvider capturedMovesProvider() {
 		return new CaptureMovesProvider();
 	}
+
+	static TreeLevelMovesProvider capturedMovesProvider(int maxNotCaptureMovesLimit, int maxCaptureMovesLimit) {
+		return new CaptureMovesProvider(maxNotCaptureMovesLimit, maxCaptureMovesLimit);
+	}
 	
-	static class AllMovesProvider implements TreeLevelMovesProvider {
+	class AllMovesProvider implements TreeLevelMovesProvider {
 		@Override
 		public int[] getMoves(BoardEngine board) {
 			return board.allowedMoves();
@@ -41,7 +45,7 @@ public interface TreeLevelMovesProvider {
 	}
 	
 	@RequiredArgsConstructor
-	static class BestEvaluationProvider implements TreeLevelMovesProvider {
+	class BestEvaluationProvider implements TreeLevelMovesProvider {
 		private final IntsValuesCollector bestMovesCollector;
 		private final EvaluationFunctionAware<? extends BoardEngine> evaluationFunctionAware;
 		
@@ -75,12 +79,20 @@ public interface TreeLevelMovesProvider {
 		}
 	}
 	
-	static class CaptureMovesProvider implements TreeLevelMovesProvider {
+	class CaptureMovesProvider implements TreeLevelMovesProvider {
 		private static final int MAX_NOT_CAPTURE_MOVES_LIMIT = 2;
-		private static final int MAX_CAPTURE_MOVES_LIMIT = 6;
+		private static final int MAX_CAPTURE_MOVES_LIMIT = 4;
 
-		private final Function<int[], int[]> capturedMovesFilter =
-				new CaptureMovesFilter(MAX_NOT_CAPTURE_MOVES_LIMIT, MAX_CAPTURE_MOVES_LIMIT);
+		private final Function<int[], int[]> capturedMovesFilter;
+
+		private CaptureMovesProvider() {
+			this(MAX_NOT_CAPTURE_MOVES_LIMIT, MAX_CAPTURE_MOVES_LIMIT);
+		}
+
+		private CaptureMovesProvider(int maxNotCaptureMovesLimit, int maxCaptureMovesLimit) {
+			capturedMovesFilter = new CaptureMovesFilter(maxNotCaptureMovesLimit, maxCaptureMovesLimit);
+		}
+
 
 		@Override
 		public int[] getMoves(BoardEngine board) {

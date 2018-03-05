@@ -18,7 +18,8 @@ class BestLineBuilder {
 	private final IntStack currentPath;
 	private boolean inverted;
 	private int initialPositionValue;
-	private int lineValue;	
+	private int lineValue;
+	private long duration;
 	
 	BestLineBuilder(int maxBestLineLenght, IntStack currentPath) {
 		this.bestLine = new ValueAutoCreateList<>(() -> new int[maxBestLineLenght]);
@@ -62,7 +63,7 @@ class BestLineBuilder {
 	}
 	
 	BestLine build() {
-		return new BestLine(bestLine.get(0), inverted, lineValue, lineValue - initialPositionValue);
+		return new BestLine(bestLine.get(0), inverted, lineValue, lineValue - initialPositionValue, duration);
 	}
 	
 	@Override

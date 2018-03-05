@@ -35,7 +35,7 @@ public class EvaluationFunctionUtils {
 		
 		@Override
 		public EvaluationFunction<T> and(EvaluationFunction<T> other) {
-			return new CompositeEvaluationFunction<T>((EvaluationFunction<T>[]) ArrayUtils.add(functions, other));
+			return new CompositeEvaluationFunction<>(ArrayUtils.add(functions, other));
 		}
 
 		@Override
@@ -124,7 +124,7 @@ public class EvaluationFunctionUtils {
 	public static Map<String, Integer> getEvaluationDetails(EvaluationFunction<BoardEngine> function, BoardEngine board) {
 		final Map<String, Integer> functionDetails = function.getEvaluationDetails(board);
 
-	    final Map<String, Integer> result = new HashMap<>(functionDetails);
+	    final Map<String, Integer> result = new LinkedHashMap<>(functionDetails);
 		result.put("Total", functionDetails.values().stream().reduce(0, Integer::sum));
 	    return result;
 	}

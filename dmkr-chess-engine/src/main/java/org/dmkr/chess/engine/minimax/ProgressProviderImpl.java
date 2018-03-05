@@ -29,6 +29,7 @@ public class ProgressProviderImpl implements ProgressProvider {
 	private final AtomicLong finish = new AtomicLong();
 	private final AtomicLong currentCount = new AtomicLong();
 	private final AtomicLong speed = new AtomicLong();
+	private final AtomicLong totalCalculationTime = new AtomicLong();
 	private final AtomicReference<Move> currentMove = new AtomicReference<>();
 	private final List<BestLine> currentEvalution = new CopyOnWriteArrayList<>();
 	private SortedSet<BestLine> finalEvalution = null;
@@ -47,6 +48,7 @@ public class ProgressProviderImpl implements ProgressProvider {
 		cleanup();
 		start.set(currentTimeMillis());
 		finish.set(0);
+		totalCalculationTime.set(0);
 		inProgress.set(true);
 	}
 	
@@ -69,6 +71,7 @@ public class ProgressProviderImpl implements ProgressProvider {
 		currentCount.set(0);
 		finalEvalution = null;
 		currentEvalution.clear();
+		totalCalculationTime.set(0);
 	}
 	
 	void update(BestLine bestLine, double progressStep) {
@@ -77,6 +80,7 @@ public class ProgressProviderImpl implements ProgressProvider {
 		
 		final double secs = getCurrentTimeInProgress() / 1000d;
 		speed.set((long) (currentCount.get() / secs));
+		totalCalculationTime.addAndGet(bestLine.getDuration());
 	}
 	
 	void update(Move nextMove) {
@@ -125,5 +129,10 @@ public class ProgressProviderImpl implements ProgressProvider {
 	@Override
 	public long getSpeed() {
 		return speed.get();
+	}
+
+	@Override
+	public double getParallelLevel() {
+		return ((double) totalCalculationTime.get()) / ((double) getCurrentTimeInProgress());
 	}
 }

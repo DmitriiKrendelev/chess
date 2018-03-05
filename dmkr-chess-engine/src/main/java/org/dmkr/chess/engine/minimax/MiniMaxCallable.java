@@ -19,12 +19,13 @@ class MiniMaxCallable<T extends BoardEngine> implements Callable<BestLine> {
 	private final boolean inverted;
 	
 	@FunctionalInterface
-	static interface MiniMaxCalculator<T extends BoardEngine> {
+	interface MiniMaxCalculator<T extends BoardEngine> {
 		int miniMax(T board, MiniMaxContext<T> context) throws Exception;
 	}
 	
 	@Override
 	public BestLine call() throws Exception {
+		final long start = System.currentTimeMillis();
 		context.reset(inverted, evaluationFunctionAvare.getEvaluationFunction().value(board));
 		
 		final BestLineBuilder bestLineBuilder = context.getBestLineBuilder();
@@ -47,6 +48,7 @@ class MiniMaxCallable<T extends BoardEngine> implements Callable<BestLine> {
 		context.rollbackMove(board, positionValue);
 		
 		bestLineBuilder.setLineValue(-deepMoveValue.getValue());
+		bestLineBuilder.setDuration(System.currentTimeMillis() - start);
 		deepMoveValue.resetToMax();
 		
 		return bestLineBuilder.build();

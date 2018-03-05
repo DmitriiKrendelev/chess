@@ -21,8 +21,10 @@ public interface ProgressProvider {
 	long getSpeed();
 	
 	boolean isInProgress();
-	
+
 	long getEvaluationFinishedTime();
+
+	double getParallelLevel();
 
 	default BestLine getBestLine() {
 		return Optional.ofNullable(getCurrentEvaluation())

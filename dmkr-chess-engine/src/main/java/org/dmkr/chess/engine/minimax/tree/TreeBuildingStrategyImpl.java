@@ -29,11 +29,14 @@ public class TreeBuildingStrategyImpl implements TreeBuildingStrategy {
 			TreeLevelMovesProvider onThirdLevel,
 			TreeLevelMovesProvider onFourthLevel,
 			TreeLevelMovesProvider onFifthLevel,
-			TreeLevelMovesProvider ... onSixthLevelAndDeeper) {
+			TreeLevelMovesProvider onSixthLevel,
+			List<TreeLevelMovesProvider> onSeventhLevelAndDeeper) {
 		
-		final List<TreeLevelMovesProvider> levelMovesProvidersWithNulls = newArrayList(onFirstLevel, onSecondLevel, onThirdLevel, onFourthLevel, onFifthLevel);
-		if (onSixthLevelAndDeeper != null) {
-			levelMovesProvidersWithNulls.addAll(Arrays.asList(onSixthLevelAndDeeper));
+		final List<TreeLevelMovesProvider> levelMovesProvidersWithNulls =
+				newArrayList(onFirstLevel, onSecondLevel, onThirdLevel, onFourthLevel, onFifthLevel, onSixthLevel);
+
+		if (onSeventhLevelAndDeeper != null) {
+			levelMovesProvidersWithNulls.addAll(onSeventhLevelAndDeeper);
 		}
 		
 		boolean previousIsNull = false;

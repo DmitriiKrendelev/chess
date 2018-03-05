@@ -1,5 +1,6 @@
 package org.dmkr.chess.engine.function;
 
+import com.google.common.collect.ImmutableSet;
 import org.dmkr.chess.api.BitBoard;
 import org.dmkr.chess.api.BoardEngine;
 import org.dmkr.chess.engine.api.EvaluationFunctionAware;
@@ -13,6 +14,7 @@ import static org.dmkr.chess.engine.board.BoardFactory.getBoardType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @RequiredArgsConstructor
 public enum Functions {
@@ -30,11 +32,14 @@ public enum Functions {
 			(EvaluationFunction<BoardEngine>) EvaluationFunctionMoves.INSTANCE,
 			(EvaluationFunction<BitBoard>) EvaluationFunctionMoves.INSTANCE),
 	POWN_STRUCTURE(
-			EvaluationFunctionPownsStructure.INSTANCE, 
+			EvaluationFunctionPownsStructure.INSTANCE,
 			EvaluationFunctionPownsStructureBit.INSTANCE),
 	ROOKS(
 			EvaluationFunctionRooks.INSTANCE,
-			EvaluationFunctionRooksBit.INSTANCE);
+			EvaluationFunctionRooksBit.INSTANCE)
+	;
+
+	private static final Set<Functions> LIGHT_FUNCTIONS = ImmutableSet.of(ITEM_VALUES, ITEM_POSITIONS);
 	
 	
 	private final EvaluationFunction<BoardEngine> evaluationFunction;
@@ -57,8 +62,17 @@ public enum Functions {
 	public static <T extends BoardEngine> EvaluationFunction<T> getDefaultEvaluationFunction() {
 		return getDefaultEvaluationFunction(getBoardType());
 	}
+
+	public static <T extends BoardEngine> EvaluationFunction<T> getLightEvaluationFunction() {
+		final Class<? extends BoardEngine> boardType = getBoardType();
+		return composite(LIGHT_FUNCTIONS.stream().map(func -> func.getFunction(boardType)).toArray(EvaluationFunction[]::new));
+	}
 	
 	public static <T extends BoardEngine> EvaluationFunctionAware<T> getDefaultEvaluationFunctionAware() {
 		return EvaluationFunctionAware.of(getDefaultEvaluationFunction());
+	}
+
+	public static <T extends BoardEngine> EvaluationFunctionAware<T> getLightEvaluationFunctionAware() {
+		return EvaluationFunctionAware.of(getLightEvaluationFunction());
 	}
 }

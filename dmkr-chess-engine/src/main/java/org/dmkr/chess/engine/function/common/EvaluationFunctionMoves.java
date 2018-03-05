@@ -20,7 +20,11 @@ public class EvaluationFunctionMoves extends EvaluationFunctionBasedBoardInversi
 	public static final EvaluationFunction<? extends BoardEngine> INSTANCE = new EvaluationFunctionMoves();
 
 	private static final int TREASHOLD = 100;
+	private static final int ATACK_VALUE = 20;
+	private static final int MULTIPLE_ATACK_VALUE = 200;
+
 	private static final byte[] STRONG_ITEMS = {
+			VALUE_POWN,
 			VALUE_KNIGHT,
 			VALUE_BISHOP,
 			VALUE_ROOK,
@@ -64,9 +68,9 @@ public class EvaluationFunctionMoves extends EvaluationFunctionBasedBoardInversi
 		if (totalAtacks == 0) {
 			return 0;
 		} else if (totalAtacks == 1) {
-			return 20;
+			return ATACK_VALUE;
 		} else {
-			return 200;
+			return MULTIPLE_ATACK_VALUE;
 		}
 	}
 	

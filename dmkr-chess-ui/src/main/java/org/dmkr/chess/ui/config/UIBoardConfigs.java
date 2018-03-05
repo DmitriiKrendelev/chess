@@ -17,9 +17,10 @@ public final class UIBoardConfigs {
 	}
 
 	public static final UIBoardConfig DEFAULT_UI_CONFIG = UIBoardConfig.builder()
-			.title("DMKR Chess Engine")
+			.title("DMKR Chess Engine v_0.0.1")
 			.size(new Dimension(1000, 700))
-			.backGroundPath("ui/style1/board/empty_board.png")
+			.backGroundPathForWhite("ui/style1/board/empty_board_white.png")
+			.backGroundPathForBlack("ui/style1/board/empty_board_black.png")
 			.itemsFolderPath("ui/style1/pieces/")
 			.cursorsFolderPath("ui/style1/cursors/")
 			

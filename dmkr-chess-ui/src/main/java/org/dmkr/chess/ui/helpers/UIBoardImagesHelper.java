@@ -7,6 +7,8 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
+import lombok.NonNull;
+import org.dmkr.chess.api.model.Color;
 import org.dmkr.chess.api.model.ColoredItem;
 import org.dmkr.chess.ui.config.UIBoardConfig;
 
@@ -27,7 +29,7 @@ public class UIBoardImagesHelper {
 	private final String itemsFolderPath;
 
 	@Getter
-	private final BufferedImage backgroundImage;
+	private final BufferedImage backgroundImageWhite, backgroundImageBlack;
 	private final Map<ColoredItem, BufferedImage> itemsCache;
 	
 	@Getter
@@ -36,7 +38,8 @@ public class UIBoardImagesHelper {
 	@Inject
 	public UIBoardImagesHelper(UIBoardConfig config) {
 		this.itemsFolderPath = config.getItemsFolderPath();
-		this.backgroundImage = load(config.getBackGroundPath());
+		this.backgroundImageWhite = load(config.getBackGroundPathForWhite());
+		this.backgroundImageBlack = load(config.getBackGroundPathForBlack());
 		
 		this.itemsCache = copyOf(ColoredItem.stream().collect(toMap(item -> item, this::load)));
 		final BufferedImage openHandImage = load(config.getCursorsFolderPath() + OPEN_HAND_CURSOR + FILE_EXT_PNG);
@@ -49,14 +52,17 @@ public class UIBoardImagesHelper {
 	
 	public BufferedImage getImage(ColoredItem coloredItem) {
 		return itemsCache.get(coloredItem);
-		
+	}
+
+	public BufferedImage getBackgroundImage(Color color) {
+		return color == Color.WHITE ? backgroundImageWhite : backgroundImageBlack;
 	}
 	
 	private BufferedImage load(ColoredItem coloredItem) {
 		return load(itemsFolderPath + getImageName(coloredItem));
 	}
 	
-	private BufferedImage load(String path) {
+	private BufferedImage load(@NonNull  String path) {
 		try {
 			return ImageIO.read(getClass().getClassLoader().getResource(path));
 		} catch (Exception e) {

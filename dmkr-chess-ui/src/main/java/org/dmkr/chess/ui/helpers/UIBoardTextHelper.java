@@ -8,6 +8,7 @@ import static org.apache.commons.lang3.time.DurationFormatUtils.formatDuration;
 import static org.dmkr.chess.engine.function.EvaluationFunctionUtils.getEvaluationDetails;
 import static org.apache.commons.lang3.tuple.ImmutablePair.of;
 import static java.util.Collections.emptyList;
+import static java.lang.Double.*;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -48,6 +49,7 @@ public class UIBoardTextHelper {
 	
 	private final DecimalFormat longFormat = new DecimalFormat("###,###,###,###");
 	private final DecimalFormat valueFormat = new DecimalFormat("###.##");
+	private final DecimalFormat parallelLevelFormat = new DecimalFormat("##.##");
 	private static final String durationFormatHMS = "H'h' mm'min' ss'sec' SSS'ms'";
 	private static final String durationFormatMS = "mm'min' ss'sec' SSS'ms'";
 	private static final String durationFormatS = "ss'sec' SSS'ms'";
@@ -134,6 +136,7 @@ public class UIBoardTextHelper {
 		builder.textLine(EMPTY);
 		builder.textLine("Count : " + longFormat.format(progress.getCurrentCount()));
 		builder.textLine("Speed : " + longFormat.format(progress.getSpeed()) + " per sec");
+		builder.textLine("Parallel Level : " + formatParallelLevel(progress.getParallelLevel()));
 		builder.textLine(EMPTY);
 		builder.textLine("Evaluation : ");
 		builder.isFocusable(false);
@@ -183,6 +186,10 @@ public class UIBoardTextHelper {
 		} else {
 			return formatDuration(durtion, durationFormatS);
 		}
+	}
+
+	private String formatParallelLevel(double parallelLevel) {
+		return isNaN(parallelLevel) || isInfinite(parallelLevel) ? "" : parallelLevelFormat.format(parallelLevel);
 	}
 	
 	private String formatValue(int value) {

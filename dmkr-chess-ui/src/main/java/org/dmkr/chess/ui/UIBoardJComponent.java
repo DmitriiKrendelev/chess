@@ -35,6 +35,7 @@ import static org.dmkr.chess.ui.helpers.UIColorsHelper.getPositionChangedColor;
 
 @SuppressWarnings("serial")
 public class UIBoardJComponent extends JComponent {
+	@Inject private Player player;
 	@Inject private UIBoardConfig config;
 	@Inject private BoardEngine board;
 	@Inject private AsyncEngine<BoardEngine> engine;
@@ -51,6 +52,10 @@ public class UIBoardJComponent extends JComponent {
 	private final AtomicReference<BestLineVisualizer> paintComponentOverride = new AtomicReference<>();
 	
 	public void run() {
+	    if (!player.isWhite()) {
+            engine.run(board);
+        }
+
 		newScheduledThreadPool(1).scheduleWithFixedDelay(this::doOponentMove, 0, config.getRepaintTimeoutMillis(), MILLISECONDS);
 	}
 	
@@ -58,7 +63,7 @@ public class UIBoardJComponent extends JComponent {
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		
-		g.drawImage(imagesHelper.getBackgroundImage(), 0, 0, this);
+		g.drawImage(imagesHelper.getBackgroundImage(player.getColor()), 0, 0, this);
 
 		final Optional<Consumer<Graphics>> override = Optional.ofNullable(paintComponentOverride.get());
 		if (override.isPresent()) {
@@ -81,7 +86,7 @@ public class UIBoardJComponent extends JComponent {
 		resetCursor(pressedField, mouseAtField, isPressed);
 
 		drawProgressBar(g);
-		textHelper.drawText(engine, (BoardEngine) board, (Graphics2D) g);
+		textHelper.drawText(engine, board, (Graphics2D) g);
 		drawBestMove(g);
 
 		repaint();
@@ -106,7 +111,7 @@ public class UIBoardJComponent extends JComponent {
 		
 	    draw(pressedField, config.getPressedFieldColor(), g);
 	    
-	    if (!board.isInverted()) {
+	    if (!engine.isInProgress()) {
 	    	board.getAllowedMovesFields().getOrDefault(pressedField, emptySet()).forEach(f -> draw(f, config.getAllowedMovesColor(), g));
 	    }
 	}
@@ -189,18 +194,19 @@ public class UIBoardJComponent extends JComponent {
 	}
 	
 	public void onMove(Move move) {
-		if (board.isInverted() || !board.getAllowedMoves().contains(move)) {
+		if (engine.isInProgress() || !board.getAllowedMoves().contains(move)) {
 			return;
 		}
 		
 		bestLineVisualizerListener.clear();
 		board.applyMove(move);
 		repaint();
-		engine.run((BoardEngine) board);
+		engine.run(board);
 	}
 	
 	private void doOponentMove() {
-		if (!board.isInverted() || engine.isInProgress()) {
+		final boolean isBoardInvertedForPlayer = board.isInverted() != player.isWhite();
+		if (isBoardInvertedForPlayer || engine.isInProgress()) {
 			return;
 		}
 		final Move oponentMove = engine.getBestMove();
@@ -208,14 +214,14 @@ public class UIBoardJComponent extends JComponent {
 		movingItemHolder.set(coordsHelper.new MovingItem(oponentMove, item, () -> movingItemHolder.set(null)));
 		board.applyMove(oponentMove);
 	}
-	
+
 	public boolean isBestLineVisualisationEnabled() {
-		return paintComponentOverride.get() == null && !engine.isInProgress() && !board.isInverted();
+		return paintComponentOverride.get() == null && !engine.isInProgress();
 	}
 	
 	public void startBestLineVisualisation(BestLine bestLine) {
 		paintComponentOverride.set(
-				new BestLineVisualizer(bestLine, (BoardEngine) board, coordsHelper) {
+				new BestLineVisualizer(bestLine, board, coordsHelper) {
 					@Override
 					public void accept(Graphics g) {
 						drawBoardItems(board, movingItemHolder.get(), null, g);
