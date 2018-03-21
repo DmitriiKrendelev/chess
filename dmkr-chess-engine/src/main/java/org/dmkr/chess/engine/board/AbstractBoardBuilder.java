@@ -19,6 +19,7 @@ public abstract class AbstractBoardBuilder {
 	protected boolean canCastleRght;
 	protected boolean canOponentCastleLeft;
 	protected boolean canOponentCastleRght;
+	protected boolean inverted;
 	
 	protected static <T extends AbstractBoardBuilder> T of(@NonNull Supplier<T> creator, @NonNull String ... yLines) {
 		checkArgument(yLines.length == SIZE);
@@ -67,7 +68,12 @@ public abstract class AbstractBoardBuilder {
 		canOponentCastleRght = true;
 		return this;
 	}
-	
+
+	public AbstractBoardBuilder inverted() {
+		inverted = true;
+		return this;
+	}
+
 	public abstract BoardEngine build();
 	
 	protected static <T extends AbstractBoardBuilder> BoardEngine newInitialPositionBoard(Supplier<T> builderCreator) {

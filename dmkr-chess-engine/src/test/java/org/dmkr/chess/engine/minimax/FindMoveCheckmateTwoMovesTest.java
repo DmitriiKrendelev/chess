@@ -15,7 +15,11 @@ import static org.dmkr.chess.api.model.Field.H7;
 import static org.dmkr.chess.api.model.Move.moveOf;
 import static org.dmkr.chess.engine.function.Functions.getDefaultEvaluationFunction;
 import static org.dmkr.chess.engine.minimax.MiniMax.minimax;
+import static org.dmkr.chess.engine.minimax.tree.TreeBuildingStrategyImpl.treeBuildingStrategy;
 import static org.dmkr.chess.engine.minimax.tree.TreeBuildingStrategyImpl.treeBuildingStrategyWithParams;
+import static org.dmkr.chess.engine.minimax.tree.TreeLevelMovesProvider.allMovesProvider;
+import static org.dmkr.chess.engine.minimax.tree.TreeLevelMovesProvider.bestNMovesProvider;
+import static org.dmkr.chess.engine.minimax.tree.TreeLevelMovesProvider.capturedMovesProvider;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -32,17 +36,15 @@ public class FindMoveCheckmateTwoMovesTest extends FindMoveAbstractTest<BoardEng
 	protected AsyncEngine<BoardEngine> getEngine() {
 		final EvaluationFunctionAware<BoardEngine> evaluationFunctionAware = EvaluationFunctionAware.of(getDefaultEvaluationFunction());
 		return minimax()
-				.treeStrategyCreator(() -> 
-					treeBuildingStrategyWithParams()
-						.fullScanLevel(2)
-						.cutOffLevel(0)
-						.cutOffNumberOfMoves(0)
-						.captureMovesLevel(0)
-						.evaluationFunctionAware(evaluationFunctionAware)
-						.build())
+				.treeStrategyCreator(() ->
+						treeBuildingStrategy()
+								.onFirstLevel(allMovesProvider())
+								.onSecondLevel(allMovesProvider())
+								.build())
 				.evaluationFunctionAware(evaluationFunctionAware)
+				.isAsynchronous(false)
 				.build();
-	} 
+	}
 	
 	@Override
 	protected void checkMove(BoardEngine board, Move move, AsyncEngine<BoardEngine> engine) {
@@ -51,7 +53,9 @@ public class FindMoveCheckmateTwoMovesTest extends FindMoveAbstractTest<BoardEng
 		assertFalse(board.isCheckmate());
 
 		engine.run(board);
-		assertTrue(board.toString() + "\n" + engine.toString(), -engine.getBestLine().getLineValue() > CHACKMATE_BARIER_VALUE);
+		final int bestLineValue = -engine.getBestLine().getLineValue();
+		assertTrue(board.toString() + "\n" + engine.toString() + "\n BestLineValue = " + bestLineValue,
+				bestLineValue > CHACKMATE_BARIER_VALUE);
 		board.applyMove(engine.getBestMove());
 		
 		engine.run(board);

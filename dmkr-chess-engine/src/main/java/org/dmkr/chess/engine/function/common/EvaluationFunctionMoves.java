@@ -33,13 +33,16 @@ public class EvaluationFunctionMoves extends EvaluationFunctionBasedBoardInversi
 
 	public static final MovesSelector MOVES_SELECTOR = movesSelector()
 			.checkKingUnderAtack(false)
+			.skipEnPassenMoves(true)
 			.itemsToSelect(STRONG_ITEMS)
 			.build();
 
     @Override
 	public int calculateOneSidedValue(BoardEngine board) {
     	final int[] moves = board.calculateAllowedMoves(MOVES_SELECTOR);
-		return valueOfAtacks(moves, board) + valueOfNumberPotentialMoves(moves, board);
+        return valueOfAtacks(moves, board) +
+                        valueOfNumberPotentialMoves(moves, board) +
+                        valueOfKingSafeMoves(moves, board);
     }
 
 	public static int valueOfAtacks(int moves[], BoardEngine board) {
@@ -81,6 +84,15 @@ public class EvaluationFunctionMoves extends EvaluationFunctionBasedBoardInversi
 			result += item == VALUE_QUEEN ? 2 : 4;
 		}
 		return result;
+	}
+
+	private static int valueOfKingSafeMoves(int[] moves, BoardEngine board) {
+		boolean atLeastOneKingSafeMove = false;
+		for (int move : moves) {
+			atLeastOneKingSafeMove = atLeastOneKingSafeMove || !board.isKingUnderAtackAfterMove(move);
+		}
+
+		return atLeastOneKingSafeMove ? 0 : EvaluationFunctionNoMoves.noMovesEvaluationFunction().value(board);
 	}
 	
 	@Override

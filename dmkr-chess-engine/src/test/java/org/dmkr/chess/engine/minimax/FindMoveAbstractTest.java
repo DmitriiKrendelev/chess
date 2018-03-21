@@ -29,7 +29,8 @@ public abstract class FindMoveAbstractTest<T extends BoardEngine> {
 		System.out.println();
 		System.out.println(board);
 		System.out.println(engine);
-		
+		System.out.println(bestLine);
+
 		final Iterator<Move> bestLineMoves = bestLine.getMoves().iterator();
 		for (Move expectedMove : expectedBestLine) {
 			final Move bestLineMove = bestLineMoves.next();

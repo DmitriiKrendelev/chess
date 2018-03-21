@@ -18,7 +18,9 @@ public class MovesSelectorImpl implements MovesSelector {
 	@Getter
 	private final boolean checkKingUnderAtack;
 	private final boolean[] itemsToSelect;
-	
+    @Getter
+	private final boolean skipEnPassenMoves;
+
 	private final static byte[] ITEMS = {
 			VALUE_POWN,
 			VALUE_KNIGHT,
@@ -28,16 +30,27 @@ public class MovesSelectorImpl implements MovesSelector {
 			VALUE_KING
 	};
 	
-	public static final MovesSelector DEFAULT = new MovesSelectorImpl(true, ITEMS);
-	public static final MovesSelector ALLOW_CHECK_MOVES_SELECTOR = new MovesSelectorImpl(false, ITEMS);
+	public static final MovesSelector DEFAULT = movesSelector()
+                    .checkKingUnderAtack(true)
+                    .skipEnPassenMoves(false)
+                    .itemsToSelect(ITEMS)
+                    .build();
+
+	public static final MovesSelector ALLOW_CHECK_MOVES_SELECTOR = movesSelector()
+                    .checkKingUnderAtack(false)
+                    .skipEnPassenMoves(false)
+                    .itemsToSelect(ITEMS)
+                    .build();
 
 	public static MovesSelectorImpl.MovesSelectorImplBuilder movesSelector() {
 		return new MovesSelectorImpl.MovesSelectorImplBuilder();
 	}
 
 	@Builder(builderMethodName = "movesSelector")
-	private MovesSelectorImpl(boolean checkKingUnderAtack, byte ... itemsToSelect) {
+	private MovesSelectorImpl(boolean checkKingUnderAtack, boolean skipEnPassenMoves, byte ... itemsToSelect) {
 		this.checkKingUnderAtack = checkKingUnderAtack;
+		this.skipEnPassenMoves = skipEnPassenMoves;
+
 		this.itemsToSelect = new boolean[NUMBER_OF_ITEMS + 1];
 
 		for (byte item : firstNonNull(itemsToSelect, ITEMS)) {

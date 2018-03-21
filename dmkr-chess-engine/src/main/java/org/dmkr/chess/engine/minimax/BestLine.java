@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import lombok.EqualsAndHashCode;
 import org.dmkr.chess.api.model.Move;
 
 import com.google.common.collect.ImmutableList;
@@ -11,6 +12,7 @@ import com.google.common.collect.ImmutableList;
 import lombok.Value;
 
 @Value
+@EqualsAndHashCode(exclude = "duration")
 public class BestLine {
 	List<Move> moves;
 	int lineValue;

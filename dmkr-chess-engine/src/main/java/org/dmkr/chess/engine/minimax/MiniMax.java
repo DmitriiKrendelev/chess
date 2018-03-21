@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.Integer.MIN_VALUE;
 import static java.lang.Math.max;
+import static org.dmkr.chess.engine.function.EvaluationFunctionUtils.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,7 @@ import org.dmkr.chess.engine.api.AsyncEngine;
 import org.dmkr.chess.engine.api.EvaluationFunctionAware;
 import org.dmkr.chess.engine.api.MiniMaxListener;
 import org.dmkr.chess.engine.api.ProgressProvider;
+import org.dmkr.chess.engine.function.EvaluationFunctionUtils;
 import org.dmkr.chess.engine.minimax.MiniMaxContextImpl.MiniMaxContextFactory;
 import org.dmkr.chess.engine.minimax.tree.TreeBuildingStrategy;
 
@@ -104,7 +106,7 @@ public class MiniMax<T extends BoardEngine> implements AsyncEngine<T>, ProgressP
 	}
 	
 	private void submit(T board) throws Exception {
-		final int[] moves = rootLevelTreeStrategy.getSubtreeMoves(board, () -> 0);
+		final int[] moves = getSortedMoves(rootLevelTreeStrategy.getSubtreeMoves(board, () -> 0), board, getEvaluationFunction());
 		final double progressPercent = 1d / moves.length;
 		if (moves.length == 0) {
 			System.out.println(board.isCheckmate() ? "Chackmate" : "Stalemate");

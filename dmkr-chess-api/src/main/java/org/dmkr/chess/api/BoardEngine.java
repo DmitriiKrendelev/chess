@@ -35,6 +35,8 @@ import static org.dmkr.chess.common.cache.CachableCreator.*;
 
 public interface BoardEngine extends Board {
 	byte at(int index);
+
+	boolean isEmpty(int index);
 	
 	int[] calculateAllowedMoves(MovesSelector movesSelector);
 	

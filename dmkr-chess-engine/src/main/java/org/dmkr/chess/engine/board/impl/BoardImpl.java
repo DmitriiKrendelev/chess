@@ -50,12 +50,13 @@ import lombok.NonNull;
 public class BoardImpl extends AbstractBoard {
 	private final byte[] board;
 	
-	BoardImpl(@NonNull byte[] board, boolean canCastleLeft, boolean canCastleRght, boolean canOponentCastleLeft, boolean canOponentCastleRght) {
+	BoardImpl(@NonNull byte[] board, boolean canCastleLeft, boolean canCastleRght, boolean canOponentCastleLeft, boolean canOponentCastleRght, boolean inverted) {
 		super(canCastleLeft, canCastleRght, canOponentCastleLeft, canOponentCastleRght);
 		
 		checkArgument(board.length == SIZE * SIZE);
 		
 		this.board = board.clone();
+		this.inverted = inverted;
 	}
 	
 	@Override
@@ -69,7 +70,7 @@ public class BoardImpl extends AbstractBoard {
 	}
 	
 	@Override
-	protected boolean isEmpty(int index) {
+	public boolean isEmpty(int index) {
 		return at(index) == VALUE_EMPTY;
 	}
 
@@ -174,14 +175,16 @@ public class BoardImpl extends AbstractBoard {
 						collectPownMoves(moveOf(index, index + SIZE), promotion);
 						
 					// en passant
-					final int lastMove = movesHistory.empty() ? 0 : movesHistory.peek();
-					if (y == 4 && intByte4(lastMove) == SPECIAL_MOVE_POWN_GOES_TWO_STEPS) {
-						final int to = invertIndex(byte2(lastMove));
-							
-						if ((to == index - 1 && x > 0) || (to == index + 1 && x < SIZE - 1)) {
-							final int move = specialMoveOf(index, to + SIZE, SPECIAL_MOVE_POWN_EN_PASSANT);
-							if (!isKingUnderAtack(move)) 
-								movesBuilder.add(move);
+					if (!movesSelector.skipEnPassenMoves()) {
+						final int lastMove = movesHistory.empty() ? 0 : movesHistory.peek();
+						if (y == 4 && intByte4(lastMove) == SPECIAL_MOVE_POWN_GOES_TWO_STEPS) {
+							final int to = invertIndex(byte2(lastMove));
+
+							if ((to == index - 1 && x > 0) || (to == index + 1 && x < SIZE - 1)) {
+								final int move = specialMoveOf(index, to + SIZE, SPECIAL_MOVE_POWN_EN_PASSANT);
+								if (!isKingUnderAtack(move))
+									movesBuilder.add(move);
+							}
 						}
 					}
 						
@@ -272,7 +275,7 @@ public class BoardImpl extends AbstractBoard {
 		
 	@Override
 	protected BoardImpl cloneImpl() {
-		return new BoardImpl(board, canCastleLeft, canCastleRght, canOponentCastleLeft, canOponentCastleRght);
+		return new BoardImpl(board, canCastleLeft, canCastleRght, canOponentCastleLeft, canOponentCastleRght, inverted);
 	}
 	
 	private void collectMove(int fromIndex, int toX, int toY) {

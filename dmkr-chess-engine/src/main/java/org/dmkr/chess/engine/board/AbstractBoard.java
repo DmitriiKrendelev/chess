@@ -82,8 +82,6 @@ public abstract class AbstractBoard implements BoardEngine {
 	
 	protected abstract void reverseBoardRepresentation();
 	
-	protected abstract boolean isEmpty(int index);
-	
 	protected abstract void doApplyMove(int from, int to);
 	
 	protected abstract void doRollbackMove(int from, int to, byte captured);

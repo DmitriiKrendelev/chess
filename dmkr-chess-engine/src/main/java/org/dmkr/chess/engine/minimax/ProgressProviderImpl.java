@@ -59,8 +59,8 @@ public class ProgressProviderImpl implements ProgressProvider {
 		currentProgressPercent.set(1d);
 		currentMove.set(NOT_IN_PROGRESS_MOVE);
 		finalEvalution = checkNotNull(getCurrentEvaluation());
-		inProgress.set(false);
 		currentEvalution.clear();
+		inProgress.set(false);
 	}
 	
 	void cleanup() {

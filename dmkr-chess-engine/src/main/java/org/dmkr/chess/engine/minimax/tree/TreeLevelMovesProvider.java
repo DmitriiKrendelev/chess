@@ -1,6 +1,5 @@
 package org.dmkr.chess.engine.minimax.tree;
 
-import static org.dmkr.chess.api.utils.MoveUtils.IS_CAPTURE_MOVE;
 import static org.dmkr.chess.engine.board.impl.MovesSelectorImpl.ALLOW_CHECK_MOVES_SELECTOR;
 
 import org.dmkr.chess.api.BoardEngine;

@@ -15,7 +15,8 @@ public class BoardBuilder extends AbstractBoardBuilder {
 				canCastleLeft,
 				canCastleRght,
 				canOponentCastleLeft,
-				canOponentCastleRght);
+				canOponentCastleRght,
+				inverted);
 	}
 	
 	public static AbstractBoardBuilder of(@NonNull String ... yLines) {

@@ -35,7 +35,7 @@ public class BitBoardBuilder extends AbstractBoardBuilder {
 			}
 		}
 		
-		return new BitBoardImpl(items, oponentItems, canCastleLeft, canCastleRght, canOponentCastleLeft, canOponentCastleRght);
+		return new BitBoardImpl(items, oponentItems, canCastleLeft, canCastleRght, canOponentCastleLeft, canOponentCastleRght, inverted);
 	}
 	
 }

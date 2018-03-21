@@ -3,16 +3,13 @@ package org.dmkr.chess.engine.function;
 import static org.dmkr.chess.api.utils.BoardUtils.applayMoves;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.dmkr.chess.api.BoardEngine;
+import org.dmkr.chess.common.primitives.IntsValuesCollector;
 import org.dmkr.chess.engine.function.common.EvaluationFunctionBasedBoardInversion;
 import org.dmkr.chess.engine.minimax.BestLine;
 
-import com.google.common.collect.ImmutableMap;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -133,5 +130,18 @@ public class EvaluationFunctionUtils {
 		final BoardEngine boardCopy =  board.clone();
 		applayMoves(boardCopy, bestLine.getMoves());
 		return getEvaluationDetails(function, boardCopy);
+	}
+
+	public static <T extends BoardEngine> int[] getSortedMoves(int[] moves, T board, EvaluationFunction<T> function) {
+		final IntsValuesCollector movesCollector = new IntsValuesCollector(moves.length);
+
+		for (int move : moves) {
+			board.applyMove(move);
+			movesCollector.add(move, function.value(board));
+			board.rollbackMove();
+		}
+
+		return movesCollector.intsArrayDescending();
+
 	}
 }

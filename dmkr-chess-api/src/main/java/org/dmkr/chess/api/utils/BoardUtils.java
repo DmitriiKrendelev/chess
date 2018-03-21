@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static org.dmkr.chess.api.model.Constants.SIZE;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 import org.dmkr.chess.api.BoardEngine;
@@ -108,9 +109,12 @@ public class BoardUtils {
 	}
 	
 	public static void applayMoves(BoardEngine board, String ... moves) {
+		applayMoves(board, Arrays.asList(moves));
+	}
+
+	public static void applayMoves(BoardEngine board, List<String> moves) {
 		for (String move : moves) {
 			final Move m = Move.moveOf(move);
-			
 			board.applyMove(m);
 		}
 	}

@@ -76,12 +76,13 @@ public class BitBoardImpl extends AbstractBoard implements BitBoard {
 	private long empty;
 	
 	
-	protected BitBoardImpl(@NonNull long[] items, @NonNull long[] oponentItems, boolean canCastleLeft, boolean canCastleRght, boolean canOponentCastleLeft, boolean canOponentCastleRght) {
+	protected BitBoardImpl(@NonNull long[] items, @NonNull long[] oponentItems, boolean canCastleLeft, boolean canCastleRght, boolean canOponentCastleLeft, boolean canOponentCastleRght, boolean inverted) {
 		super(canCastleLeft, canCastleRght, canOponentCastleLeft, canOponentCastleRght);
 		
 		this.items = items.clone();
 		this.oponentItems = oponentItems.clone();
 		this.empty = calculateEmpty();
+		this.inverted = inverted;
 	}
 	
 	@Override
@@ -104,7 +105,7 @@ public class BitBoardImpl extends AbstractBoard implements BitBoard {
 	}
 	
 	@Override
-	protected boolean isEmpty(int index) {
+	public boolean isEmpty(int index) {
 		return isEmpty(BOARD_FIELDS[index]);
 	}
 	
@@ -265,24 +266,27 @@ public class BitBoardImpl extends AbstractBoard implements BitBoard {
 						movesBuilder.add(move);
 				}
 			});
+
 			// en passen
-			final int lastMove = movesHistory.empty() ? 0 : movesHistory.peek();
-			if (intByte4(lastMove) == SPECIAL_MOVE_POWN_GOES_TWO_STEPS) {
-				final int to = invertIndex(byte2(lastMove));
-				final int x = getX(to);
-				
-				// capture right
-				if (x != SIZE - 1 && (powns & BOARD_FIELDS[to + 1]) != 0) {
-					final int move = specialMoveOf(to + 1, to + SIZE, SPECIAL_MOVE_POWN_EN_PASSANT);
-					if (!isKingUnderAtack(move)) 
-						movesBuilder.add(move);
-				}
-				
-				// capture left
-				if (x != 0 && (powns & BOARD_FIELDS[to - 1]) != 0) {
-					final int move = specialMoveOf(to - 1, to + SIZE, SPECIAL_MOVE_POWN_EN_PASSANT);
-					if (!isKingUnderAtack(move)) 
-						movesBuilder.add(move);
+			if (!movesSelector.skipEnPassenMoves()) {
+				final int lastMove = movesHistory.empty() ? 0 : movesHistory.peek();
+				if (intByte4(lastMove) == SPECIAL_MOVE_POWN_GOES_TWO_STEPS) {
+					final int to = invertIndex(byte2(lastMove));
+					final int x = getX(to);
+
+					// capture right
+					if (x != SIZE - 1 && (powns & BOARD_FIELDS[to + 1]) != 0) {
+						final int move = specialMoveOf(to + 1, to + SIZE, SPECIAL_MOVE_POWN_EN_PASSANT);
+						if (!isKingUnderAtack(move))
+							movesBuilder.add(move);
+					}
+
+					// capture left
+					if (x != 0 && (powns & BOARD_FIELDS[to - 1]) != 0) {
+						final int move = specialMoveOf(to - 1, to + SIZE, SPECIAL_MOVE_POWN_EN_PASSANT);
+						if (!isKingUnderAtack(move))
+							movesBuilder.add(move);
+					}
 				}
 			}
 		}
@@ -478,7 +482,7 @@ public class BitBoardImpl extends AbstractBoard implements BitBoard {
 	
 	@Override
 	protected BitBoardImpl cloneImpl() {
-		return new BitBoardImpl(items, oponentItems, canCastleLeft, canCastleRght, canOponentCastleLeft, canOponentCastleRght);
+		return new BitBoardImpl(items, oponentItems, canCastleLeft, canCastleRght, canOponentCastleLeft, canOponentCastleRght, inverted);
 	}
 	
 	public String toBinaryString() {

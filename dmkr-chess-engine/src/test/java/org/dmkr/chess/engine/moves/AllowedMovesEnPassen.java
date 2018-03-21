@@ -5,6 +5,7 @@ import static org.dmkr.chess.api.model.Move.moveOf;
 import org.dmkr.chess.api.BoardEngine;
 import org.dmkr.chess.api.utils.BoardUtils;
 import org.dmkr.chess.engine.board.BoardFactory;
+import org.dmkr.chess.engine.board.impl.BoardBuilder;
 import org.junit.Test;
 
 public class AllowedMovesEnPassen extends AllowedMovesAbstractTest {
