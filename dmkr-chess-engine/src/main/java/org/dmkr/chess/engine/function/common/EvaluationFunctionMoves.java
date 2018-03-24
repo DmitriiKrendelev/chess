@@ -1,6 +1,7 @@
 package org.dmkr.chess.engine.function.common;
 
 
+import lombok.RequiredArgsConstructor;
 import org.dmkr.chess.api.BoardEngine;
 import org.dmkr.chess.api.MovesSelector;
 import org.dmkr.chess.engine.function.EvaluationFunction;
@@ -15,13 +16,16 @@ import static org.dmkr.chess.engine.function.ItemValuesProvider.valueOf;
 
 import static org.dmkr.chess.engine.board.impl.MovesSelectorImpl.movesSelector;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class EvaluationFunctionMoves extends EvaluationFunctionBasedBoardInversion<BoardEngine> {
-	public static final EvaluationFunction<? extends BoardEngine> INSTANCE = new EvaluationFunctionMoves();
+	public static final EvaluationFunction<? extends BoardEngine> INSTANCE = new EvaluationFunctionMoves(true);
+	public static final EvaluationFunction<BoardEngine> INSTANCE_NOT_CHECK_KING_UNDER_ATACKS = new EvaluationFunctionMoves(false);
 
 	private static final int TREASHOLD = 100;
 	private static final int ATACK_VALUE = 20;
 	private static final int MULTIPLE_ATACK_VALUE = 200;
+
+	private final boolean checkIsKingUnderAtack;
 
 	private static final byte[] STRONG_ITEMS = {
 			VALUE_POWN,
@@ -86,7 +90,11 @@ public class EvaluationFunctionMoves extends EvaluationFunctionBasedBoardInversi
 		return result;
 	}
 
-	private static int valueOfKingSafeMoves(int[] moves, BoardEngine board) {
+	private int valueOfKingSafeMoves(int[] moves, BoardEngine board) {
+    	if (!checkIsKingUnderAtack) {
+    		return 0;
+		}
+
 		boolean atLeastOneKingSafeMove = false;
 		for (int move : moves) {
 			atLeastOneKingSafeMove = atLeastOneKingSafeMove || !board.isKingUnderAtackAfterMove(move);
