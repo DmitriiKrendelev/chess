@@ -5,7 +5,7 @@ import org.dmkr.chess.api.BitBoard;
 import org.dmkr.chess.api.BoardEngine;
 import org.dmkr.chess.engine.api.EvaluationFunctionAware;
 import org.dmkr.chess.engine.function.bit.*;
-import org.dmkr.chess.engine.function.common.EvaluationFunctionMoves;
+import org.dmkr.chess.engine.function.common.EvaluationFunctionMovesAbstract;
 import org.dmkr.chess.engine.function.impl.*;
 
 import lombok.RequiredArgsConstructor;
@@ -21,25 +21,25 @@ public enum Functions {
 	QUEEN_IN_THE_CENTER(
 			EvaluationFunctionQueenInTheCenter.INSTANCE,
 			EvaluationFunctionQueenInTheCenterBit.INSTANCE),
-	ITEM_VALUES(
-			EvaluationFunctionItemsValues.INSTANCE,
-			EvaluationFunctionItemsValuesBit.INSTANCE),
-	ITEM_POSITIONS(
-			EvaluationFunctionItemsPositions.INSTANCE,
-			EvaluationFunctionItemsPositionsBit.INSTANCE),
+	PIECE_VALUES(
+			EvaluationFunctionPiecesValues.INSTANCE,
+			EvaluationFunctionPiecesValuesBit.INSTANCE),
+	PIECE_POSITIONS(
+			EvaluationFunctionPiecesPositions.INSTANCE,
+			EvaluationFunctionPiecesPositionsBit.INSTANCE),
 	@SuppressWarnings("unchecked")
-	ITEM_MOVES(
-			(EvaluationFunction<BoardEngine>) EvaluationFunctionMoves.INSTANCE,
-			(EvaluationFunction<BitBoard>) EvaluationFunctionMoves.INSTANCE),
-	POWN_STRUCTURE(
-			EvaluationFunctionPownsStructure.INSTANCE,
-			EvaluationFunctionPownsStructureBit.INSTANCE),
+	PIECE_MOVES(
+			EvaluationFunctionMoves.INSTANCE_NOT_CHECK_KING_UNDER_ATACKS,
+			EvaluationFunctionMovesBit.INSTANCE_NOT_CHECK_KING_UNDER_ATACKS),
+	PAWN_STRUCTURE(
+			EvaluationFunctionPawnsStructure.INSTANCE,
+			EvaluationFunctionPawnsStructureBit.INSTANCE),
 	ROOKS(
 			EvaluationFunctionRooks.INSTANCE,
 			EvaluationFunctionRooksBit.INSTANCE)
 	;
 
-	private static final Set<Functions> LIGHT_FUNCTIONS = ImmutableSet.of(ITEM_VALUES, ITEM_POSITIONS);
+	private static final Set<Functions> LIGHT_FUNCTIONS = ImmutableSet.of(PIECE_VALUES, PIECE_POSITIONS);
 	
 	
 	private final EvaluationFunction<BoardEngine> evaluationFunction;

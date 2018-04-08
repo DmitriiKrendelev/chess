@@ -7,13 +7,13 @@ import static org.dmkr.chess.api.model.Constants.SIZE;
 import static org.dmkr.chess.api.model.Constants.SPECIAL_MOVE_DISSALOW_CASTELING_LEFT;
 import static org.dmkr.chess.api.model.Constants.SPECIAL_MOVE_DISSALOW_CASTELING_RGHT;
 import static org.dmkr.chess.api.model.Constants.SPECIAL_MOVE_NO;
-import static org.dmkr.chess.api.model.Constants.SPECIAL_MOVE_POWN_EN_PASSANT;
-import static org.dmkr.chess.api.model.Constants.SPECIAL_MOVE_POWN_GOES_TWO_STEPS;
+import static org.dmkr.chess.api.model.Constants.SPECIAL_MOVE_PAWN_EN_PASSANT;
+import static org.dmkr.chess.api.model.Constants.SPECIAL_MOVE_PAWN_GOES_TWO_STEPS;
 import static org.dmkr.chess.api.model.Constants.VALUE_BISHOP;
 import static org.dmkr.chess.api.model.Constants.VALUE_EMPTY;
 import static org.dmkr.chess.api.model.Constants.VALUE_KING;
 import static org.dmkr.chess.api.model.Constants.VALUE_KNIGHT;
-import static org.dmkr.chess.api.model.Constants.VALUE_POWN;
+import static org.dmkr.chess.api.model.Constants.VALUE_PAWN;
 import static org.dmkr.chess.api.model.Constants.VALUE_QUEEN;
 import static org.dmkr.chess.api.model.Constants.VALUE_ROOK;
 import static org.dmkr.chess.api.utils.BitBoardMasks.BISHOP_ATACKS;
@@ -28,21 +28,21 @@ import static org.dmkr.chess.api.utils.BitBoardMasks.KNIGHT_ATACKS;
 import static org.dmkr.chess.api.utils.BitBoardMasks.LINE_2;
 import static org.dmkr.chess.api.utils.BitBoardMasks.NOT_A;
 import static org.dmkr.chess.api.utils.BitBoardMasks.NOT_H;
-import static org.dmkr.chess.api.utils.BitBoardMasks.POWN_ATACKS;
-import static org.dmkr.chess.api.utils.BitBoardMasks.POWN_CAN_GO_TWO_STEPS;
+import static org.dmkr.chess.api.utils.BitBoardMasks.PAWN_ATACKS;
+import static org.dmkr.chess.api.utils.BitBoardMasks.PAWN_CAN_GO_TWO_STEPS;
 import static org.dmkr.chess.api.utils.BitBoardMasks.ROOK_ATACKS;
 import static org.dmkr.chess.api.utils.BitBoardUtils.doWithUpBits;
 import static org.dmkr.chess.api.utils.BoardUtils.getX;
 import static org.dmkr.chess.api.utils.BoardUtils.getY;
 import static org.dmkr.chess.api.utils.BoardUtils.invertIndex;
-import static org.dmkr.chess.api.utils.ItemGoesFunctionsBit.ItemGoesFunctionBit.GO_DOWN;
-import static org.dmkr.chess.api.utils.ItemGoesFunctionsBit.ItemGoesFunctionBit.GO_DOWN_LEFT;
-import static org.dmkr.chess.api.utils.ItemGoesFunctionsBit.ItemGoesFunctionBit.GO_DOWN_RIGHT;
-import static org.dmkr.chess.api.utils.ItemGoesFunctionsBit.ItemGoesFunctionBit.GO_LEFT;
-import static org.dmkr.chess.api.utils.ItemGoesFunctionsBit.ItemGoesFunctionBit.GO_RIGHT;
-import static org.dmkr.chess.api.utils.ItemGoesFunctionsBit.ItemGoesFunctionBit.GO_UP;
-import static org.dmkr.chess.api.utils.ItemGoesFunctionsBit.ItemGoesFunctionBit.GO_UP_LEFT;
-import static org.dmkr.chess.api.utils.ItemGoesFunctionsBit.ItemGoesFunctionBit.GO_UP_RIGHT;
+import static org.dmkr.chess.api.utils.PieceGoesFunctionsBit.PieceGoesFunctionBit.GO_DOWN;
+import static org.dmkr.chess.api.utils.PieceGoesFunctionsBit.PieceGoesFunctionBit.GO_DOWN_LEFT;
+import static org.dmkr.chess.api.utils.PieceGoesFunctionsBit.PieceGoesFunctionBit.GO_DOWN_RIGHT;
+import static org.dmkr.chess.api.utils.PieceGoesFunctionsBit.PieceGoesFunctionBit.GO_LEFT;
+import static org.dmkr.chess.api.utils.PieceGoesFunctionsBit.PieceGoesFunctionBit.GO_RIGHT;
+import static org.dmkr.chess.api.utils.PieceGoesFunctionsBit.PieceGoesFunctionBit.GO_UP;
+import static org.dmkr.chess.api.utils.PieceGoesFunctionsBit.PieceGoesFunctionBit.GO_UP_LEFT;
+import static org.dmkr.chess.api.utils.PieceGoesFunctionsBit.PieceGoesFunctionBit.GO_UP_RIGHT;
 import static org.dmkr.chess.common.primitives.Bytes.byte2;
 import static org.dmkr.chess.common.primitives.Bytes.intByte4;
 
@@ -50,9 +50,9 @@ import java.util.function.LongPredicate;
 import java.util.function.LongUnaryOperator;
 
 import org.dmkr.chess.api.BitBoard;
-import org.dmkr.chess.api.model.Item;
+import org.dmkr.chess.api.model.Piece;
 import org.dmkr.chess.api.utils.BitBoardUtils;
-import org.dmkr.chess.api.utils.ItemGoesFunctionsBit.ItemGoesFunctionBit;
+import org.dmkr.chess.api.utils.PieceGoesFunctionsBit.PieceGoesFunctionBit;
 import org.dmkr.chess.engine.board.AbstractBoard;
 
 import lombok.AccessLevel;
@@ -61,26 +61,26 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 @NoArgsConstructor(force = true, access = AccessLevel.PROTECTED)
-@EqualsAndHashCode(of = {"items", "oponentItems"}, callSuper = true)
+@EqualsAndHashCode(of = {"pieces", "oponentPieces"}, callSuper = true)
 public class BitBoardImpl extends AbstractBoard implements BitBoard {
-	public static final int INDEX_POWN = VALUE_POWN - 1;
+	public static final int INDEX_PAWN = VALUE_PAWN - 1;
 	public static final int INDEX_KNIGHT = VALUE_KNIGHT - 1;
 	public static final int INDEX_BISHOP = VALUE_BISHOP - 1;
 	public static final int INDEX_ROOK = VALUE_ROOK - 1;
 	public static final int INDEX_QUEEN = VALUE_QUEEN - 1;
 	public static final int INDEX_KING = VALUE_KING - 1;
-	public static final int ITEMS_LENGTH = 6;
+	public static final int PIECES_LENGTH = 6;
 	
-	private final long[] items;
-	private final long[] oponentItems;
+	private final long[] pieces;
+	private final long[] oponentPieces;
 	private long empty;
 	
 	
-	protected BitBoardImpl(@NonNull long[] items, @NonNull long[] oponentItems, boolean canCastleLeft, boolean canCastleRght, boolean canOponentCastleLeft, boolean canOponentCastleRght, boolean inverted) {
+	protected BitBoardImpl(@NonNull long[] pieces, @NonNull long[] oponentPieces, boolean canCastleLeft, boolean canCastleRght, boolean canOponentCastleLeft, boolean canOponentCastleRght, boolean inverted) {
 		super(canCastleLeft, canCastleRght, canOponentCastleLeft, canOponentCastleRght);
 		
-		this.items = items.clone();
-		this.oponentItems = oponentItems.clone();
+		this.pieces = pieces.clone();
+		this.oponentPieces = oponentPieces.clone();
 		this.empty = calculateEmpty();
 		this.inverted = inverted;
 	}
@@ -93,10 +93,10 @@ public class BitBoardImpl extends AbstractBoard implements BitBoard {
 			return VALUE_EMPTY;
 		}
 
-		for (int i = 0; i < ITEMS_LENGTH; i ++) {
-			if ((items[i] & field) != 0) {
+		for (int i = 0; i < PIECES_LENGTH; i ++) {
+			if ((pieces[i] & field) != 0) {
 				return (byte) (i + 1);
-			} else if ((oponentItems[i] & field) != 0) {
+			} else if ((oponentPieces[i] & field) != 0) {
 				return (byte) (-i - 1);
 			}
 		}
@@ -119,16 +119,16 @@ public class BitBoardImpl extends AbstractBoard implements BitBoard {
 		
 		if (!isEmpty(field)) {
 			final long emptyField = ~field;
-			for (int i = 0; i < ITEMS_LENGTH; i ++) {
-				items[i] &= emptyField;
-				oponentItems[i] &= emptyField;
+			for (int i = 0; i < PIECES_LENGTH; i ++) {
+				pieces[i] &= emptyField;
+				oponentPieces[i] &= emptyField;
 			}
 		}
 		
 		if (value > 0) {
-			items[value - 1] |= field;
+			pieces[value - 1] |= field;
 		} else if (value < 0) {
-			oponentItems[-value - 1] |= field;
+			oponentPieces[-value - 1] |= field;
 		}
 		
 		if (value == VALUE_EMPTY) {
@@ -144,25 +144,25 @@ public class BitBoardImpl extends AbstractBoard implements BitBoard {
 		final long fromField = BOARD_FIELDS[from];
 		final long toField = BOARD_FIELDS[to];
 		
-		byte fromItemIndex = -1;
-		for (int i = 0; i < ITEMS_LENGTH; i ++) {
-			if ((items[i] & fromField) != 0) {
-				fromItemIndex = (byte) i;
+		byte fromPieceIndex = -1;
+		for (int i = 0; i < PIECES_LENGTH; i ++) {
+			if ((pieces[i] & fromField) != 0) {
+				fromPieceIndex = (byte) i;
 				break;
 			}
 		}
 		
-		items[fromItemIndex] &= ~fromField;
+		pieces[fromPieceIndex] &= ~fromField;
 		empty |= fromField;
 
-		items[fromItemIndex] |= toField;
+		pieces[fromPieceIndex] |= toField;
 		
 		final long emptyToField = ~toField;
 		if ((empty & toField) != 0) {
 			empty &= emptyToField;
 		} else {
-			for (int i = 0; i < ITEMS_LENGTH; i ++) {
-				oponentItems[i] &= emptyToField;
+			for (int i = 0; i < PIECES_LENGTH; i ++) {
+				oponentPieces[i] &= emptyToField;
 			}
 		}
 	}
@@ -177,34 +177,34 @@ public class BitBoardImpl extends AbstractBoard implements BitBoard {
 			empty |= toField;
 		} else {
 			if (captured > 0) {
-				items[captured - 1] |= toField;
+				pieces[captured - 1] |= toField;
 			} else {
-				oponentItems[-captured - 1] |= toField;
+				oponentPieces[-captured - 1] |= toField;
 			}
 		}
 		
-		byte toItemIndex = -1;
-		for (int i = 0; i < ITEMS_LENGTH; i ++) {
-			if ((items[i] & toField) != 0) {
-				toItemIndex = (byte) i;
+		byte toPieceIndex = -1;
+		for (int i = 0; i < PIECES_LENGTH; i ++) {
+			if ((pieces[i] & toField) != 0) {
+				toPieceIndex = (byte) i;
 				break;
 			}
 		}
 
 		empty &= ~fromField;
-		items[toItemIndex] |= fromField;
-		items[toItemIndex] &= ~toField;
+		pieces[toPieceIndex] |= fromField;
+		pieces[toPieceIndex] &= ~toField;
 	}
 
 	@Override
 	protected int[] calculateAllowedMoves() {
-		final long allItems = itemPositions();
-		final long emptyAndOponentPositions = empty | (~allItems);
-		final long allOponentItems = emptyAndOponentPositions & ~empty;
+		final long allPieces = piecePositions();
+		final long emptyAndOponentPositions = empty | (~allPieces);
+		final long allOponentPieces = emptyAndOponentPositions & ~empty;
 		
 		// calculate king moves
 		if (movesSelector.selectMoves(VALUE_KING)) {
-			final long king = items[INDEX_KING];
+			final long king = pieces[INDEX_KING];
 			checkState(king != 0, "King is not found:\n%s", this);
 			
 			
@@ -225,7 +225,7 @@ public class BitBoardImpl extends AbstractBoard implements BitBoard {
 		
 		// calculate knight moves
 		if (movesSelector.selectMoves(VALUE_KNIGHT)) {
-			doWithUpBits(items[INDEX_KNIGHT], knightIndex -> {
+			doWithUpBits(pieces[INDEX_KNIGHT], knightIndex -> {
 				final long knightGoesPositions = KNIGHT_ATACKS[knightIndex] & emptyAndOponentPositions;
 				doWithUpBits(knightGoesPositions, to -> {
 					final int move = moveOf(knightIndex, to);
@@ -236,32 +236,32 @@ public class BitBoardImpl extends AbstractBoard implements BitBoard {
 			});
 		}
 		
-		// calculate pown moves
-		if (movesSelector.selectMoves(VALUE_POWN)) {
-			final long powns = items[INDEX_POWN];
-			final long captureLeft = (powns << (SIZE + 1) & NOT_H) & allOponentItems;
-			// pown capture left
+		// calculate pawn moves
+		if (movesSelector.selectMoves(VALUE_PAWN)) {
+			final long pawns = pieces[INDEX_PAWN];
+			final long captureLeft = (pawns << (SIZE + 1) & NOT_H) & allOponentPieces;
+			// pawn capture left
 			doWithUpBits(captureLeft, to -> {
 				final boolean promotion = getY(to) == SIZE - 1;
-				collectPownMoves(moveOf(to - SIZE + 1, to), promotion);
+				collectPawnMoves(moveOf(to - SIZE + 1, to), promotion);
 			});
-			// pown capture rght
-			final long captureRght = (powns << (SIZE - 1) & NOT_A) & allOponentItems;
+			// pawn capture rght
+			final long captureRght = (pawns << (SIZE - 1) & NOT_A) & allOponentPieces;
 			doWithUpBits(captureRght, to -> {
 				final boolean promotion = getY(to) == SIZE - 1;
-				collectPownMoves(moveOf(to - SIZE - 1, to), promotion);
+				collectPawnMoves(moveOf(to - SIZE - 1, to), promotion);
 			});
-			// pown goes up
-			final long goUp = (powns << SIZE) & empty;
+			// pawn goes up
+			final long goUp = (pawns << SIZE) & empty;
 			doWithUpBits(goUp, to -> {
 				final boolean promotion = getY(to) == SIZE - 1;
-				collectPownMoves(moveOf(to - SIZE, to), promotion);
+				collectPawnMoves(moveOf(to - SIZE, to), promotion);
 			});
-			// pown goes two steps
-			final long goTwoSteps = (powns & LINE_2);
+			// pawn goes two steps
+			final long goTwoSteps = (pawns & LINE_2);
 			doWithUpBits(goTwoSteps, index -> {
-				if ((POWN_CAN_GO_TWO_STEPS[index - SIZE] & ~empty) == 0) {
-					final int move = specialMoveOf(index, index + SIZE + SIZE, SPECIAL_MOVE_POWN_GOES_TWO_STEPS);
+				if ((PAWN_CAN_GO_TWO_STEPS[index - SIZE] & ~empty) == 0) {
+					final int move = specialMoveOf(index, index + SIZE + SIZE, SPECIAL_MOVE_PAWN_GOES_TWO_STEPS);
 					if (!isKingUnderAtack(move)) 
 						movesBuilder.add(move);
 				}
@@ -270,20 +270,20 @@ public class BitBoardImpl extends AbstractBoard implements BitBoard {
 			// en passen
 			if (!movesSelector.skipEnPassenMoves()) {
 				final int lastMove = movesHistory.empty() ? 0 : movesHistory.peek();
-				if (intByte4(lastMove) == SPECIAL_MOVE_POWN_GOES_TWO_STEPS) {
+				if (intByte4(lastMove) == SPECIAL_MOVE_PAWN_GOES_TWO_STEPS) {
 					final int to = invertIndex(byte2(lastMove));
 					final int x = getX(to);
 
 					// capture right
-					if (x != SIZE - 1 && (powns & BOARD_FIELDS[to + 1]) != 0) {
-						final int move = specialMoveOf(to + 1, to + SIZE, SPECIAL_MOVE_POWN_EN_PASSANT);
+					if (x != SIZE - 1 && (pawns & BOARD_FIELDS[to + 1]) != 0) {
+						final int move = specialMoveOf(to + 1, to + SIZE, SPECIAL_MOVE_PAWN_EN_PASSANT);
 						if (!isKingUnderAtack(move))
 							movesBuilder.add(move);
 					}
 
 					// capture left
-					if (x != 0 && (powns & BOARD_FIELDS[to - 1]) != 0) {
-						final int move = specialMoveOf(to - 1, to + SIZE, SPECIAL_MOVE_POWN_EN_PASSANT);
+					if (x != 0 && (pawns & BOARD_FIELDS[to - 1]) != 0) {
+						final int move = specialMoveOf(to - 1, to + SIZE, SPECIAL_MOVE_PAWN_EN_PASSANT);
 						if (!isKingUnderAtack(move))
 							movesBuilder.add(move);
 					}
@@ -294,18 +294,18 @@ public class BitBoardImpl extends AbstractBoard implements BitBoard {
 
 		// calculate bishop moves
 		if (movesSelector.selectMoves(VALUE_BISHOP)) {
-			doWithUpBits(items[INDEX_BISHOP], bishopIndex -> {
+			doWithUpBits(pieces[INDEX_BISHOP], bishopIndex -> {
 				final long bishopField = BOARD_FIELDS[bishopIndex];
-				collectMoves(bishopField, allItems, allOponentItems, GO_UP_RIGHT);
-				collectMoves(bishopField, allItems, allOponentItems, GO_UP_LEFT);
-				collectMoves(bishopField, allItems, allOponentItems, GO_DOWN_RIGHT);
-				collectMoves(bishopField, allItems, allOponentItems, GO_DOWN_LEFT);
+				collectMoves(bishopField, allPieces, allOponentPieces, GO_UP_RIGHT);
+				collectMoves(bishopField, allPieces, allOponentPieces, GO_UP_LEFT);
+				collectMoves(bishopField, allPieces, allOponentPieces, GO_DOWN_RIGHT);
+				collectMoves(bishopField, allPieces, allOponentPieces, GO_DOWN_LEFT);
 			});
 		}
 		
 		// calculate rook moves
 		if (movesSelector.selectMoves(VALUE_ROOK)) {
-			doWithUpBits(items[INDEX_ROOK], rookIndex -> {
+			doWithUpBits(pieces[INDEX_ROOK], rookIndex -> {
 				final int specialMove;
 				
 				if (canCastleLeft && rookIndex == 0)
@@ -316,25 +316,25 @@ public class BitBoardImpl extends AbstractBoard implements BitBoard {
 					specialMove = SPECIAL_MOVE_NO;
 				
 				final long rookField = BOARD_FIELDS[rookIndex];
-				collectMoves(rookField, allItems, allOponentItems, GO_UP, specialMove);
-				collectMoves(rookField, allItems, allOponentItems, GO_DOWN, specialMove);
-				collectMoves(rookField, allItems, allOponentItems, GO_LEFT, specialMove);
-				collectMoves(rookField, allItems, allOponentItems, GO_RIGHT, specialMove);
+				collectMoves(rookField, allPieces, allOponentPieces, GO_UP, specialMove);
+				collectMoves(rookField, allPieces, allOponentPieces, GO_DOWN, specialMove);
+				collectMoves(rookField, allPieces, allOponentPieces, GO_LEFT, specialMove);
+				collectMoves(rookField, allPieces, allOponentPieces, GO_RIGHT, specialMove);
 			});
 		}
 		
 		// calculate queen moves
 		if (movesSelector.selectMoves(VALUE_QUEEN)) {
-			doWithUpBits(items[INDEX_QUEEN], queenIndex -> {
+			doWithUpBits(pieces[INDEX_QUEEN], queenIndex -> {
 				final long queenField = BOARD_FIELDS[queenIndex];
-				collectMoves(queenField, allItems, allOponentItems, GO_UP_RIGHT);
-				collectMoves(queenField, allItems, allOponentItems, GO_UP_LEFT);
-				collectMoves(queenField, allItems, allOponentItems, GO_DOWN_RIGHT);
-				collectMoves(queenField, allItems, allOponentItems, GO_DOWN_LEFT);
-				collectMoves(queenField, allItems, allOponentItems, GO_UP);
-				collectMoves(queenField, allItems, allOponentItems, GO_DOWN);
-				collectMoves(queenField, allItems, allOponentItems, GO_LEFT);
-				collectMoves(queenField, allItems, allOponentItems, GO_RIGHT);
+				collectMoves(queenField, allPieces, allOponentPieces, GO_UP_RIGHT);
+				collectMoves(queenField, allPieces, allOponentPieces, GO_UP_LEFT);
+				collectMoves(queenField, allPieces, allOponentPieces, GO_DOWN_RIGHT);
+				collectMoves(queenField, allPieces, allOponentPieces, GO_DOWN_LEFT);
+				collectMoves(queenField, allPieces, allOponentPieces, GO_UP);
+				collectMoves(queenField, allPieces, allOponentPieces, GO_DOWN);
+				collectMoves(queenField, allPieces, allOponentPieces, GO_LEFT);
+				collectMoves(queenField, allPieces, allOponentPieces, GO_RIGHT);
 			});
 		}
 		
@@ -343,47 +343,47 @@ public class BitBoardImpl extends AbstractBoard implements BitBoard {
 	
 	@Override
 	public boolean calculateIsKingUnderAtack() {
-		final long king = items[INDEX_KING];
+		final long king = pieces[INDEX_KING];
 		
 		checkState(king != 0, "King is not found:\n%s", this);
 		
 		final int kingIndex = BOARD_INDEX_TO_LONG_INDEX[numberOfTrailingZeros(king)];
 		
-		// find pown atacks
-		if ((POWN_ATACKS[kingIndex] & oponentItems[INDEX_POWN]) != 0) {
+		// find pawn atacks
+		if ((PAWN_ATACKS[kingIndex] & oponentPieces[INDEX_PAWN]) != 0) {
 			return true;
 		}
 		
 		// find knight atacks
-		if ((KNIGHT_ATACKS[kingIndex] & oponentItems[INDEX_KNIGHT]) != 0) {
+		if ((KNIGHT_ATACKS[kingIndex] & oponentPieces[INDEX_KNIGHT]) != 0) {
 			return true;
 		}
 		
 		// find king atacks
-		if ((KING_ATACKS[kingIndex] & oponentItems[INDEX_KING]) != 0) {
+		if ((KING_ATACKS[kingIndex] & oponentPieces[INDEX_KING]) != 0) {
 			return true;
 		}
 		
 		// find bishop atacks
-		final long oponentBishopsAtacks = oponentItems[INDEX_BISHOP] | oponentItems[INDEX_QUEEN];
+		final long oponentBishopsAtacks = oponentPieces[INDEX_BISHOP] | oponentPieces[INDEX_QUEEN];
 		
 		if ((oponentBishopsAtacks & BISHOP_ATACKS[kingIndex]) != 0) {
-			if (findItemAtacks(king, oponentBishopsAtacks, GO_UP_LEFT) ||
-				findItemAtacks(king, oponentBishopsAtacks, GO_UP_RIGHT) ||
-				findItemAtacks(king, oponentBishopsAtacks, GO_DOWN_LEFT) ||
-				findItemAtacks(king, oponentBishopsAtacks, GO_DOWN_RIGHT)) {
+			if (findPieceAtacks(king, oponentBishopsAtacks, GO_UP_LEFT) ||
+				findPieceAtacks(king, oponentBishopsAtacks, GO_UP_RIGHT) ||
+				findPieceAtacks(king, oponentBishopsAtacks, GO_DOWN_LEFT) ||
+				findPieceAtacks(king, oponentBishopsAtacks, GO_DOWN_RIGHT)) {
 				
 				return true;
 			}
 		}
 		
 		// find rook atacks
-		final long oponentRookAtacks = oponentItems[INDEX_ROOK] | oponentItems[INDEX_QUEEN];
+		final long oponentRookAtacks = oponentPieces[INDEX_ROOK] | oponentPieces[INDEX_QUEEN];
 		if ((oponentRookAtacks & ROOK_ATACKS[kingIndex]) != 0) {
-			if (findItemAtacks(king, oponentRookAtacks, GO_UP) ||
-				findItemAtacks(king, oponentRookAtacks, GO_LEFT) ||
-				findItemAtacks(king, oponentRookAtacks, GO_RIGHT) ||
-				findItemAtacks(king, oponentRookAtacks, GO_DOWN)) {
+			if (findPieceAtacks(king, oponentRookAtacks, GO_UP) ||
+				findPieceAtacks(king, oponentRookAtacks, GO_LEFT) ||
+				findPieceAtacks(king, oponentRookAtacks, GO_RIGHT) ||
+				findPieceAtacks(king, oponentRookAtacks, GO_DOWN)) {
 				
 				return true;
 			}
@@ -392,16 +392,16 @@ public class BitBoardImpl extends AbstractBoard implements BitBoard {
 		return false;
 	}
 	
-	private boolean findItemAtacks(long field, long itemAtacks, ItemGoesFunctionBit itemGoesFunction) {
-		final LongUnaryOperator goFunction = itemGoesFunction.goFunction();
-		final LongPredicate stopPredicate = itemGoesFunction.stopPredicate();
+	private boolean findPieceAtacks(long field, long pieceAtacks, PieceGoesFunctionBit pieceGoesFunction) {
+		final LongUnaryOperator goFunction = pieceGoesFunction.goFunction();
+		final LongPredicate stopPredicate = pieceGoesFunction.stopPredicate();
 		
 		while (true) {
 			field = goFunction.applyAsLong(field);
 			if (stopPredicate.test(field)) {
 				return false;
 			}
-			if ((itemAtacks & field) != 0) {
+			if ((pieceAtacks & field) != 0) {
 				return true;
 			}	
 			if (!isEmpty(field)) {
@@ -411,33 +411,34 @@ public class BitBoardImpl extends AbstractBoard implements BitBoard {
 	}
 	
 	private void collectCastelingMoves(int kingIndex) {
-		if (canCastleLeft && ((EMPTY_FOR_CASTELING_LEFT_SHORT & ~empty) == 0L) && (getX(kingIndex) == 3 || (EMPTY_FOR_CASTELING_LEFT_LONG & ~empty) == 0L) && (BOARD_FIELDS[0] & items[INDEX_ROOK]) != 0)
+		if (canCastleLeft && ((EMPTY_FOR_CASTELING_LEFT_SHORT & ~empty) == 0L) && (getX(kingIndex) == 3 || (EMPTY_FOR_CASTELING_LEFT_LONG & ~empty) == 0L) && (BOARD_FIELDS[0] & pieces[INDEX_ROOK]) != 0)
 			if (!isKingUnderAtack() && !isKingUnderAtack(moveOf(kingIndex, kingIndex - 1)) && !isKingUnderAtack(moveOf(kingIndex, kingIndex - 2)))	
 				movesBuilder.add(specialMoveOf(kingIndex, kingIndex - 2, getSpecialMoveForKingMove(true, true)));
 		
-		if (canCastleRght && (EMPTY_FOR_CASTELING_RGHT_SHORT & ~empty) == 0L && (getX(kingIndex) == 4 || (EMPTY_FOR_CASTELING_RGHT_LONG & ~empty) == 0L) && (BOARD_FIELDS[7] & items[INDEX_ROOK]) != 0)
+		if (canCastleRght && (EMPTY_FOR_CASTELING_RGHT_SHORT & ~empty) == 0L && (getX(kingIndex) == 4 || (EMPTY_FOR_CASTELING_RGHT_LONG & ~empty) == 0L) && (BOARD_FIELDS[7] & pieces[INDEX_ROOK]) != 0)
 			if (!isKingUnderAtack() && !isKingUnderAtack(moveOf(kingIndex, kingIndex + 1)) && !isKingUnderAtack(moveOf(kingIndex, kingIndex + 2)))	
 				movesBuilder.add(specialMoveOf(kingIndex, kingIndex + 2, getSpecialMoveForKingMove(true, false)));
 	}
 
-	private void collectMoves(long field, long allItems, long allOponentItems, ItemGoesFunctionBit itemGoesFunction) {
-		collectMoves(field, allItems, allOponentItems, itemGoesFunction, SPECIAL_MOVE_NO);
+	private void collectMoves(long field, long allPieces, long allOponentPieces, PieceGoesFunctionBit pieceGoesFunction) {
+		collectMoves(field, allPieces, allOponentPieces, pieceGoesFunction, SPECIAL_MOVE_NO);
 	}
 	
-	private void collectMoves(long field, long allItems, long allOponentItems, ItemGoesFunctionBit itemGoesFunction, int specialMove) {
-		final LongUnaryOperator goFunction = itemGoesFunction.goFunction();
-		final LongPredicate stopPredicate = itemGoesFunction.stopPredicate();
+	private void collectMoves(long field, long allPieces, long allOponentPieces, PieceGoesFunctionBit pieceGoesFunction, int specialMove) {
+		final LongUnaryOperator goFunction = pieceGoesFunction.goFunction();
+		final LongPredicate stopPredicate = pieceGoesFunction.stopPredicate();
 		final int startIndex = BOARD_INDEX_TO_LONG_INDEX[numberOfTrailingZeros(field)];
 		while (true) {
 			field = goFunction.applyAsLong(field);
-			if (stopPredicate.test(field) || (allItems & field) != 0)
+			if (stopPredicate.test(field) || (allPieces & field) != 0) {
 				return;
+			}
 
 			final int move = specialMoveOf(startIndex, BOARD_INDEX_TO_LONG_INDEX[numberOfTrailingZeros(field)], specialMove);
 			if (!isKingUnderAtack(move))
 				movesBuilder.add(move);
 		
-			if ((allOponentItems & field) != 0)
+			if ((allOponentPieces & field) != 0)
 				return;
 		}
 	}
@@ -445,44 +446,44 @@ public class BitBoardImpl extends AbstractBoard implements BitBoard {
 	@Override
 	protected void reverseBoardRepresentation() {
 		long tmp;
-		for (int i = 0; i < ITEMS_LENGTH; i ++) {
-			tmp = reverse(items[i]);
-			items[i] = reverse(oponentItems[i]);
-			oponentItems[i] = tmp;
+		for (int i = 0; i < PIECES_LENGTH; i ++) {
+			tmp = reverse(pieces[i]);
+			pieces[i] = reverse(oponentPieces[i]);
+			oponentPieces[i] = tmp;
 		}
 		
 		empty = reverse(empty);
 	}
 
 	@Override
-	public long itemPositions() {
+	public long piecePositions() {
 		long result = 0;
-		for (long itemPositions : items) {
-			result |= itemPositions;
+		for (long piecePositions : pieces) {
+			result |= piecePositions;
 		}
 		return result;
 	}
 
 	@Override
-	public long itemPositionsOponent() {
+	public long piecePositionsOponent() {
 		long result = 0;
-		for (long itemPositionsOponent : oponentItems) {
-			result |= itemPositionsOponent;
+		for (long piecePositionsOponent : oponentPieces) {
+			result |= piecePositionsOponent;
 		}
 		return result;
 	}
 	
 	private long calculateEmpty() {
 		long nonEmpty = 0;
-		for (int i = 0; i < ITEMS_LENGTH; i ++) {
-			nonEmpty |= items[i] | oponentItems[i];
+		for (int i = 0; i < PIECES_LENGTH; i ++) {
+			nonEmpty |= pieces[i] | oponentPieces[i];
 		}
 		return ~nonEmpty;
 	}
 	
 	@Override
 	protected BitBoardImpl cloneImpl() {
-		return new BitBoardImpl(items, oponentItems, canCastleLeft, canCastleRght, canOponentCastleLeft, canOponentCastleRght, inverted);
+		return new BitBoardImpl(pieces, oponentPieces, canCastleLeft, canCastleRght, canOponentCastleLeft, canOponentCastleRght, inverted);
 	}
 	
 	public String toBinaryString() {
@@ -490,17 +491,17 @@ public class BitBoardImpl extends AbstractBoard implements BitBoard {
 		
 		sb.append("EMPTY\n").append(BitBoardUtils.toBinaryString(empty)).append("\n");
 		
-		for (int i = 0; i < ITEMS_LENGTH; i ++) {
-			final long itemsPositions = items[i];
-			if (itemsPositions != 0) {
-				sb.append(Item.withValue((byte) (i + 1)).toString() + "S:\n" + BitBoardUtils.toBinaryString(itemsPositions) + "\n\n");
+		for (int i = 0; i < PIECES_LENGTH; i ++) {
+			final long piecesPositions = pieces[i];
+			if (piecesPositions != 0) {
+				sb.append(Piece.withValue((byte) (i + 1)).toString() + "S:\n" + BitBoardUtils.toBinaryString(piecesPositions) + "\n\n");
 			}
 		}
 		
-		for (int i = 0; i < ITEMS_LENGTH; i ++) {
-			final long oponentItemsPositions = oponentItems[i];
-			if (oponentItemsPositions != 0) {
-				sb.append("OPONENT " + Item.withValue((byte) (i + 1)) + "S:\n" + BitBoardUtils.toBinaryString(oponentItemsPositions) + "\n\n");
+		for (int i = 0; i < PIECES_LENGTH; i ++) {
+			final long oponentPiecesPositions = oponentPieces[i];
+			if (oponentPiecesPositions != 0) {
+				sb.append("OPONENT " + Piece.withValue((byte) (i + 1)) + "S:\n" + BitBoardUtils.toBinaryString(oponentPiecesPositions) + "\n\n");
 			}
 		}
 		
@@ -510,10 +511,10 @@ public class BitBoardImpl extends AbstractBoard implements BitBoard {
 	@Deprecated
 	public void checkSum() {
 		long allFields = 0;
-		final long[] all = new long[2 * ITEMS_LENGTH + 1];
-		System.arraycopy(items, 0, all, 0, ITEMS_LENGTH);
-		System.arraycopy(oponentItems, 0, all, ITEMS_LENGTH, ITEMS_LENGTH);
-		all[2 * ITEMS_LENGTH] = empty;
+		final long[] all = new long[2 * PIECES_LENGTH + 1];
+		System.arraycopy(pieces, 0, all, 0, PIECES_LENGTH);
+		System.arraycopy(oponentPieces, 0, all, PIECES_LENGTH, PIECES_LENGTH);
+		all[2 * PIECES_LENGTH] = empty;
 		
 		for (long positions : all) {
 			allFields |= positions;
@@ -528,12 +529,18 @@ public class BitBoardImpl extends AbstractBoard implements BitBoard {
 	}
 
 	@Override
-	public long items(byte itemType) {
-		return items[itemType - 1];
+	public long pieces(byte pieceType) {
+		return pieces[pieceType - 1];
 	}
 
 	@Override
-	public long oponentItems(byte itemType) {
-		return oponentItems[itemType - 1];
+	public long oponentPieces(byte pieceType) {
+		return oponentPieces[pieceType - 1];
+	}
+
+
+	@Override
+	public long emptyPositions() {
+		return empty;
 	}
 }

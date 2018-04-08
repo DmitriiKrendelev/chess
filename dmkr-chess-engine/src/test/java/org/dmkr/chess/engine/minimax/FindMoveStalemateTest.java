@@ -5,7 +5,7 @@ import static org.dmkr.chess.api.model.Field.C2;
 import static org.dmkr.chess.api.model.Field.D3;
 import static org.dmkr.chess.api.model.Move.moveOf;
 import static org.dmkr.chess.engine.board.BoardFactory.getBoardType;
-import static org.dmkr.chess.engine.function.Functions.ITEM_VALUES;
+import static org.dmkr.chess.engine.function.Functions.PIECE_VALUES;
 import static org.dmkr.chess.engine.minimax.MiniMax.minimax;
 import static org.dmkr.chess.engine.minimax.tree.TreeBuildingStrategyImpl.treeBuildingStrategyWithParams;
 
@@ -19,7 +19,7 @@ public class FindMoveStalemateTest extends FindMoveAbstractTest<BoardEngine> {
 	
 	@Override
 	protected AsyncEngine<BoardEngine> getEngine() {
-		final EvaluationFunctionAware<BoardEngine> evaluationFunctionAware = EvaluationFunctionAware.of(ITEM_VALUES.getFunction(getBoardType()));
+		final EvaluationFunctionAware<BoardEngine> evaluationFunctionAware = EvaluationFunctionAware.of(PIECE_VALUES.getFunction(getBoardType()));
 		return minimax()
 				.treeStrategyCreator(() -> 
 					treeBuildingStrategyWithParams()

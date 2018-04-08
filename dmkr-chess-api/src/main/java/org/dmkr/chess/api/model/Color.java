@@ -2,7 +2,6 @@ package org.dmkr.chess.api.model;
 
 import static org.dmkr.chess.api.model.Constants.*;
 
-import org.dmkr.chess.api.model.Item;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,19 +14,19 @@ public enum Color {
 	@Getter
 	private final byte value;
 	
-	public byte item(Item item) {
-		return (byte) (value * item.value());
+	public byte piece(Piece piece) {
+		return (byte) (value * piece.value());
 	}
 	
-	public static Color ofItem(char c) {
+	public static Color ofPiece(char c) {
 		return Character.isUpperCase(c) ? WHITE : BLACK;
 	}
 	
-	public static Color ofItem(byte item, boolean isInverted) {
-		if (item == VALUE_EMPTY) {
+	public static Color ofPiece(byte piece, boolean isInverted) {
+		if (piece == VALUE_EMPTY) {
 			return null;
 		} 
 		
-		return (isInverted ? -item : item) > 0 ? WHITE : BLACK;
+		return (isInverted ? -piece : piece) > 0 ? WHITE : BLACK;
 	}
 }

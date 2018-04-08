@@ -14,14 +14,14 @@ import org.dmkr.chess.api.utils.MoveUtils;
 
 public class MovesSelectorAbstractTest {
 
-	protected void testAllMoves(BoardEngine board, boolean checkKingUnderAtack, byte[] items, String ... allExpectedMoves) {
-		testAllMoves(board, checkKingUnderAtack, items, Stream.of(allExpectedMoves).map(Move::moveOf).toArray(Move[]::new));
+	protected void testAllMoves(BoardEngine board, boolean checkKingUnderAtack, byte[] pieces, String ... allExpectedMoves) {
+		testAllMoves(board, checkKingUnderAtack, pieces, Stream.of(allExpectedMoves).map(Move::moveOf).toArray(Move[]::new));
 	}
 	
-	protected void testAllMoves(BoardEngine board, boolean checkKingUnderAtack, byte[] items, Move ... allExpectedMoves) {
+	protected void testAllMoves(BoardEngine board, boolean checkKingUnderAtack, byte[] pieces, Move ... allExpectedMoves) {
 		final MovesSelector movesSelector = movesSelector()
 				.checkKingUnderAtack(false)
-				.itemsToSelect(items)
+				.piecesToSelect(pieces)
 				.build();
 		
 		

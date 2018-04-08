@@ -9,7 +9,7 @@ import java.awt.image.BufferedImage;
 import java.util.Map;
 
 import org.dmkr.chess.api.Board;
-import org.dmkr.chess.api.model.ColoredItem;
+import org.dmkr.chess.api.model.ColoredPiece;
 import org.dmkr.chess.api.model.Field;
 import org.dmkr.chess.api.model.Move;
 import org.dmkr.chess.common.lang.Procedure;
@@ -30,7 +30,7 @@ public class UIBoardCoordsHelper {
 	private final int lowY;
 	private final int highX;
 	private final int highY;
-	private final int itemMovingSpeed;
+	private final int pieceMovingSpeed;
 	
 	private final double xSize;
 	private final double ySize;
@@ -38,11 +38,11 @@ public class UIBoardCoordsHelper {
 	private final Map<Field, UIRect> fields;
 	private final boolean isWhite;
 
-	public class MovingItem {
+	public class MovingPiece {
 		@Getter
 		private final Field from, to;
 		@Getter
-		private final ColoredItem coloredItem;
+		private final ColoredPiece coloredPiece;
 		
 		private final UIPoint fromPoint;
 		private final UIPoint toPoint;
@@ -56,16 +56,16 @@ public class UIBoardCoordsHelper {
 		private final double ySpeed;
 		private boolean isFinished = false;
 		
-		public MovingItem(Move move, Board board, Procedure onFinish) {
+		public MovingPiece(Move move, Board board, Procedure onFinish) {
 			this(move, board.at(move.from()), onFinish);
 		}
 		
-		public MovingItem(Move move, ColoredItem coloredItem, Procedure onFinish) {
+		public MovingPiece(Move move, ColoredPiece coloredPiece, Procedure onFinish) {
 			this.from = move.from();
 			this.to = move.to();
 			this.fromPoint = fieldCenters.get(from);
 			this.toPoint = fieldCenters.get(to);
-			this.coloredItem = coloredItem;
+			this.coloredPiece = coloredPiece;
 			this.onFinish = onFinish;
 		
 			this.startTime = currentTimeMillis();
@@ -73,10 +73,10 @@ public class UIBoardCoordsHelper {
 			final int deltaX = toPoint.x() - fromPoint.x();
 			final int deltaY = toPoint.y() - fromPoint.y();
 			final double movement = sqrt(deltaX * deltaX + deltaY * deltaY);
-			final double itemMovingSpeedMillis = itemMovingSpeed / 1000D;
-			this.xSpeed = itemMovingSpeedMillis * deltaX / movement;
-			this.ySpeed = itemMovingSpeedMillis * deltaY / movement;
-			this.duration = (long) (movement / itemMovingSpeedMillis);
+			final double pieceMovingSpeedMillis = pieceMovingSpeed / 1000D;
+			this.xSpeed = pieceMovingSpeedMillis * deltaX / movement;
+			this.ySpeed = pieceMovingSpeedMillis * deltaY / movement;
+			this.duration = (long) (movement / pieceMovingSpeedMillis);
 		}
 
 		public UIPoint getLocation() {
@@ -104,7 +104,7 @@ public class UIBoardCoordsHelper {
 		this.lowY = boardCoords.y();
 		this.highX = boardCoords.x() + boardCoords.getWidth();
 		this.highY = boardCoords.y() + boardCoords.getHight();
-		this.itemMovingSpeed = config.getItemMovingSpeed();
+		this.pieceMovingSpeed = config.getPieceMovingSpeed();
 		
 		this.xSize = (double) (highX - lowX) / SIZE;
 		this.ySize = (double) (highY - lowY) / SIZE;

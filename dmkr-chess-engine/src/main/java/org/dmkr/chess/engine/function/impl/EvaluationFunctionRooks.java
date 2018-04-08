@@ -28,19 +28,19 @@ public class EvaluationFunctionRooks extends EvaluationFunctionRooksAbstract<Boa
         boolean blocked = false;
         boolean blockerFound = false;
         for (int i = rookIndex + SIZE; i < SIZE * SIZE; i += SIZE) {
-            final byte item = board.at(i);
+            final byte piece = board.at(i);
 
-            if (item == VALUE_EMPTY) {
+            if (piece == VALUE_EMPTY) {
                 continue;
-            } else if (item == VALUE_POWN) {
+            } else if (piece == VALUE_PAWN) {
                 return 0;
-            } else if (item == VALUE_ROOK) {
+            } else if (piece == VALUE_ROOK) {
                 battery = true;
-            } else if (item > 0) {
+            } else if (piece > 0) {
                 continue;
-            } else if (item < 0) {
+            } else if (piece < 0) {
                 if (!blockerFound) {
-                    blocked = i < SIZE * (SIZE - 1) && (((i & 7) != 0 && board.at(i + SIZE - 1) == -VALUE_POWN) || ((i & 7) != 7 && board.at(i + SIZE + 1) == -VALUE_POWN));
+                    blocked = i < SIZE * (SIZE - 1) && (((i & 7) != 0 && board.at(i + SIZE - 1) == -VALUE_PAWN) || ((i & 7) != 7 && board.at(i + SIZE + 1) == -VALUE_PAWN));
                     blockerFound = true;
                 }
             }

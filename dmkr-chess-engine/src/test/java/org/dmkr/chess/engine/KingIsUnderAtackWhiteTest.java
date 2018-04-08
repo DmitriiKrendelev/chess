@@ -171,7 +171,7 @@ public class KingIsUnderAtackWhiteTest {
 	}
 	
 	@Test
-	public void testPown1() {
+	public void testPawn1() {
 		final BoardEngine board = BoardFactory.of(
 				"- - - - k - - -", 
 				"- - - - - - - -", 		
@@ -187,7 +187,7 @@ public class KingIsUnderAtackWhiteTest {
 	}
 	
 	@Test
-	public void testPown2() {
+	public void testPawn2() {
 		final BoardEngine board = BoardFactory.of(
 				"- - - - k - - -", 
 				"- - - - - - - -", 		
@@ -203,7 +203,7 @@ public class KingIsUnderAtackWhiteTest {
 	}
 	
 	@Test
-	public void testPown3() {
+	public void testPawn3() {
 		final BoardEngine board = BoardFactory.of(
 				"- - - - k - - -", 
 				"- - - - - - - -", 		
@@ -220,7 +220,7 @@ public class KingIsUnderAtackWhiteTest {
 	}
 	
 	@Test
-	public void testPown4() {
+	public void testPawn4() {
 		final BoardEngine board = BoardFactory.of(
 				"- - - - k - - -", 
 				"- - - - - - - -", 		
@@ -236,7 +236,7 @@ public class KingIsUnderAtackWhiteTest {
 	}
 	
 	@Test
-	public void testPown5() {
+	public void testPawn5() {
 		final BoardEngine board = BoardFactory.of(
 				"- - - - k - - -", 
 				"- - - - - - - -", 		
@@ -252,7 +252,7 @@ public class KingIsUnderAtackWhiteTest {
 	}
 	
 	@Test
-	public void testPown6() {
+	public void testPawn6() {
 		final BoardEngine board = BoardFactory.of(
 				"- - - - k - - -", 
 				"- - - - - - - -", 		
@@ -268,7 +268,7 @@ public class KingIsUnderAtackWhiteTest {
 	}
 	
 	@Test
-	public void testPown7() {
+	public void testPawn7() {
 		final BoardEngine board = BoardFactory.of(
 				"- - - - k - - -", 
 				"- - - - - - - -", 		
@@ -284,7 +284,7 @@ public class KingIsUnderAtackWhiteTest {
 	}
 	
 	@Test
-	public void testPown8() {
+	public void testPawn8() {
 		final BoardEngine board = BoardFactory.of(
 				"- - - - k - - -", 
 				"- - - - - - - -", 		
@@ -300,7 +300,7 @@ public class KingIsUnderAtackWhiteTest {
 	}
 	
 	@Test
-	public void testPown9() {
+	public void testPawn9() {
 		final BoardEngine board = BoardFactory.of(
 				"- - - - k - - -", 
 				"- - - - - - - -", 		
@@ -316,7 +316,7 @@ public class KingIsUnderAtackWhiteTest {
 	}
 	
 	@Test
-	public void testPown10() {
+	public void testPawn10() {
 		final BoardEngine board = BoardFactory.of(
 				"- - - - k - - -", 
 				"- - - - - - - -", 		

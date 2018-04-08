@@ -12,7 +12,7 @@ import static org.dmkr.chess.api.model.Constants.SIZE;
 
 
 @UtilityClass
-public class ItemGoesFunctions {
+public class PieceGoesFunctions {
 	private static final IntUnaryOperator GO_UP_FUNCTION = i -> i + SIZE;
 	private static final IntUnaryOperator GO_DOWN_FUNCTION = i -> i - SIZE;
 	private static final IntUnaryOperator GO_LEFT_FUNCTION = i -> i - 1;
@@ -35,7 +35,7 @@ public class ItemGoesFunctions {
 	
 	@Getter
 	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-	public static enum ItemGoesFunction {
+	public enum PieceGoesFunction {
 		GO_UP(GO_UP_FUNCTION, UNTIL_UP_BREAK),
 		GO_DOWN(GO_DOWN_FUNCTION, UNTIL_DOWN_BREAK),
 		GO_LEFT(GO_LEFT_FUNCTION, UNTIL_LEFT_BREAK),

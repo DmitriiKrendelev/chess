@@ -4,7 +4,7 @@ import javax.swing.JFrame;
 
 import org.dmkr.chess.ui.config.UIBoardConfig;
 import org.dmkr.chess.ui.listeners.BestLineVisualizerListener;
-import org.dmkr.chess.ui.listeners.ItemsDragAndDropListener;
+import org.dmkr.chess.ui.listeners.PiecesDragAndDropListener;
 import org.dmkr.chess.ui.listeners.MovesRollbackListener;
 import org.dmkr.chess.ui.listeners.PrintBoardListener;
 import org.dmkr.chess.ui.listeners.PrintThreadDumpListener;
@@ -18,7 +18,7 @@ public class UIBoard extends JFrame {
 	@Inject private MovesRollbackListener movesRollbackListener;
 	@Inject private PrintBoardListener printBoardListener;
 	@Inject private PrintThreadDumpListener printThreadDumpListener;
-	@Inject private ItemsDragAndDropListener dragAndDropListener;
+	@Inject private PiecesDragAndDropListener dragAndDropListener;
 	@Inject private BestLineVisualizerListener bestLineVisualizerListener;
 	
 	public void run() throws Exception {

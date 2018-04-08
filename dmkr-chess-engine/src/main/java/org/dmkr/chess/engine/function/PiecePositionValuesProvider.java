@@ -3,7 +3,7 @@ package org.dmkr.chess.engine.function;
 import static org.dmkr.chess.api.model.Constants.VALUE_BISHOP;
 import static org.dmkr.chess.api.model.Constants.VALUE_KING;
 import static org.dmkr.chess.api.model.Constants.VALUE_KNIGHT;
-import static org.dmkr.chess.api.model.Constants.VALUE_POWN;
+import static org.dmkr.chess.api.model.Constants.VALUE_PAWN;
 import static org.dmkr.chess.api.model.Constants.VALUE_QUEEN;
 import static org.dmkr.chess.api.model.Constants.VALUE_ROOK;
 
@@ -12,8 +12,8 @@ import org.dmkr.chess.api.utils.BoardUtils;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-public class ItemPositionValuesProvider {
-	private static final int[] POWN_POSITION_VALUES = BoardUtils.toBoardArray(
+public class PiecePositionValuesProvider {
+	private static final int[] PAWN_POSITION_VALUES = BoardUtils.toBoardArray(
 				" 0,  0,  0,  0,  0,  0,  0,  0", 
 				"50, 50, 50, 50, 50, 50, 50, 50", 
 				"10, 10, 20, 30, 30, 20, 10, 10", 
@@ -77,7 +77,7 @@ public class ItemPositionValuesProvider {
 		
 	static {
 		POSITION_VALUES = new int[7][];
-		POSITION_VALUES[VALUE_POWN] = POWN_POSITION_VALUES;
+		POSITION_VALUES[VALUE_PAWN] = PAWN_POSITION_VALUES;
 		POSITION_VALUES[VALUE_KNIGHT] = KNIGHT_POSITION_VALUES;
 		POSITION_VALUES[VALUE_BISHOP] = BISHOP_POSITION_VALUES;
 		POSITION_VALUES[VALUE_ROOK] = ROOK_POSITION_VALUES;
@@ -85,8 +85,8 @@ public class ItemPositionValuesProvider {
 		POSITION_VALUES[VALUE_KING] = KING_POSITION_VALUES;
 	}
 	
-	public static int[] positionValues(int itemType) {
-		return POSITION_VALUES[itemType];
+	public static int[] positionValues(int pieceType) {
+		return POSITION_VALUES[pieceType];
 	}
 
 }

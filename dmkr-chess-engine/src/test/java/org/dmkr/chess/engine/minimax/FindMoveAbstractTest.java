@@ -1,6 +1,6 @@
 package org.dmkr.chess.engine.minimax;
 
-import static org.dmkr.chess.api.model.Constants.VALUE_POWN;
+import static org.dmkr.chess.api.model.Constants.VALUE_PAWN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -11,10 +11,10 @@ import java.util.Iterator;
 import org.dmkr.chess.api.BoardEngine;
 import org.dmkr.chess.api.model.Move;
 import org.dmkr.chess.engine.api.AsyncEngine;
-import org.dmkr.chess.engine.function.ItemValuesProvider;
+import org.dmkr.chess.engine.function.PieceValuesProvider;
 
 public abstract class FindMoveAbstractTest<T extends BoardEngine> {
-	protected static final int CHACKMATE_BARIER_VALUE = 100 * ItemValuesProvider.valueOf(VALUE_POWN);
+	protected static final int CHACKMATE_BARIER_VALUE = 100 * PieceValuesProvider.valueOf(VALUE_PAWN);
 	protected static final Move ANY = new Move();
 
 	protected abstract AsyncEngine<T> getEngine();

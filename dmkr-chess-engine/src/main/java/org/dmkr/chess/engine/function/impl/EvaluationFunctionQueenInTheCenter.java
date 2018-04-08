@@ -25,11 +25,11 @@ public class EvaluationFunctionQueenInTheCenter implements EvaluationFunction<Bo
 		int queenIndex = -1;
 		int oponentQueenIndex = -1;
 		for (int i = 0; i < SIZE * SIZE; i ++) {
-			final byte item = board.at(i);
-			if (item == VALUE_QUEEN) { 
+			final byte piece = board.at(i);
+			if (piece == VALUE_QUEEN) {
 				queenIndex = i;
 			}
-			if (item == -VALUE_QUEEN) {
+			if (piece == -VALUE_QUEEN) {
 				oponentQueenIndex = i;
 			}
 		}

@@ -3,7 +3,7 @@ package org.dmkr.chess.ui;
 import com.google.inject.Inject;
 import org.dmkr.chess.api.Board;
 import org.dmkr.chess.api.BoardEngine;
-import org.dmkr.chess.api.model.ColoredItem;
+import org.dmkr.chess.api.model.ColoredPiece;
 import org.dmkr.chess.api.model.Field;
 import org.dmkr.chess.api.model.Move;
 import org.dmkr.chess.engine.api.AsyncEngine;
@@ -12,12 +12,12 @@ import org.dmkr.chess.ui.api.model.UIPoint;
 import org.dmkr.chess.ui.api.model.UIRect;
 import org.dmkr.chess.ui.config.UIBoardConfig;
 import org.dmkr.chess.ui.helpers.UIBoardCoordsHelper;
-import org.dmkr.chess.ui.helpers.UIBoardCoordsHelper.MovingItem;
+import org.dmkr.chess.ui.helpers.UIBoardCoordsHelper.MovingPiece;
 import org.dmkr.chess.ui.helpers.UIBoardImagesHelper;
 import org.dmkr.chess.ui.helpers.UIBoardTextHelper;
 import org.dmkr.chess.ui.helpers.UIMousePositionHelper;
 import org.dmkr.chess.ui.listeners.BestLineVisualizerListener;
-import org.dmkr.chess.ui.listeners.ItemsDragAndDropListener;
+import org.dmkr.chess.ui.listeners.PiecesDragAndDropListener;
 import org.dmkr.chess.ui.visualize.BestLineVisualizer;
 
 import javax.swing.*;
@@ -45,10 +45,10 @@ public class UIBoardJComponent extends JComponent {
 	@Inject private UIBoardCoordsHelper coordsHelper;
 	@Inject private UIBoardTextHelper textHelper;
 	
-	@Inject private ItemsDragAndDropListener mouseListener;
+	@Inject private PiecesDragAndDropListener mouseListener;
 	@Inject private BestLineVisualizerListener bestLineVisualizerListener;
    
-	private final AtomicReference<MovingItem> movingItemHolder = new AtomicReference<>();
+	private final AtomicReference<MovingPiece> movingPieceHolder = new AtomicReference<>();
 	private final AtomicReference<BestLineVisualizer> paintComponentOverride = new AtomicReference<>();
 	
 	public void run() {
@@ -76,11 +76,11 @@ public class UIBoardJComponent extends JComponent {
 		final Field mouseAtField = mouseListener.getMouseAtField();
 		final boolean isPressed = mouseListener.isPressed();
 		
-		drawBoardItems(board, movingItemHolder.get(), pressedField, g);
+		drawBoardPieces(board, movingPieceHolder.get(), pressedField, g);
 		
 		if (isPressed) {
 			final UIPoint mousePosition = mousePositionHelper.getMouseLocation();
-			drawItem(board.at(pressedField), mousePosition.x(), mousePosition.y(), g);
+			drawPiece(board.at(pressedField), mousePosition.x(), mousePosition.y(), g);
 		}
 		
 		resetCursor(pressedField, mouseAtField, isPressed);
@@ -92,16 +92,16 @@ public class UIBoardJComponent extends JComponent {
 		repaint();
 	}
 	
-	private void drawBoardItems(Board board, MovingItem movingItem, Field pressedField, Graphics g) {
+	private void drawBoardPieces(Board board, MovingPiece movingPiece, Field pressedField, Graphics g) {
 		drawPossibleMoves(pressedField, g);
 		
-		final Field movingItemTo = movingItem == null ? null : movingItem.getTo();
+		final Field movingPieceTo = movingPiece == null ? null : movingPiece.getTo();
 		board.forEach(
-				(field, coloredItem) -> (field != pressedField) && field != movingItemTo,
-				(field, coloredItem) -> drawItem(coloredItem, field, g)
+				(field, coloredPiece) -> (field != pressedField) && field != movingPieceTo,
+				(field, coloredPiece) -> drawPiece(coloredPiece, field, g)
 			);
 
-		drawMovingItem(movingItem, g);
+		drawMovingPiece(movingPiece, g);
 	}
 	
 	private void drawPossibleMoves(Field pressedField, Graphics g) {
@@ -124,26 +124,26 @@ public class UIBoardJComponent extends JComponent {
 		coordsHelper.getFieldRect(field).draw((Graphics2D) g, color);
 	}
 	
-	private void drawMovingItem(MovingItem item, Graphics g) {
-		if (item != null) {
-			drawItem(item.getColoredItem(), item.getLocation().x(), item.getLocation().y(), g);
+	private void drawMovingPiece(MovingPiece piece, Graphics g) {
+		if (piece != null) {
+			drawPiece(piece.getColoredPiece(), piece.getLocation().x(), piece.getLocation().y(), g);
 		}
 	}
 	
-	private void drawItem(ColoredItem coloredItem, Field field, Graphics g) {
+	private void drawPiece(ColoredPiece coloredPiece, Field field, Graphics g) {
 		final UIPoint fieldCenter = coordsHelper.getFieldCenter(field);
-		drawItem(coloredItem, fieldCenter.x(), fieldCenter.y(), g);
+		drawPiece(coloredPiece, fieldCenter.x(), fieldCenter.y(), g);
 	}
 	
-	private void drawItem(ColoredItem coloredItem, int xCenter, int yCenter, Graphics g) {
-		if (coloredItem.isNull()) {
+	private void drawPiece(ColoredPiece coloredPiece, int xCenter, int yCenter, Graphics g) {
+		if (coloredPiece.isNull()) {
 			return;
 		}
 		
-		final BufferedImage itemImage = imagesHelper.getImage(coloredItem);
-		final UIPoint imagePoint = coordsHelper.getImageCoords(itemImage, xCenter, yCenter);
+		final BufferedImage pieceImage = imagesHelper.getImage(coloredPiece);
+		final UIPoint imagePoint = coordsHelper.getImageCoords(pieceImage, xCenter, yCenter);
 		
-		g.drawImage(itemImage, imagePoint.x(), imagePoint.y(), this);
+		g.drawImage(pieceImage, imagePoint.x(), imagePoint.y(), this);
 	}
 	
 	private void drawBestMove(Graphics g) {
@@ -184,9 +184,9 @@ public class UIBoardJComponent extends JComponent {
 	}
 	
 	private void resetCursor(Field pressedField, Field mouseAtField, boolean isPressed) {
-		final boolean mouseAtItem = mouseAtField != null && !board.at(mouseAtField).isNull();
+		final boolean mouseAtPiece = mouseAtField != null && !board.at(mouseAtField).isNull();
 		
-		if (isPressed || mouseAtItem) {
+		if (isPressed || mouseAtPiece) {
 			setCursor(isPressed ? imagesHelper.getClosedHandCursor() : imagesHelper.getOpenHandCursor());
 		} else {
 			setCursor(imagesHelper.getDefaultCursor());
@@ -210,8 +210,8 @@ public class UIBoardJComponent extends JComponent {
 			return;
 		}
 		final Move oponentMove = engine.getBestMove();
-		final ColoredItem item = board.at(oponentMove.from());
-		movingItemHolder.set(coordsHelper.new MovingItem(oponentMove, item, () -> movingItemHolder.set(null)));
+		final ColoredPiece piece = board.at(oponentMove.from());
+		movingPieceHolder.set(coordsHelper.new MovingPiece(oponentMove, piece, () -> movingPieceHolder.set(null)));
 		board.applyMove(oponentMove);
 	}
 
@@ -224,7 +224,7 @@ public class UIBoardJComponent extends JComponent {
 				new BestLineVisualizer(bestLine, board, coordsHelper) {
 					@Override
 					public void accept(Graphics g) {
-						drawBoardItems(board, movingItemHolder.get(), null, g);
+						drawBoardPieces(board, movingPieceHolder.get(), null, g);
 					}
 					@Override
 					public void onFinihed() {

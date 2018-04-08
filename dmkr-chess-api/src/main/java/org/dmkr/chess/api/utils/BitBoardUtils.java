@@ -3,6 +3,7 @@ package org.dmkr.chess.api.utils;
 import lombok.experimental.UtilityClass;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.Long.bitCount;
 import static org.dmkr.chess.api.model.Constants.SIZE;
 import static org.dmkr.chess.api.utils.BitBoardMasks.BOARD_FIELDS_INVERTED;
 import static org.dmkr.chess.api.utils.BitBoardMasks.BOARD_INDEX_TO_LONG_INDEX;
@@ -78,5 +79,9 @@ public class BitBoardUtils {
 			fields &= BOARD_FIELDS_INVERTED[boardIndex];
 		}
 		return result;
+	}
+
+	public static int bitCountOfZeroble(long value) {
+		return value == 0L? 0 : bitCount(value);
 	}
 }

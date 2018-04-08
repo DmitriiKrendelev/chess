@@ -1,7 +1,7 @@
 package org.dmkr.chess.engine.minimax;
 
 import static org.dmkr.chess.engine.board.BoardFactory.getBoardType;
-import static org.dmkr.chess.engine.function.Functions.ITEM_VALUES;
+import static org.dmkr.chess.engine.function.Functions.PIECE_VALUES;
 import static org.dmkr.chess.engine.minimax.MiniMax.minimax;
 import static org.dmkr.chess.engine.minimax.tree.TreeBuildingStrategyImpl.treeBuildingStrategyWithParams;
 import static org.junit.Assert.assertFalse;
@@ -18,7 +18,7 @@ public class InterruptionTest {
 	@Test
 	public void test1() throws Exception {
 		final BoardEngine board = BoardFactory.newInitialPositionBoard();
-		final EvaluationFunctionAware<BoardEngine> evaluationFunctionAware = EvaluationFunctionAware.of(ITEM_VALUES.getFunction(getBoardType()));
+		final EvaluationFunctionAware<BoardEngine> evaluationFunctionAware = EvaluationFunctionAware.of(PIECE_VALUES.getFunction(getBoardType()));
 		
 		final MiniMax<BoardEngine> minimax = minimax()
 				.treeStrategyCreator(() -> 

@@ -8,45 +8,45 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor
-public enum Item {
+public enum Piece {
 
 	KING(VALUE_KING, 'K'),
 	QUEEN(VALUE_QUEEN, 'Q'),
 	ROOK(VALUE_ROOK, 'R'),
 	BISHOP(VALUE_BISHOP, 'B'),
 	KNIGHT(VALUE_KNIGHT, 'N'),
-	PAWN(VALUE_POWN, 'P');
+	PAWN(VALUE_PAWN, 'P');
 
-	public static final char NO_ITEM = '-';
+	public static final char NO_PIECE = '-';
 
 	@Getter
 	private final byte value;
 	@Getter
 	private final char shortName;
 	
-	public static Item withShortName(char shortName) {
+	public static Piece withShortName(char shortName) {
 		return Stream.of(values())
-			.filter(item -> item.shortName == shortName || item.shortName == Character.toUpperCase(shortName))
+			.filter(piece -> piece.shortName == shortName || piece.shortName == Character.toUpperCase(shortName))
 			.findFirst()
 			.orElseThrow(() -> new IllegalArgumentException("shortName = " + shortName));
 	}
 	
-	public static Item withValue(byte value) {
+	public static Piece withValue(byte value) {
 		return value == VALUE_EMPTY ? null : Stream.of(values())
-			.filter(item -> item.value == value || item.value == -value)
+			.filter(piece -> piece.value == value || piece.value == -value)
 			.findFirst()
 			.orElseThrow(() -> new IllegalArgumentException("value = " + value));
 	}
 	
 	public static char shortName(byte value) {
 		if (value == VALUE_EMPTY)
-			return NO_ITEM;
+			return NO_PIECE;
 		
-		for (Item item : values())
-			if (item.value == value)
-				return item.shortName;
-			else if (item.value == -value)
-				return Character.toLowerCase(item.shortName);
+		for (Piece piece : values())
+			if (piece.value == value)
+				return piece.shortName;
+			else if (piece.value == -value)
+				return Character.toLowerCase(piece.shortName);
 		
 		throw new IllegalArgumentException("value = " + value);
 	}

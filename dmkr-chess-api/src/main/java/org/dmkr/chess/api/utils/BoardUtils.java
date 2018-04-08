@@ -9,7 +9,7 @@ import java.util.Set;
 
 import org.dmkr.chess.api.BoardEngine;
 import org.dmkr.chess.api.model.Field;
-import org.dmkr.chess.api.model.Item;
+import org.dmkr.chess.api.model.Piece;
 import org.dmkr.chess.api.model.Move;
 
 import lombok.experimental.UtilityClass;
@@ -70,10 +70,10 @@ public class BoardUtils {
 		final StringBuilder sb = new StringBuilder(256);	
 		
 		allowedMoves.forEach(move -> {
-			final byte itemValue = board.at(invertCoord(move.fromX(), inverted), invertCoord(move.fromY(), inverted));
-			final Item item = Item.withValue(itemValue);
+			final byte pieceValue = board.at(invertCoord(move.fromX(), inverted), invertCoord(move.fromY(), inverted));
+			final Piece piece = Piece.withValue(pieceValue);
 			
-			sb.append('\n').append(item).append(": ").append(move);
+			sb.append('\n').append(piece).append(": ").append(move);
 		});
 		
 		return sb.toString();
@@ -88,7 +88,7 @@ public class BoardUtils {
 			sb.append(Field.xName(invertCoord(y, inverted))).append(' ');
 			
 			for (int x = 0; x < SIZE; x ++) 
-				sb.append(Item.shortName(board.at(x, y))).append(' ');
+				sb.append(Piece.shortName(board.at(x, y))).append(' ');
 
 			sb.append("\n");
 		}

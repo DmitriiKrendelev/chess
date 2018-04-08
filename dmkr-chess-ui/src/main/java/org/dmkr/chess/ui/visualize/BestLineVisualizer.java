@@ -10,13 +10,13 @@ import org.dmkr.chess.api.BoardEngine;
 import org.dmkr.chess.api.model.Move;
 import org.dmkr.chess.engine.minimax.BestLine;
 import org.dmkr.chess.ui.helpers.UIBoardCoordsHelper;
-import org.dmkr.chess.ui.helpers.UIBoardCoordsHelper.MovingItem;
+import org.dmkr.chess.ui.helpers.UIBoardCoordsHelper.MovingPiece;
 
 public abstract class BestLineVisualizer implements Consumer<Graphics> {
 	private final UIBoardCoordsHelper coordsHelper;
 	private final Iterator<Move> movesIterator;
 	protected final Board board;
-	protected final AtomicReference<MovingItem> movingItemHolder = new AtomicReference<>();
+	protected final AtomicReference<MovingPiece> movingPieceHolder = new AtomicReference<>();
 	
 	
 	public BestLineVisualizer(BestLine bestLine, BoardEngine board, UIBoardCoordsHelper coordsHelper) {
@@ -25,19 +25,19 @@ public abstract class BestLineVisualizer implements Consumer<Graphics> {
 		this.board.rollback();
 		this.coordsHelper = coordsHelper;
 		
-		setNextMovingItem();
+		setNextMovingPiece();
 	}
 	
-	private void setNextMovingItem() {
+	private void setNextMovingPiece() {
 		if (!movesIterator.hasNext()) {
 			onFinihed();
 			return;
 		}
 		
 		final Move nextMove = movesIterator.next();
-		final MovingItem movingItem = coordsHelper.new MovingItem(nextMove, board, this::setNextMovingItem);
+		final MovingPiece movingPiece = coordsHelper.new MovingPiece(nextMove, board, this::setNextMovingPiece);
 		board.applyMove(nextMove);
-		movingItemHolder.set(movingItem);
+		movingPieceHolder.set(movingPiece);
 	}
 	
 	public abstract void onFinihed();

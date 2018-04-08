@@ -1,7 +1,7 @@
 package org.dmkr.chess.ui.guice;
 
 import org.dmkr.chess.ui.listeners.BestLineVisualizerListener;
-import org.dmkr.chess.ui.listeners.ItemsDragAndDropListener;
+import org.dmkr.chess.ui.listeners.PiecesDragAndDropListener;
 import org.dmkr.chess.ui.listeners.MovesRollbackListener;
 import org.dmkr.chess.ui.listeners.PrintBoardListener;
 import org.dmkr.chess.ui.listeners.PrintThreadDumpListener;
@@ -16,7 +16,7 @@ public class UIListenersModule extends AbstractModule {
 		bind(PrintBoardListener.class).asEagerSingleton();
 		bind(PrintThreadDumpListener.class).asEagerSingleton();
 		bind(BestLineVisualizerListener.class).asEagerSingleton();
-		bind(ItemsDragAndDropListener.class).asEagerSingleton();
+		bind(PiecesDragAndDropListener.class).asEagerSingleton();
 	}
 
 }

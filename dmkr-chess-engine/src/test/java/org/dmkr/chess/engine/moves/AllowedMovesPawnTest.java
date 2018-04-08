@@ -3,7 +3,7 @@ package org.dmkr.chess.engine.moves;
 import org.dmkr.chess.engine.board.BoardFactory;
 import org.junit.Test;
 
-public class AllowedMovesPownTest extends AllowedMovesAbstractTest {
+public class AllowedMovesPawnTest extends AllowedMovesAbstractTest {
 
 	@Test
 	public void test1() {

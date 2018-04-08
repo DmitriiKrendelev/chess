@@ -5,20 +5,20 @@ import static org.dmkr.chess.api.model.Constants.SIZE;
 import static org.dmkr.chess.api.utils.BoardUtils.getX;
 import static org.dmkr.chess.api.utils.BoardUtils.getY;
 import static org.dmkr.chess.api.utils.BoardUtils.index;
-import static org.dmkr.chess.api.utils.ItemGoesFunctionsBit.ItemGoesFunctionBit.GO_DOWN;
-import static org.dmkr.chess.api.utils.ItemGoesFunctionsBit.ItemGoesFunctionBit.GO_DOWN_LEFT;
-import static org.dmkr.chess.api.utils.ItemGoesFunctionsBit.ItemGoesFunctionBit.GO_DOWN_RIGHT;
-import static org.dmkr.chess.api.utils.ItemGoesFunctionsBit.ItemGoesFunctionBit.GO_LEFT;
-import static org.dmkr.chess.api.utils.ItemGoesFunctionsBit.ItemGoesFunctionBit.GO_RIGHT;
-import static org.dmkr.chess.api.utils.ItemGoesFunctionsBit.ItemGoesFunctionBit.GO_UP;
-import static org.dmkr.chess.api.utils.ItemGoesFunctionsBit.ItemGoesFunctionBit.GO_UP_LEFT;
-import static org.dmkr.chess.api.utils.ItemGoesFunctionsBit.ItemGoesFunctionBit.GO_UP_RIGHT;
+import static org.dmkr.chess.api.utils.PieceGoesFunctionsBit.PieceGoesFunctionBit.GO_DOWN;
+import static org.dmkr.chess.api.utils.PieceGoesFunctionsBit.PieceGoesFunctionBit.GO_DOWN_LEFT;
+import static org.dmkr.chess.api.utils.PieceGoesFunctionsBit.PieceGoesFunctionBit.GO_DOWN_RIGHT;
+import static org.dmkr.chess.api.utils.PieceGoesFunctionsBit.PieceGoesFunctionBit.GO_LEFT;
+import static org.dmkr.chess.api.utils.PieceGoesFunctionsBit.PieceGoesFunctionBit.GO_RIGHT;
+import static org.dmkr.chess.api.utils.PieceGoesFunctionsBit.PieceGoesFunctionBit.GO_UP;
+import static org.dmkr.chess.api.utils.PieceGoesFunctionsBit.PieceGoesFunctionBit.GO_UP_LEFT;
+import static org.dmkr.chess.api.utils.PieceGoesFunctionsBit.PieceGoesFunctionBit.GO_UP_RIGHT;
 
 import java.util.function.LongPredicate;
 import java.util.function.LongUnaryOperator;
 import java.util.stream.IntStream;
 
-import org.dmkr.chess.api.utils.ItemGoesFunctionsBit.ItemGoesFunctionBit;
+import org.dmkr.chess.api.utils.PieceGoesFunctionsBit.PieceGoesFunctionBit;
 
 public class BitBoardMasks {
 	public static final long LINE_1 = 255L;
@@ -58,7 +58,7 @@ public class BitBoardMasks {
 	public static final long[] FILES = {FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H};
 	
 	
-	public static final long[] POWN_CAN_GO_TWO_STEPS = IntStream.range(0, SIZE).mapToLong(i -> 1L << (3 * SIZE - 1 - i) | 1L << (4 * SIZE - 1 - i)).toArray();
+	public static final long[] PAWN_CAN_GO_TWO_STEPS = IntStream.range(0, SIZE).mapToLong(i -> 1L << (3 * SIZE - 1 - i) | 1L << (4 * SIZE - 1 - i)).toArray();
 	public static final long[] BOARD_FIELDS = IntStream.of(BOARD_INDEX_TO_LONG_INDEX).mapToLong(i -> (1L << i)).toArray();
 	public static final long[] BOARD_FIELDS_INVERTED = IntStream.of(BOARD_INDEX_TO_LONG_INDEX).mapToLong(i -> ~(1L << i)).toArray();
 	public static final long[] KING_ATACKS = boardLongFieldsStream()
@@ -73,7 +73,7 @@ public class BitBoardMasks {
 				((1L << (i - SIZE - 1)) & NOT_A & NOT_8))
 			.toArray();   
 	
-	public static final long[] POWN_ATACKS = boardLongFieldsStream()
+	public static final long[] PAWN_ATACKS = boardLongFieldsStream()
 			.mapToLong(i -> 
 				((1L << (i + SIZE + 1)) & NOT_H) |
 				((1L << (i + SIZE - 1)) & NOT_A))
@@ -107,14 +107,14 @@ public class BitBoardMasks {
 				toFieldsLong(i, GO_LEFT) |
 				toFieldsLong(i, GO_DOWN)
 			)
-			.toArray(); 
-	
-	
-	public static long toFieldsLong(int index, ItemGoesFunctionBit itemGoesFunction) {
+			.toArray();
+
+
+    private static long toFieldsLong(int index, PieceGoesFunctionBit pieceGoesFunction) {
 		long field = 1L << index;
 		long result = 0;
-		final LongUnaryOperator goFunction = itemGoesFunction.goFunction();
-		final LongPredicate stopPredicate = itemGoesFunction.stopPredicate();
+		final LongUnaryOperator goFunction = pieceGoesFunction.goFunction();
+		final LongPredicate stopPredicate = pieceGoesFunction.stopPredicate();
 		
 		while (true) {
 			field = goFunction.applyAsLong(field);
@@ -126,8 +126,8 @@ public class BitBoardMasks {
 		
 		return result;
 	}
-	
-	public static long upBits(int ... bits) {
+
+    private static long upBits(int ... bits) {
 		long result = 0L;
 		for (int bit : bits) {
 			result |= 1L << bit;
@@ -135,7 +135,7 @@ public class BitBoardMasks {
 		return result;
 	}
 	
-	public static IntStream boardLongFieldsStream() {
+	private static IntStream boardLongFieldsStream() {
 		return range(0, SIZE * SIZE).map(i -> BOARD_INDEX_TO_LONG_INDEX[i]);
 	}
 }

@@ -2,11 +2,13 @@ package org.dmkr.chess.api;
 
 public interface BitBoard extends BoardEngine {
 
-	long items(byte itemType);
+	long pieces(byte pieceType);
 
-	long oponentItems(byte itemType);
+	long oponentPieces(byte pieceType);
 
-	long itemPositions();
+	long piecePositions();
 
-	long itemPositionsOponent();
+	long piecePositionsOponent();
+
+	long emptyPositions();
 }

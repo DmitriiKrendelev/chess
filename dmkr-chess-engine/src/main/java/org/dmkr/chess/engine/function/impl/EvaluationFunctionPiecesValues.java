@@ -2,7 +2,7 @@ package org.dmkr.chess.engine.function.impl;
 
 import static org.dmkr.chess.api.model.Constants.SIZE;
 import static org.dmkr.chess.api.model.Constants.VALUE_EMPTY;
-import static org.dmkr.chess.engine.function.ItemValuesProvider.valueOf;
+import static org.dmkr.chess.engine.function.PieceValuesProvider.valueOf;
 
 import org.dmkr.chess.api.BoardEngine;
 import org.dmkr.chess.engine.function.EvaluationFunction;
@@ -11,19 +11,19 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class EvaluationFunctionItemsValues implements EvaluationFunction<BoardEngine> {
+public class EvaluationFunctionPiecesValues implements EvaluationFunction<BoardEngine> {
 	
-	public static final EvaluationFunction<BoardEngine> INSTANCE = new EvaluationFunctionItemsValues();
+	public static final EvaluationFunction<BoardEngine> INSTANCE = new EvaluationFunctionPiecesValues();
 	
 	@Override
 	public int value(BoardEngine board) {
 	    int result = 0;
 		
 		for (int i = 0; i < SIZE * SIZE; i ++) {
-			final byte item = board.at(i);
+			final byte piece = board.at(i);
 			
-			if (item != VALUE_EMPTY)
-				result += valueOf(item);
+			if (piece != VALUE_EMPTY)
+				result += valueOf(piece);
 		}
 		
 		return result;
@@ -31,6 +31,6 @@ public class EvaluationFunctionItemsValues implements EvaluationFunction<BoardEn
 
 	@Override
 	public String toString() {
-		return "Items";
+		return "Pieces";
 	}
 }

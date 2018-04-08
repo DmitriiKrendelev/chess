@@ -33,8 +33,8 @@ public class EvaluationFunctionQueenInTheCenterBit implements EvaluationFunction
 			return 0;
 		}
 		
-		final long queenField = board.items(VALUE_QUEEN);
-		final long oponentQueenField = board.oponentItems(VALUE_QUEEN);
+		final long queenField = board.pieces(VALUE_QUEEN);
+		final long oponentQueenField = board.oponentPieces(VALUE_QUEEN);
 
 		return ((isIndexInTheCenter(queenField) ? -1 : 0) + (isIndexInTheCenter(oponentQueenField) ? 1 : 0)) * penalty * PENALTY_VALUE; 
 	}

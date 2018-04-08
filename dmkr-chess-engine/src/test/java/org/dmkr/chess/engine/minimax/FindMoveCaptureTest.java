@@ -1,7 +1,7 @@
 package org.dmkr.chess.engine.minimax;
 
 import static org.dmkr.chess.api.model.Move.moveOf;
-import static org.dmkr.chess.engine.function.Functions.ITEM_VALUES;
+import static org.dmkr.chess.engine.function.Functions.PIECE_VALUES;
 import static org.dmkr.chess.engine.minimax.MiniMax.minimax;
 import static org.dmkr.chess.engine.minimax.tree.TreeBuildingStrategyImpl.treeBuildingStrategyWithParams;
 
@@ -17,7 +17,7 @@ public class FindMoveCaptureTest extends FindMoveAbstractTest<BoardEngine> {
 	
 	@Override
 	protected AsyncEngine<BoardEngine> getEngine() {
-		final EvaluationFunction<BoardEngine> evaluationFunction = ITEM_VALUES.getFunction(BoardFactory.getBoardType());
+		final EvaluationFunction<BoardEngine> evaluationFunction = PIECE_VALUES.getFunction(BoardFactory.getBoardType());
 		final EvaluationFunctionAware<BoardEngine> evaluationFunctionAware = EvaluationFunctionAware.of(evaluationFunction);
 		
 		return minimax()

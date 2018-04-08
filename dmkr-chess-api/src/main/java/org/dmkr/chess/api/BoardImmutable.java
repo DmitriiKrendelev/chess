@@ -6,13 +6,13 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 
-import org.dmkr.chess.api.model.ColoredItem;
+import org.dmkr.chess.api.model.ColoredPiece;
 import org.dmkr.chess.api.model.Field;
 import org.dmkr.chess.api.model.Move;
 
 public interface BoardImmutable {
 	
-	ColoredItem at(Field field);
+	ColoredPiece at(Field field);
 	
 	boolean canCastleLeft();
 
@@ -22,9 +22,9 @@ public interface BoardImmutable {
 
 	boolean canOponentCastleRght();
 	
-	void forEach(BiPredicate<Field, ColoredItem> filter, BiConsumer<Field, ColoredItem> consumer);
+	void forEach(BiPredicate<Field, ColoredPiece> filter, BiConsumer<Field, ColoredPiece> consumer);
 	
-	void forEach(BiConsumer<Field, ColoredItem> consumer);
+	void forEach(BiConsumer<Field, ColoredPiece> consumer);
 	
 	Set<Move> getAllowedMoves();
 	

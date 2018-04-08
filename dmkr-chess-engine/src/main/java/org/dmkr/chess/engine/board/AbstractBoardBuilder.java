@@ -2,14 +2,14 @@ package org.dmkr.chess.engine.board;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.dmkr.chess.api.model.Constants.SIZE;
-import static org.dmkr.chess.api.model.Item.NO_ITEM;
+import static org.dmkr.chess.api.model.Piece.NO_PIECE;
 
 import java.util.function.Supplier;
 
 import org.dmkr.chess.api.BoardEngine;
 import org.dmkr.chess.api.model.Color;
 import org.dmkr.chess.api.model.Field;
-import org.dmkr.chess.api.model.Item;
+import org.dmkr.chess.api.model.Piece;
 
 import lombok.NonNull;
 
@@ -29,17 +29,16 @@ public abstract class AbstractBoardBuilder {
 			final char[] yLineChars = yLines[y].toCharArray();
 			
 			int x = 0;
-			for (int i = 0; i < yLineChars.length; i ++) {
-				final char c = yLineChars[i];
+			for (char c : yLineChars) {
 				if (c == ' ' )
 					continue;
 				
-				if (c != NO_ITEM) {
-					final Item item = Item.withShortName(c);
-					final Color color = Color.ofItem(c);
+				if (c != NO_PIECE) {
+					final Piece piece = Piece.withShortName(c);
+					final Color color = Color.ofPiece(c);
 					final Field field = Field.resolve(x, SIZE - 1 - y);
 					
-					((AbstractBoardBuilder) builder).board[field.index()] = color.item(item);
+					((AbstractBoardBuilder) builder).board[field.index()] = color.piece(piece);
 				}
 				
 				x ++;

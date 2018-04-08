@@ -21,12 +21,12 @@ public final class UIBoardConfigs {
 			.size(new Dimension(1000, 700))
 			.backGroundPathForWhite("ui/style1/board/empty_board_white.png")
 			.backGroundPathForBlack("ui/style1/board/empty_board_black.png")
-			.itemsFolderPath("ui/style1/pieces/")
+			.piecesFolderPath("ui/style1/pieces/")
 			.cursorsFolderPath("ui/style1/cursors/")
 			
 			// Coords
 			.boardCoords(new UIRect(41, 34, 580, 582))
-			.itemMovingSpeed(100)
+			.pieceMovingSpeed(100)
 			
 			// Text
 			.textPosition(new UIPoint(641, 54))

@@ -9,7 +9,7 @@ import javax.imageio.ImageIO;
 
 import lombok.NonNull;
 import org.dmkr.chess.api.model.Color;
-import org.dmkr.chess.api.model.ColoredItem;
+import org.dmkr.chess.api.model.ColoredPiece;
 import org.dmkr.chess.ui.config.UIBoardConfig;
 
 import com.google.inject.Inject;
@@ -26,22 +26,22 @@ public class UIBoardImagesHelper {
 	private static final String OPEN_HAND_CURSOR = "open_hand";
 	private static final String CLOSED_HAND_CURSOR = "closed_hand";
 	
-	private final String itemsFolderPath;
+	private final String piecesFolderPath;
 
 	@Getter
 	private final BufferedImage backgroundImageWhite, backgroundImageBlack;
-	private final Map<ColoredItem, BufferedImage> itemsCache;
+	private final Map<ColoredPiece, BufferedImage> piecesCache;
 	
 	@Getter
 	private final Cursor openHandCursor, closedHandCursor, defaultCursor;
 	
 	@Inject
 	public UIBoardImagesHelper(UIBoardConfig config) {
-		this.itemsFolderPath = config.getItemsFolderPath();
+		this.piecesFolderPath = config.getPiecesFolderPath();
 		this.backgroundImageWhite = load(config.getBackGroundPathForWhite());
 		this.backgroundImageBlack = load(config.getBackGroundPathForBlack());
 		
-		this.itemsCache = copyOf(ColoredItem.stream().collect(toMap(item -> item, this::load)));
+		this.piecesCache = copyOf(ColoredPiece.stream().collect(toMap(piece -> piece, this::load)));
 		final BufferedImage openHandImage = load(config.getCursorsFolderPath() + OPEN_HAND_CURSOR + FILE_EXT_PNG);
 		final BufferedImage closedHandImage = load(config.getCursorsFolderPath() + CLOSED_HAND_CURSOR + FILE_EXT_PNG);
 		
@@ -50,16 +50,16 @@ public class UIBoardImagesHelper {
 		defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
 	}
 	
-	public BufferedImage getImage(ColoredItem coloredItem) {
-		return itemsCache.get(coloredItem);
+	public BufferedImage getImage(ColoredPiece coloredPiece) {
+		return piecesCache.get(coloredPiece);
 	}
 
 	public BufferedImage getBackgroundImage(Color color) {
 		return color == Color.WHITE ? backgroundImageWhite : backgroundImageBlack;
 	}
 	
-	private BufferedImage load(ColoredItem coloredItem) {
-		return load(itemsFolderPath + getImageName(coloredItem));
+	private BufferedImage load(ColoredPiece coloredPiece) {
+		return load(piecesFolderPath + getImageName(coloredPiece));
 	}
 	
 	private BufferedImage load(@NonNull  String path) {
@@ -74,7 +74,7 @@ public class UIBoardImagesHelper {
 		return new Point(image.getWidth() / 2 , image.getWidth() / 2);
 	}
 	
-	private String getImageName(ColoredItem coloredItem) {
-		return coloredItem.color().name().toLowerCase() + "_" + coloredItem.item().name().toLowerCase() + FILE_EXT_PNG;
+	private String getImageName(ColoredPiece coloredPiece) {
+		return coloredPiece.color().name().toLowerCase() + "_" + coloredPiece.piece().name().toLowerCase() + FILE_EXT_PNG;
 	}
 }

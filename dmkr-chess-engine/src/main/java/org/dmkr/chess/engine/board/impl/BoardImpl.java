@@ -7,13 +7,13 @@ import static org.dmkr.chess.api.model.Constants.SIZE;
 import static org.dmkr.chess.api.model.Constants.SPECIAL_MOVE_DISSALOW_CASTELING_LEFT;
 import static org.dmkr.chess.api.model.Constants.SPECIAL_MOVE_DISSALOW_CASTELING_RGHT;
 import static org.dmkr.chess.api.model.Constants.SPECIAL_MOVE_NO;
-import static org.dmkr.chess.api.model.Constants.SPECIAL_MOVE_POWN_EN_PASSANT;
-import static org.dmkr.chess.api.model.Constants.SPECIAL_MOVE_POWN_GOES_TWO_STEPS;
+import static org.dmkr.chess.api.model.Constants.SPECIAL_MOVE_PAWN_EN_PASSANT;
+import static org.dmkr.chess.api.model.Constants.SPECIAL_MOVE_PAWN_GOES_TWO_STEPS;
 import static org.dmkr.chess.api.model.Constants.VALUE_BISHOP;
 import static org.dmkr.chess.api.model.Constants.VALUE_EMPTY;
 import static org.dmkr.chess.api.model.Constants.VALUE_KING;
 import static org.dmkr.chess.api.model.Constants.VALUE_KNIGHT;
-import static org.dmkr.chess.api.model.Constants.VALUE_POWN;
+import static org.dmkr.chess.api.model.Constants.VALUE_PAWN;
 import static org.dmkr.chess.api.model.Constants.VALUE_QUEEN;
 import static org.dmkr.chess.api.model.Constants.VALUE_ROOK;
 import static org.dmkr.chess.api.utils.BoardUtils.getX;
@@ -21,14 +21,14 @@ import static org.dmkr.chess.api.utils.BoardUtils.getY;
 import static org.dmkr.chess.api.utils.BoardUtils.index;
 import static org.dmkr.chess.api.utils.BoardUtils.invertIndex;
 import static org.dmkr.chess.api.utils.BoardUtils.isOnBoard;
-import static org.dmkr.chess.api.utils.ItemGoesFunctions.ItemGoesFunction.GO_DOWN;
-import static org.dmkr.chess.api.utils.ItemGoesFunctions.ItemGoesFunction.GO_DOWN_LEFT;
-import static org.dmkr.chess.api.utils.ItemGoesFunctions.ItemGoesFunction.GO_DOWN_RIGHT;
-import static org.dmkr.chess.api.utils.ItemGoesFunctions.ItemGoesFunction.GO_LEFT;
-import static org.dmkr.chess.api.utils.ItemGoesFunctions.ItemGoesFunction.GO_RIGHT;
-import static org.dmkr.chess.api.utils.ItemGoesFunctions.ItemGoesFunction.GO_UP;
-import static org.dmkr.chess.api.utils.ItemGoesFunctions.ItemGoesFunction.GO_UP_LEFT;
-import static org.dmkr.chess.api.utils.ItemGoesFunctions.ItemGoesFunction.GO_UP_RIGHT;
+import static org.dmkr.chess.api.utils.PieceGoesFunctions.PieceGoesFunction.GO_DOWN;
+import static org.dmkr.chess.api.utils.PieceGoesFunctions.PieceGoesFunction.GO_DOWN_LEFT;
+import static org.dmkr.chess.api.utils.PieceGoesFunctions.PieceGoesFunction.GO_DOWN_RIGHT;
+import static org.dmkr.chess.api.utils.PieceGoesFunctions.PieceGoesFunction.GO_LEFT;
+import static org.dmkr.chess.api.utils.PieceGoesFunctions.PieceGoesFunction.GO_RIGHT;
+import static org.dmkr.chess.api.utils.PieceGoesFunctions.PieceGoesFunction.GO_UP;
+import static org.dmkr.chess.api.utils.PieceGoesFunctions.PieceGoesFunction.GO_UP_LEFT;
+import static org.dmkr.chess.api.utils.PieceGoesFunctions.PieceGoesFunction.GO_UP_RIGHT;
 import static org.dmkr.chess.common.primitives.Bytes.apply;
 import static org.dmkr.chess.common.primitives.Bytes.byte2;
 import static org.dmkr.chess.common.primitives.Bytes.intByte4;
@@ -36,8 +36,8 @@ import static org.dmkr.chess.common.primitives.Bytes.intByte4;
 import java.util.function.IntPredicate;
 import java.util.function.IntUnaryOperator;
 
-import org.dmkr.chess.api.utils.BoardTraverser;
-import org.dmkr.chess.api.utils.ItemGoesFunctions.ItemGoesFunction;
+import org.dmkr.chess.api.utils.BoardUtils;
+import org.dmkr.chess.api.utils.PieceGoesFunctions.PieceGoesFunction;
 import org.dmkr.chess.engine.board.AbstractBoard;
 
 import lombok.AccessLevel;
@@ -77,7 +77,7 @@ public class BoardImpl extends AbstractBoard {
 	@Override
 	protected void reverseBoardRepresentation() {
 		reverse(board);
-		apply(board, item -> -item);
+		apply(board, piece -> -piece);
 	}
 	
 	protected void doApplyMove(int from, int to) {
@@ -91,14 +91,16 @@ public class BoardImpl extends AbstractBoard {
 	}
 	
 	protected int[] calculateAllowedMoves() {
-		BoardTraverser.traverseUpCenterDescOrder((x, y) -> {
-			final int index = index(x, y);
-			final byte item = at(index);
+		for (int index = 0; index < SIZE * SIZE; index ++) {
+			final byte piece = at(index);
+			final int x = BoardUtils.getX(index);
+			final int y = BoardUtils.getY(index);
 
-			if (item <= 0 || !movesSelector.selectMoves(item))
-				return;
+			if (piece <= 0 || !movesSelector.selectMoves(piece)) {
+				continue;
+			}
 				
-			switch (item) {
+			switch (piece) {
 				case VALUE_KING: {
 					final int specialMove = getSpecialMoveForKingMove(false, false);
 					collectMove(index, x + 1, y + 1, specialMove);
@@ -129,9 +131,9 @@ public class BoardImpl extends AbstractBoard {
 				case VALUE_ROOK: {
 					final int specialMove;
 						
-					if (canCastleLeft && x == 0)
+					if (canCastleLeft && index == 0)
 						specialMove = SPECIAL_MOVE_DISSALOW_CASTELING_LEFT;
-					else if (canCastleRght && x == 7)
+					else if (canCastleRght && index == 7)
 						specialMove = SPECIAL_MOVE_DISSALOW_CASTELING_RGHT;
 					else 
 						specialMove = SPECIAL_MOVE_NO;
@@ -163,25 +165,25 @@ public class BoardImpl extends AbstractBoard {
 					
 					break;
 				}
-				case VALUE_POWN: {
+				case VALUE_PAWN: {
 					final boolean promotion = y == 6;
 
 					// ordinary moves
 					if (x > 0 && at(index + SIZE - 1) < 0)
-						collectPownMoves(moveOf(index, index + SIZE - 1), promotion);
+						collectPawnMoves(moveOf(index, index + SIZE - 1), promotion);
 					if (x < 7 && at(index + SIZE + 1) < 0)
-						collectPownMoves(moveOf(index, index + SIZE + 1), promotion);
+						collectPawnMoves(moveOf(index, index + SIZE + 1), promotion);
 					if (at(index + SIZE) == VALUE_EMPTY)
-						collectPownMoves(moveOf(index, index + SIZE), promotion);
+						collectPawnMoves(moveOf(index, index + SIZE), promotion);
 						
 					// en passant
 					if (!movesSelector.skipEnPassenMoves()) {
 						final int lastMove = movesHistory.empty() ? 0 : movesHistory.peek();
-						if (y == 4 && intByte4(lastMove) == SPECIAL_MOVE_POWN_GOES_TWO_STEPS) {
+						if (y == 4 && intByte4(lastMove) == SPECIAL_MOVE_PAWN_GOES_TWO_STEPS) {
 							final int to = invertIndex(byte2(lastMove));
 
 							if ((to == index - 1 && x > 0) || (to == index + 1 && x < SIZE - 1)) {
-								final int move = specialMoveOf(index, to + SIZE, SPECIAL_MOVE_POWN_EN_PASSANT);
+								final int move = specialMoveOf(index, to + SIZE, SPECIAL_MOVE_PAWN_EN_PASSANT);
 								if (!isKingUnderAtack(move))
 									movesBuilder.add(move);
 							}
@@ -190,7 +192,7 @@ public class BoardImpl extends AbstractBoard {
 						
 					// goes two steps
 					if (y == 1 && at(index + SIZE) == VALUE_EMPTY && at(index + SIZE + SIZE) == VALUE_EMPTY) {
-						final int move = specialMoveOf(index, index + SIZE + SIZE, SPECIAL_MOVE_POWN_GOES_TWO_STEPS);
+						final int move = specialMoveOf(index, index + SIZE + SIZE, SPECIAL_MOVE_PAWN_GOES_TWO_STEPS);
 						if (!isKingUnderAtack(move)) 
 							movesBuilder.add(move);
 					}
@@ -198,9 +200,9 @@ public class BoardImpl extends AbstractBoard {
 					break;
 				}
 				default:
-					throw new IllegalStateException("x = " + x + " y = " + y + " item = " + item);
+					throw new IllegalStateException("x = " + x + " y = " + y + " piece = " + piece);
 			}
-		});
+		}
 		
 		return movesBuilder.build();
 	}
@@ -243,9 +245,9 @@ public class BoardImpl extends AbstractBoard {
 			return true;
 		}
 		
-		// pown
-		if (test(kingX + 1, kingY + 1, -VALUE_POWN) ||
-			test(kingX - 1, kingY + 1, -VALUE_POWN)) {
+		// pawn
+		if (test(kingX + 1, kingY + 1, -VALUE_PAWN) ||
+			test(kingX - 1, kingY + 1, -VALUE_PAWN)) {
 			return true;
 		}
 		
@@ -297,13 +299,13 @@ public class BoardImpl extends AbstractBoard {
 		movesBuilder.add(specialMoveOf(move, specialMove));
 	}
 	
-	private void collectMoves(int index, ItemGoesFunction itemGoesFunction) {
-		collectMoves(index, itemGoesFunction, SPECIAL_MOVE_NO);
+	private void collectMoves(int index, PieceGoesFunction pieceGoesFunction) {
+		collectMoves(index, pieceGoesFunction, SPECIAL_MOVE_NO);
 	}
 	
-	private void collectMoves(int index, ItemGoesFunction itemGoesFunction, int specialMove) {
-		final IntUnaryOperator goFunction = itemGoesFunction.goFunction();
-		final IntPredicate stopPredicate = itemGoesFunction.stopPredicate();
+	private void collectMoves(int index, PieceGoesFunction pieceGoesFunction, int specialMove) {
+		final IntUnaryOperator goFunction = pieceGoesFunction.goFunction();
+		final IntPredicate stopPredicate = pieceGoesFunction.stopPredicate();
 		final int startIndex = index;
 		while (true) {
 			index = goFunction.applyAsInt(index);
@@ -319,29 +321,29 @@ public class BoardImpl extends AbstractBoard {
 		}
 	}
 	
-	private boolean test(int index, ItemGoesFunction itemGoesFunction, int ... itemsToFind) {
-		final IntUnaryOperator goFunction = itemGoesFunction.goFunction();
-		final IntPredicate stopPredicate = itemGoesFunction.stopPredicate();
+	private boolean test(int index, PieceGoesFunction pieceGoesFunction, int ... piecesToFind) {
+		final IntUnaryOperator goFunction = pieceGoesFunction.goFunction();
+		final IntPredicate stopPredicate = pieceGoesFunction.stopPredicate();
 		
 		while (true) {
 			index = goFunction.applyAsInt(index);
 			if (index < 0 || index >= SIZE * SIZE || stopPredicate.test(index))
 				return false;
 			
-			final byte item = at(index);
-			if (item == VALUE_EMPTY)
+			final byte piece = at(index);
+			if (piece == VALUE_EMPTY)
 				continue;
 			
-			for (int itemToFind: itemsToFind) 
-				if (item == itemToFind)
+			for (int pieceToFind: piecesToFind)
+				if (piece == pieceToFind)
 					return true;
 			
 			return false;
 		}
 	}
 	
-	private boolean test(int x, int y, int item) {
-		return isOnBoard(x, y) && at(index(x, y)) == item;
+	private boolean test(int x, int y, int piece) {
+		return isOnBoard(x, y) && at(index(x, y)) == piece;
 	}
 	
 }

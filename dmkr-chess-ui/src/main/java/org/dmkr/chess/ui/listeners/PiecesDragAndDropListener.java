@@ -15,7 +15,7 @@ import org.dmkr.chess.ui.api.model.UIPoint;
 import org.dmkr.chess.ui.helpers.UIBoardCoordsHelper;
 import org.dmkr.chess.ui.helpers.UIMousePositionHelper;
 
-public class ItemsDragAndDropListener extends MouseAdapter {
+public class PiecesDragAndDropListener extends MouseAdapter {
 	private final AtomicBoolean mousePressed = new AtomicBoolean();
 	private final AtomicReference<Field> pressedField = new AtomicReference<>();
 	

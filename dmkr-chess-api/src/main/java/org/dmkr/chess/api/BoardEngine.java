@@ -20,9 +20,9 @@ import java.util.function.Function;
 import java.util.function.IntPredicate;
 
 import org.dmkr.chess.api.model.Color;
-import org.dmkr.chess.api.model.ColoredItem;
+import org.dmkr.chess.api.model.ColoredPiece;
 import org.dmkr.chess.api.model.Field;
-import org.dmkr.chess.api.model.Item;
+import org.dmkr.chess.api.model.Piece;
 import org.dmkr.chess.api.model.Move;
 import org.dmkr.chess.api.utils.MoveUtils;
 import org.dmkr.chess.common.cache.CacheReset;
@@ -91,21 +91,21 @@ public interface BoardEngine extends Board {
 	}
 
 	@Override
-	default ColoredItem at(Field field) {
-		final byte item = at(invertIndex(field.index(), isInverted()));
-		return ColoredItem.of(Color.ofItem(item, isInverted()), Item.withValue(item));
+	default ColoredPiece at(Field field) {
+		final byte piece = at(invertIndex(field.index(), isInverted()));
+		return ColoredPiece.of(Color.ofPiece(piece, isInverted()), Piece.withValue(piece));
 	}
 	
 	@Override
-	default void forEach(BiPredicate<Field, ColoredItem> filter, BiConsumer<Field, ColoredItem> consumer) {
+	default void forEach(BiPredicate<Field, ColoredPiece> filter, BiConsumer<Field, ColoredPiece> consumer) {
 		final boolean isInverted = isInverted();
 		
 		for (int x = 0; x < SIZE; x ++) {
 			for (int y = 0; y < SIZE; y ++) {
 				final Field field = Field.resolve(invertCoord(x, isInverted), invertCoord(y, isInverted));
-				final ColoredItem coloredItem = at(field);
+				final ColoredPiece coloredPiece = at(field);
 				
-				if (filter == null || filter.test(field, coloredItem)) {
+				if (filter == null || filter.test(field, coloredPiece)) {
 					consumer.accept(field, at(field));
 				}
 			}
@@ -113,7 +113,7 @@ public interface BoardEngine extends Board {
 	}
 	
 	@Override
-	default void forEach(BiConsumer<Field, ColoredItem> consumer) {
+	default void forEach(BiConsumer<Field, ColoredPiece> consumer) {
 		forEach(null, consumer);
 	}
 	

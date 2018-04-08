@@ -4,7 +4,7 @@ public interface MovesSelector {
 
 	boolean checkKingUnderAtack();
 	
-	boolean selectMoves(byte item);
+	boolean selectMoves(byte piece);
 
 	boolean skipEnPassenMoves();
 }

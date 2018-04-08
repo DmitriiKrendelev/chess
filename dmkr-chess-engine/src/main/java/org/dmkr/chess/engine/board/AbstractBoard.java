@@ -5,14 +5,14 @@ import static org.dmkr.chess.api.model.Constants.*;
 import static org.dmkr.chess.api.model.Constants.SPECIAL_MOVE_DISSALOW_CASTELING_LEFT;
 import static org.dmkr.chess.api.model.Constants.SPECIAL_MOVE_DISSALOW_CASTELING_RGHT;
 import static org.dmkr.chess.api.model.Constants.SPECIAL_MOVE_NO;
-import static org.dmkr.chess.api.model.Constants.SPECIAL_MOVE_POWN_EN_PASSANT;
-import static org.dmkr.chess.api.model.Constants.SPECIAL_MOVE_POWN_GOES_TWO_STEPS;
-import static org.dmkr.chess.api.model.Constants.SPECIAL_MOVE_POWN_TO_BISHOP;
-import static org.dmkr.chess.api.model.Constants.SPECIAL_MOVE_POWN_TO_KNIGHT;
-import static org.dmkr.chess.api.model.Constants.SPECIAL_MOVE_POWN_TO_QUEEN;
-import static org.dmkr.chess.api.model.Constants.SPECIAL_MOVE_POWN_TO_ROOK;
+import static org.dmkr.chess.api.model.Constants.SPECIAL_MOVE_PAWN_EN_PASSANT;
+import static org.dmkr.chess.api.model.Constants.SPECIAL_MOVE_PAWN_GOES_TWO_STEPS;
+import static org.dmkr.chess.api.model.Constants.SPECIAL_MOVE_PAWN_TO_BISHOP;
+import static org.dmkr.chess.api.model.Constants.SPECIAL_MOVE_PAWN_TO_KNIGHT;
+import static org.dmkr.chess.api.model.Constants.SPECIAL_MOVE_PAWN_TO_QUEEN;
+import static org.dmkr.chess.api.model.Constants.SPECIAL_MOVE_PAWN_TO_ROOK;
 import static org.dmkr.chess.api.model.Constants.VALUE_EMPTY;
-import static org.dmkr.chess.api.model.Constants.VALUE_POWN;
+import static org.dmkr.chess.api.model.Constants.VALUE_PAWN;
 import static org.dmkr.chess.common.primitives.Bytes.byte1;
 import static org.dmkr.chess.common.primitives.Bytes.byte2;
 import static org.dmkr.chess.common.primitives.Bytes.byte3;
@@ -167,15 +167,15 @@ public abstract class AbstractBoard implements BoardEngine {
 		return movesSelector.checkKingUnderAtack() && isKingUnderAtackAfterMove(move);
 	}
 	
-	protected void collectPownMoves(int move, boolean promotion) {
+	protected void collectPawnMoves(int move, boolean promotion) {
 		if (isKingUnderAtack(move))
 			return;
 		
 		if (promotion) {
-			movesBuilder.add(specialMoveOf(move, SPECIAL_MOVE_POWN_TO_QUEEN));
-			movesBuilder.add(specialMoveOf(move, SPECIAL_MOVE_POWN_TO_ROOK));
-			movesBuilder.add(specialMoveOf(move, SPECIAL_MOVE_POWN_TO_BISHOP));
-			movesBuilder.add(specialMoveOf(move, SPECIAL_MOVE_POWN_TO_KNIGHT));
+			movesBuilder.add(specialMoveOf(move, SPECIAL_MOVE_PAWN_TO_QUEEN));
+			movesBuilder.add(specialMoveOf(move, SPECIAL_MOVE_PAWN_TO_ROOK));
+			movesBuilder.add(specialMoveOf(move, SPECIAL_MOVE_PAWN_TO_BISHOP));
+			movesBuilder.add(specialMoveOf(move, SPECIAL_MOVE_PAWN_TO_KNIGHT));
 		}
 		else
 			movesBuilder.add(move);
@@ -200,8 +200,9 @@ public abstract class AbstractBoard implements BoardEngine {
 	}
 	
 	private void applyMove(int move, boolean safeHistory) {
-		if (safeHistory)
+		if (safeHistory) {
 			movesHistory.push(move);
+		}
 
 		final byte from = byte1(move);
 		final byte to = byte2(move);
@@ -211,17 +212,17 @@ public abstract class AbstractBoard implements BoardEngine {
 		
 		switch (specialMove) {
 			case SPECIAL_MOVE_NO:
-			case SPECIAL_MOVE_POWN_GOES_TWO_STEPS: 	
+			case SPECIAL_MOVE_PAWN_GOES_TWO_STEPS:
 				return;
 			
-			case SPECIAL_MOVE_POWN_EN_PASSANT:
+			case SPECIAL_MOVE_PAWN_EN_PASSANT:
 				set(to - SIZE, VALUE_EMPTY);
 				return;
 			
-			case SPECIAL_MOVE_POWN_TO_QUEEN:
-			case SPECIAL_MOVE_POWN_TO_ROOK:
-			case SPECIAL_MOVE_POWN_TO_BISHOP:
-			case SPECIAL_MOVE_POWN_TO_KNIGHT:
+			case SPECIAL_MOVE_PAWN_TO_QUEEN:
+			case SPECIAL_MOVE_PAWN_TO_ROOK:
+			case SPECIAL_MOVE_PAWN_TO_BISHOP:
+			case SPECIAL_MOVE_PAWN_TO_KNIGHT:
 				set(to, byte4(specialMove));
 				return;
 			
@@ -266,16 +267,16 @@ public abstract class AbstractBoard implements BoardEngine {
 		
 		switch (specialMove) {
 			case SPECIAL_MOVE_NO:
-			case SPECIAL_MOVE_POWN_GOES_TWO_STEPS: 	
+			case SPECIAL_MOVE_PAWN_GOES_TWO_STEPS:
 				return;
-			case SPECIAL_MOVE_POWN_EN_PASSANT:
-				set(to - SIZE, (byte) -VALUE_POWN);
+			case SPECIAL_MOVE_PAWN_EN_PASSANT:
+				set(to - SIZE, (byte) -VALUE_PAWN);
 			
-			case SPECIAL_MOVE_POWN_TO_QUEEN:
-			case SPECIAL_MOVE_POWN_TO_ROOK:
-			case SPECIAL_MOVE_POWN_TO_BISHOP:
-			case SPECIAL_MOVE_POWN_TO_KNIGHT:
-				set(from, VALUE_POWN);
+			case SPECIAL_MOVE_PAWN_TO_QUEEN:
+			case SPECIAL_MOVE_PAWN_TO_ROOK:
+			case SPECIAL_MOVE_PAWN_TO_BISHOP:
+			case SPECIAL_MOVE_PAWN_TO_KNIGHT:
+				set(from, VALUE_PAWN);
 				return;
 
 			case SPECIAL_MOVE_CASTELING_LEFT_DISSALOW_CASTELING_BOTH:
