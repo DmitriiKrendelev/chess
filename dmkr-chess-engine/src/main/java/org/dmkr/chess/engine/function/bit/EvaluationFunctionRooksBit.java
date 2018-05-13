@@ -18,6 +18,10 @@ public class EvaluationFunctionRooksBit extends EvaluationFunctionRooksAbstract<
 
     @Override
     public int calculateOneSidedValue(BitBoard board) {
+        return calculateValuesOfRooksOnOpenFiles(board);
+    }
+
+    public static int calculateValuesOfRooksOnOpenFiles(BitBoard board) {
         final long rooks = board.pieces(VALUE_ROOK);
         if ((rooks & ROOKS_BASE_FIELDS) == 0L) {
             return 0;
@@ -26,16 +30,12 @@ public class EvaluationFunctionRooksBit extends EvaluationFunctionRooksAbstract<
         int result = 0;
 
         final long piecePositionsOponent = board.piecePositionsOponent() & NOT_1;
+        final long pawns = board.pieces(VALUE_PAWN);
+        final long oponentPawns = board.oponentPieces(VALUE_PAWN);
         for (long file : FILES) {
             final long rooksOnFile = rooks & file;
 
-            if (rooksOnFile == 0) {
-                continue;
-            }
-            if ((board.pieces(VALUE_PAWN) & file) != 0) {
-                continue;
-            }
-            if ((rooksOnFile & ROOKS_BASE_FIELDS) == 0L) {
+            if (rooksOnFile == 0 || (pawns & file) != 0 || (rooksOnFile & ROOKS_BASE_FIELDS) == 0L) {
                 continue;
             }
 
@@ -46,7 +46,7 @@ public class EvaluationFunctionRooksBit extends EvaluationFunctionRooksAbstract<
                 blocked = false;
             } else {
                 final int lowestOponentPieceOnFile = BOARD_INDEX_TO_LONG_INDEX[numberOfTrailingZeros(piecePositionsOponentOnFile)];
-                blocked = (PAWN_ATACKS[lowestOponentPieceOnFile] & board.oponentPieces(VALUE_PAWN)) != 0;
+                blocked = (PAWN_ATACKS[lowestOponentPieceOnFile] & oponentPawns) != 0;
             }
 
             if (blocked) {

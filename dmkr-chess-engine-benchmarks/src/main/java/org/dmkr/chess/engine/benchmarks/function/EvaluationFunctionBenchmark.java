@@ -7,8 +7,7 @@ import java.util.concurrent.TimeUnit;
 import org.dmkr.chess.api.BitBoard;
 import org.dmkr.chess.api.BoardEngine;
 import org.dmkr.chess.engine.function.EvaluationFunction;
-import org.dmkr.chess.engine.function.bit.EvaluationFunctionMovesBit;
-import org.dmkr.chess.engine.function.impl.EvaluationFunctionMoves;
+import org.dmkr.chess.engine.function.bit.EvaluationFunctionAllBit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -34,6 +33,7 @@ public class EvaluationFunctionBenchmark {
 	private static final EvaluationFunction<BoardEngine> PIECE_MOVES_FUNCTION = PIECE_MOVES.getFunction(BOARD_TYPE);
 	private static final EvaluationFunction<BoardEngine> QUEEN_IN_THE_CENTER_FUNCTION = QUEEN_IN_THE_CENTER.getFunction(BOARD_TYPE);
 	private static final EvaluationFunction<BoardEngine> COMPOSITE_FUNCTION = getDefaultEvaluationFunction(BOARD_TYPE);
+
 
 	@Benchmark
 	public void boardEvaluationRooks(Blackhole blackHole) {
@@ -117,4 +117,10 @@ public class EvaluationFunctionBenchmark {
 	public void bitEvaluationComposite(Blackhole blackHole) {
 		blackHole.consume(BIT_COMPOSITE_FUNCTION.value(getNextBitBoardPosition()));
 	}
+
+	@Benchmark
+	public void allBitEvaluation(Blackhole blackHole) {
+		blackHole.consume(EvaluationFunctionAllBit.INSTANCE.value(getNextBitBoardPosition()));
+	}
+
 }

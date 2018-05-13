@@ -1,21 +1,25 @@
 package org.dmkr.chess.engine.function.common;
 
 import static org.dmkr.chess.api.model.Constants.SIZE;
+import static org.dmkr.chess.api.utils.BitBoardUtils.bitCountOfZeroble;
 
 import org.dmkr.chess.api.BoardEngine;
 import org.dmkr.chess.engine.function.EvaluationFunction;
 
 public abstract class EvaluationFunctionPawnStructureAbstract<T extends BoardEngine> extends EvaluationFunctionBasedBoardInversion<T> {
 	protected static final int PAWNS_CHAIN_VALUE = 4;
-	protected static final int ISOLATED_PAWN_VALUE_SINGLE = -20;
-	protected static final int ISOLATED_PAWN_VALUE_DOUBLE = -40;
-	protected static final int ISOLATED_PAWN_VALUE_MULTIPLE = -60;
-	protected static final int PAWN_VALUE_SINGLE = 0;
-	protected static final int PAWN_VALUE_DOUBLE = -10;
-	protected static final int PAWN_VALUE_MULTIPLE = -30;
+	private static final int ISOLATED_PAWN_VALUE_SINGLE = -20;
+	private static final int ISOLATED_PAWN_VALUE_DOUBLE = -40;
+	private static final int ISOLATED_PAWN_VALUE_MULTIPLE = -60;
+	private static final int PAWN_VALUE_SINGLE = 0;
+	private static final int PAWN_VALUE_DOUBLE = -10;
+	private static final int PAWN_VALUE_MULTIPLE = -30;
+
+	public static int valueOfPownChains(long leftPawnChains, long rghtPawnChains) {
+		return (bitCountOfZeroble(leftPawnChains) + bitCountOfZeroble(rghtPawnChains)) * PAWNS_CHAIN_VALUE;
+	}
 	
-	
-	protected int isolatedAndDoubledPawns(byte[] numPawnsOnFiles) {
+	public static int isolatedAndDoubledPawns(byte[] numPawnsOnFiles) {
 		int result = 0;
 		
 		for (int i = 0; i < SIZE; i ++) {

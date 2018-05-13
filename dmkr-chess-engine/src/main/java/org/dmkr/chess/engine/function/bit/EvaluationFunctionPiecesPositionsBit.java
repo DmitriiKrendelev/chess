@@ -1,6 +1,9 @@
 package org.dmkr.chess.engine.function.bit;
 
+import static java.lang.Long.numberOfTrailingZeros;
 import static org.dmkr.chess.api.model.Constants.NUMBER_OF_PIECES;
+import static org.dmkr.chess.api.utils.BitBoardMasks.BOARD_FIELDS_INVERTED;
+import static org.dmkr.chess.api.utils.BitBoardMasks.BOARD_INDEX_TO_LONG_INDEX;
 import static org.dmkr.chess.api.utils.BitBoardUtils.doWithUpBits;
 import static org.dmkr.chess.api.utils.BoardUtils.invertIndex;
 import static org.dmkr.chess.engine.function.PiecePositionValuesProvider.positionValues;
@@ -22,11 +25,22 @@ public class EvaluationFunctionPiecesPositionsBit implements EvaluationFunction<
 		
 		for (int i = 0; i < NUMBER_OF_PIECES; i ++) {
 			final byte pieceType = (byte) (i + 1);
-			final long pieces = board.pieces(pieceType);
-			result += doWithUpBits(pieces, field -> positionValues(pieceType)[field]);
-			
-			final long oponentPieces = board.oponentPieces(pieceType);
-			result -= doWithUpBits(oponentPieces, field -> positionValues(pieceType)[invertIndex(field)]);
+
+			long pieces = board.pieces(pieceType);
+			while (pieces != 0L) {
+				final int piecesLastBit = numberOfTrailingZeros(pieces);
+				final int piecesBoardIndex = BOARD_INDEX_TO_LONG_INDEX[piecesLastBit];
+				result += positionValues(pieceType)[piecesBoardIndex];
+				pieces &= BOARD_FIELDS_INVERTED[piecesBoardIndex];
+			}
+
+			long oponentPieces = board.oponentPieces(pieceType);
+			while (oponentPieces != 0L) {
+				final int oponentPiecesLastBit = numberOfTrailingZeros(oponentPieces);
+				final int oponentPiecesBoardIndex = BOARD_INDEX_TO_LONG_INDEX[oponentPiecesLastBit];
+				result -= positionValues(pieceType)[invertIndex(oponentPiecesBoardIndex)];
+				oponentPieces &= BOARD_FIELDS_INVERTED[oponentPiecesBoardIndex];
+			}
 		}
 		
 		return result;

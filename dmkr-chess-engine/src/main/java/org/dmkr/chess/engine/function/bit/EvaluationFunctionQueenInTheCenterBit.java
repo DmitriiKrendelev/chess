@@ -7,9 +7,10 @@ import org.dmkr.chess.api.utils.BitBoardUtils;
 import org.dmkr.chess.engine.function.EvaluationFunction;
 
 import lombok.RequiredArgsConstructor;
+import org.dmkr.chess.engine.function.common.EvaluationFunctionMovesAbstract;
 
 @RequiredArgsConstructor
-public class EvaluationFunctionQueenInTheCenterBit implements EvaluationFunction<BitBoard> {
+public class EvaluationFunctionQueenInTheCenterBit extends EvaluationFunctionMovesAbstract<BitBoard> {
 	private static final int NUMBER_MOVES_TO_STAY_QUEEN = 10;
 	private static final int PENALTY_VALUE = 10;
 	
@@ -24,19 +25,21 @@ public class EvaluationFunctionQueenInTheCenterBit implements EvaluationFunction
 			"0 0 0 0 0 0 0 0");
 	
 	public static final EvaluationFunction<BitBoard> INSTANCE = new EvaluationFunctionQueenInTheCenterBit();
-	
+
 	@Override
-	public int value(BitBoard board) {
+	public int calculateOneSidedValue(BitBoard board) {
+		return calculateQueenInTheCenterTooEarlyPenalty(board);
+	}
+
+	public static int calculateQueenInTheCenterTooEarlyPenalty(BitBoard board) {
 		final int penalty = NUMBER_MOVES_TO_STAY_QUEEN - board.moveNumber();
-		
+
 		if (penalty < 0) {
 			return 0;
 		}
-		
-		final long queenField = board.pieces(VALUE_QUEEN);
-		final long oponentQueenField = board.oponentPieces(VALUE_QUEEN);
 
-		return ((isIndexInTheCenter(queenField) ? -1 : 0) + (isIndexInTheCenter(oponentQueenField) ? 1 : 0)) * penalty * PENALTY_VALUE; 
+		final long queenField = board.pieces(VALUE_QUEEN);
+		return isIndexInTheCenter(queenField) ? - (penalty * PENALTY_VALUE) : 0;
 	}
 
 	private static boolean isIndexInTheCenter(long queenField) {

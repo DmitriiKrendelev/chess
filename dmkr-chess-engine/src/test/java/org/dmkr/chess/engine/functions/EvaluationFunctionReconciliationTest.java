@@ -15,10 +15,13 @@ import org.dmkr.chess.api.model.Move;
 import org.dmkr.chess.engine.board.bit.BitBoardBuilder;
 import org.dmkr.chess.engine.board.bit.BitBoardImpl;
 import org.dmkr.chess.engine.board.impl.BoardBuilder;
+import org.dmkr.chess.engine.function.EvaluationFunction;
 import org.dmkr.chess.engine.function.Functions;
+import org.dmkr.chess.engine.function.bit.EvaluationFunctionAllBit;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static org.dmkr.chess.engine.function.Functions.*;
 import static org.junit.Assert.assertEquals;
 
 public class EvaluationFunctionReconciliationTest {
@@ -69,7 +72,7 @@ public class EvaluationFunctionReconciliationTest {
 	//			System.out.println("Board:\n" + board);
 	//			System.out.println("BitBoard:\n" + bitBoard);
 				
-				for (Functions func : Functions.values()) {
+				for (Functions func : enabledValues()) {
 					final int bitValue = func.getFunction(BitBoard.class).value(bitBoard);
 					final int value = func.getFunction(BoardEngine.class).value(board);
 
@@ -83,6 +86,19 @@ public class EvaluationFunctionReconciliationTest {
 							"\n",
 							value, bitValue);
 				}
+
+				final EvaluationFunction<BitBoard> compositeFunctionBit = getDefaultEvaluationFunction(BitBoard.class);
+				final EvaluationFunction<BitBoard> functionAllBit = EvaluationFunctionAllBit.INSTANCE;
+				final int bitValue = compositeFunctionBit.value(bitBoard);
+				final int bitAllValue = functionAllBit.value(bitBoard);
+
+
+				assertEquals("Evaluation is not equal for Bit and BitAll:\n" +
+								"\n" + board +
+								"\nBit: " + bitValue +
+								"\nBitAll:" + bitAllValue +
+								"\n",
+						bitValue, bitAllValue);
 			}
 		}
 	}
