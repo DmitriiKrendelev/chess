@@ -25,8 +25,10 @@ public class PositionsProvider {
     private static final List<BoardEngine> GENERATED_BOARD_POSITIONS;
     private static final List<BitBoard> GENERATED_BIDBOARD_POSITIONS;
 
-    private static final AtomicLong boardPositionsIndex = new AtomicLong();
-    private static final AtomicLong bitBoardPositionsIndex = new AtomicLong();
+    private static final BoardEngine A_BOARD;
+    private static final BitBoard A_BIT_BOARD;
+
+    private long l = 0L;
 
     static {
         final List<BoardEngine> generatedBoardList = new ArrayList<>();
@@ -54,17 +56,30 @@ public class PositionsProvider {
 
         GENERATED_BOARD_POSITIONS = generatedBoardList;
         GENERATED_BIDBOARD_POSITIONS = generatedBitBoardList;
+
+        final int anInt = RANDOM.nextInt();
+        A_BOARD = GENERATED_BOARD_POSITIONS.get(anInt & MASK);
+        A_BIT_BOARD = GENERATED_BIDBOARD_POSITIONS.get(anInt & MASK);
     }
 
     public static BoardEngine getNextBoardPosition()  {
-        final BoardEngine next = GENERATED_BOARD_POSITIONS.get((int) (boardPositionsIndex.incrementAndGet() & MASK));
+        final BoardEngine next = GENERATED_BOARD_POSITIONS.get((int) ((++ l) & MASK));
         resetCache(next);
         return next;
     }
 
     public static BitBoard getNextBitBoardPosition()  {
-        final BitBoard next = GENERATED_BIDBOARD_POSITIONS.get((int) (bitBoardPositionsIndex.incrementAndGet() & MASK));
+        final BitBoard next = GENERATED_BIDBOARD_POSITIONS.get((int) ((++ l) & MASK));
         resetCache(next);
         return next;
     }
+
+    public static BoardEngine aBoard()  {
+        return A_BOARD.clone();
+    }
+
+    public static BitBoard aBitBoard()  {
+        return (BitBoard) A_BIT_BOARD.clone();
+    }
+
 }

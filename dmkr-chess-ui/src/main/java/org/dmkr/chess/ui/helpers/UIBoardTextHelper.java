@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.dmkr.chess.api.BoardEngine;
 import org.dmkr.chess.api.model.Move;
@@ -96,7 +97,11 @@ public class UIBoardTextHelper {
 		final BoardEngine boardCopy = board.clone();
 		
 		boardCopy.invert();
-		getEvaluationDetails(engine.getEvaluationFunction(), boardCopy).forEach((name, value) -> builder.textLine("     " + name + " : " + formatValue(value)));
+		getEvaluationDetails(engine.getEvaluationFunction(), boardCopy).forEach((name, value) -> {
+			if (StringUtils.isNotBlank(name)) {
+				builder.textLine("     " + name + " : " + formatValue(value));
+			}
+		});
 		
 		builder.textLine(EMPTY);
 		builder.textLine(EMPTY);

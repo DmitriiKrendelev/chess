@@ -1,22 +1,18 @@
 package org.dmkr.chess.ui;
 
 import java.awt.EventQueue;
-import java.util.Arrays;
 
 import org.dmkr.chess.api.BoardEngine;
-import org.dmkr.chess.api.model.Color;
 import org.dmkr.chess.engine.api.AsyncEngine;
 import org.dmkr.chess.engine.api.EvaluationFunctionAware;
+import org.dmkr.chess.engine.function.bit.EvaluationFunctionAllBit;
 import org.dmkr.chess.ui.guice.UIHelpersModule;
 import org.dmkr.chess.ui.guice.UIListenersModule;
 import org.dmkr.chess.ui.guice.UIModule;
 
 import com.google.inject.Guice;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.dmkr.chess.api.model.Color.BLACK;
-import static org.dmkr.chess.api.model.Color.WHITE;
-import static org.dmkr.chess.engine.function.Functions.getDefaultEvaluationFunctionAware;
 import static org.dmkr.chess.engine.minimax.MiniMax.minimax;
 import static org.dmkr.chess.engine.minimax.tree.TreeBuildingStrategyImpl.treeBuildingStrategy;
 import static org.dmkr.chess.engine.minimax.tree.TreeLevelMovesProvider.allMovesProvider;
@@ -33,7 +29,7 @@ public class Runner {
                     .color(BLACK)
                     .build();
 
-            final EvaluationFunctionAware<BoardEngine> evaluationFunction = getDefaultEvaluationFunctionAware();
+            final EvaluationFunctionAware<BoardEngine> evaluationFunction = (EvaluationFunctionAware) EvaluationFunctionAware.of(EvaluationFunctionAllBit.INSTANCE);
 
             final AsyncEngine<BoardEngine> engine = minimax()
                     .treeStrategyCreator(() ->

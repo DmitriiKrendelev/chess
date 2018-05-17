@@ -1,6 +1,7 @@
 package org.dmkr.chess.engine.function.bit;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dmkr.chess.api.BitBoard;
 import org.dmkr.chess.api.utils.PieceGoesFunctionsBit;
 import org.dmkr.chess.engine.function.EvaluationFunction;
@@ -209,5 +210,10 @@ public class EvaluationFunctionAllBit extends EvaluationFunctionMovesAbstract<Bi
                 + valueOfItemPositions
                 + calculateQueenInTheCenterTooEarlyPenalty(board)
                 + calculateValuesOfRooksOnOpenFiles(board);
+    }
+
+    @Override
+    public String toString() {
+        return StringUtils.EMPTY;
     }
 }
