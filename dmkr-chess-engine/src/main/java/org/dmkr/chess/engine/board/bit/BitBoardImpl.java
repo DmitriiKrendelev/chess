@@ -74,7 +74,7 @@ public class BitBoardImpl extends AbstractBoard implements BitBoard {
 	private final long[] pieces;
 	private final long[] oponentPieces;
 	private long empty;
-	
+
 	
 	protected BitBoardImpl(@NonNull long[] pieces, @NonNull long[] oponentPieces, boolean canCastleLeft, boolean canCastleRght, boolean canOponentCastleLeft, boolean canOponentCastleRght, boolean inverted) {
 		super(canCastleLeft, canCastleRght, canOponentCastleLeft, canOponentCastleRght);

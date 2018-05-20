@@ -1,12 +1,14 @@
 package org.dmkr.chess.engine.function.bit;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.dmkr.chess.api.BitBoard;
 import org.dmkr.chess.api.utils.PieceGoesFunctionsBit;
 import org.dmkr.chess.engine.function.EvaluationFunction;
+import org.dmkr.chess.engine.function.Functions;
 import org.dmkr.chess.engine.function.common.EvaluationFunctionMovesAbstract;
 
+import java.util.Map;
+import java.util.function.Function;
 import java.util.function.LongPredicate;
 import java.util.function.LongUnaryOperator;
 
@@ -32,6 +34,8 @@ public class EvaluationFunctionAllBit extends EvaluationFunctionMovesAbstract<Bi
     private static final PieceGoesFunctionsBit.PieceGoesFunctionBit[] BISHOP_GOES_FUNCTIONS = new PieceGoesFunctionsBit.PieceGoesFunctionBit[]{GO_UP_LEFT, GO_UP_RIGHT, GO_DOWN_LEFT, GO_DOWN_RIGHT};
     private static final PieceGoesFunctionsBit.PieceGoesFunctionBit[] ROOK_GOES_FUNCTIONS = new PieceGoesFunctionsBit.PieceGoesFunctionBit[]{GO_UP, GO_DOWN, GO_LEFT, GO_RIGHT};
     private static final PieceGoesFunctionsBit.PieceGoesFunctionBit[] QUEEN_GOES_FUNCTIONS = ArrayUtils.addAll(BISHOP_GOES_FUNCTIONS, ROOK_GOES_FUNCTIONS);
+
+    private static final Function<BitBoard, Map<String, Integer>> DETAILS_PROVIDER = Functions.getDefaultEvaluationFunction(BitBoard.class)::getEvaluationDetails;
 
     @Override
     public int calculateOneSidedValue(BitBoard board) {
@@ -213,7 +217,12 @@ public class EvaluationFunctionAllBit extends EvaluationFunctionMovesAbstract<Bi
     }
 
     @Override
+    public Map<String, Integer> getEvaluationDetails(BitBoard board) {
+        return DETAILS_PROVIDER.apply(board);
+    }
+
+    @Override
     public String toString() {
-        return StringUtils.EMPTY;
+        return "All Bit";
     }
 }

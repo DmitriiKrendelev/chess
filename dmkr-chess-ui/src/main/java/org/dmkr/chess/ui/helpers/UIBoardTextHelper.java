@@ -87,13 +87,13 @@ public class UIBoardTextHelper {
 	private List<UITextBlock> getEvaluationText(AsyncEngine<BoardEngine> engine, BoardEngine board) {
 		return evaluationTextCache.updateAndGet(cached -> {
 			final int boardMoveNumber = board.moveNumber();
-			return cached.getKey() == boardMoveNumber ? cached : of(boardMoveNumber, singletonList(getEvaluationTextImpl(engine, board)));
+			return cached.getKey() == boardMoveNumber ? cached : of(boardMoveNumber, singletonList(calculateEvaluationText(engine, board)));
 		}).getValue();
 	}
 	
-	private UITextBlock getEvaluationTextImpl(AsyncEngine<BoardEngine> engine, BoardEngine board) {
+	private UITextBlock calculateEvaluationText(AsyncEngine<BoardEngine> engine, BoardEngine board) {
 		final UITextBlockBuilder builder = uiTextBlockBuilder();
-		builder.textLine("Position Evaluation :");
+		builder.textLine("Static Position Evaluation :");
 		final BoardEngine boardCopy = board.clone();
 		
 		boardCopy.invert();
