@@ -10,7 +10,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 public class EvaluationFunctionRooksTest {
-    private final EvaluationFunction<BitBoard> func = EvaluationFunctionRooksBit.INSTANCE;
+    private static final EvaluationFunction<BitBoard> FUNCTION = EvaluationFunctionRooksBit.INSTANCE;
 
     @Test
     public void testRookOnOpenFileA() {
@@ -25,7 +25,7 @@ public class EvaluationFunctionRooksTest {
                 "R - - - K - - -")
                 .build();
 
-        final int value = func.value(board);
+        final int value = FUNCTION.value(board);
         assertEquals(EvaluationFunctionRooksAbstract.OPEN_FILE_VALUE, value);
     }
 
@@ -42,7 +42,7 @@ public class EvaluationFunctionRooksTest {
                 "R - - - K - - -")
                 .build();
 
-        final int value = func.value(board);
+        final int value = FUNCTION.value(board);
         assertEquals(EvaluationFunctionRooksAbstract.OPEN_FILE_BLOCKED_VALUE, value);
     }
 
@@ -59,7 +59,7 @@ public class EvaluationFunctionRooksTest {
                 "- - - - - - n -")
                 .build();
 
-        final int value = func.value(board);
+        final int value = FUNCTION.value(board);
         assertEquals(EvaluationFunctionRooksAbstract.OPEN_FILE_BLOCKED_VALUE, value);
     }
 

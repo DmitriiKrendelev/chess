@@ -11,15 +11,17 @@ import static org.dmkr.chess.api.model.Constants.*;
 import static org.dmkr.chess.engine.board.impl.MovesSelectorImpl.movesSelector;
 
 public abstract class EvaluationFunctionMovesAbstract<T extends BoardEngine> extends EvaluationFunctionBasedBoardInversion<T> {
-	protected static final int LIGHT_PIECE_MOVE_VALUE = 4;
-	protected static final int ROOK_MOVE_VALUE = 3;
-	protected static final int QUEEN_MOVE_VALUE = 2;
+	public static final int LIGHT_PIECE_MOVE_VALUE = 4;
+	public static final int ROOK_MOVE_VALUE = 3;
+	public static final int QUEEN_MOVE_VALUE = 2;
 
-	protected static final int TREASHOLD = 100;
-	protected static final int ATACK_VALUE = 20;
-	protected static final int DOUBLE_ATACK_VALUE = 200;
-	protected static final int MULTIPLE_ATACK_VALUE = 300;
+	public static final int TREASHOLD = 100;
+	public static final int ATACK_VALUE = 20;
+	public static final int DOUBLE_ATACK_VALUE = 200;
+	public static final int MULTIPLE_ATACK_VALUE = 300;
 
+	public static final int ATACK_NEAR_KING_EMPTY_FIELD_LIGHT = 10;
+	public static final int ATACK_NEAR_KING_EMPTY_FIELD_HEAVY = 20;
 
 	private static final byte[] STRONG_PIECES = {
 			VALUE_PAWN,

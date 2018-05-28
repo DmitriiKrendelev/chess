@@ -1,8 +1,16 @@
 package org.dmkr.chess.engine;
 
+import org.dmkr.chess.api.BitBoard;
+import org.dmkr.chess.api.BoardEngine;
 import org.dmkr.chess.api.utils.BoardUtils;
+import org.dmkr.chess.engine.board.bit.BitBoardBuilder;
+import org.dmkr.chess.engine.board.impl.BoardBuilder;
 import org.junit.Assert;
 import org.junit.Test;
+
+import static org.apache.commons.lang3.ArrayUtils.*;
+import static org.dmkr.chess.api.model.Constants.*;
+import static org.dmkr.chess.api.utils.BoardUtils.isFieldUnderPawnAtack;
 
 public class BoardUtilsTest {
 	
@@ -31,5 +39,49 @@ public class BoardUtilsTest {
 			};
 
 		Assert.assertArrayEquals(expectedResult, BoardUtils.toBoardArray(boardArray));
+	}
+
+	@Test
+	public void testIsFieldUnderPawnAtack() {
+		final BoardEngine board = BoardBuilder.of(
+				"- - - - - - - -",
+				"p - - p - - - p",
+				"- - - - - - - -",
+				"- - - - - - - -",
+				"p - - p - - - p",
+				"- - - - - - - -",
+				"p - - p - - - p",
+				"- - - - - - - -")
+				.build();
+
+		final int[] allFieldsUnderPawnAtacks = {1, 2, 4, 6, 17, 18, 20, 22, 41, 42, 44, 46};
+
+		for (int i = 0; i <  SIZE * SIZE; i ++) {
+			Assert.assertEquals(contains(allFieldsUnderPawnAtacks, i), isFieldUnderPawnAtack(i, board));
+		}
+
+	}
+
+	@Test
+	public void testIsFieldUnderPawnAtackBit() {
+		final BitBoard board = BitBoardBuilder.of(
+				"- - - - - - - -",
+				"p - - p - - - p",
+				"- - - - - - - -",
+				"- - - - - - - -",
+				"p - - p - - - p",
+				"- - - - - - - -",
+				"p - - p - - - p",
+				"- - - - - - - -")
+				.build();
+
+		final int[] allFieldsUnderPawnAtacks = {1, 2, 4, 6, 17, 18, 20, 22, 41, 42, 44, 46};
+
+		for (int i = 0; i <  SIZE * SIZE; i ++) {
+			Assert.assertEquals("Fail on index = " + i,
+					contains(allFieldsUnderPawnAtacks, i),
+					isFieldUnderPawnAtack(i, board));
+		}
+
 	}
 }

@@ -30,21 +30,30 @@ public class EvaluationFunctionMovesBit extends EvaluationFunctionMovesAbstract<
     public int calculateOneSidedValue(BitBoard board) {
         long valuableAtacksField = 0;
         int valueOfNumberOfMoves = 0;
+        int valueOfKingAtacks = 0;
 
         final long pawns = board.pieces(VALUE_PAWN);
-        final long oponentPowns = board.oponentPieces(VALUE_PAWN);
+        final long oponentPawns = board.oponentPieces(VALUE_PAWN);
         final long oponentKing = board.oponentPieces(VALUE_KING);
         final long oponentKingAndQueen = oponentKing | board.oponentPieces(VALUE_QUEEN);
         final long oponentHeavyPieces = oponentKingAndQueen | board.oponentPieces(VALUE_ROOK);
         final long oponentValuablePieces = oponentHeavyPieces | board.oponentPieces(VALUE_KNIGHT) | board.oponentPieces(VALUE_BISHOP);
-        final long oponentPieces = oponentValuablePieces | oponentPowns;
+        final long oponentPieces = oponentValuablePieces | oponentPawns;
         final long emptyAndOponentPositions = oponentPieces | board.emptyPositions();
 
+        final int oponentKingIndex = BOARD_INDEX_TO_LONG_INDEX[numberOfTrailingZeros(oponentKing)];
+        final long oponentKingGoesPositions = KING_ATACKS[oponentKingIndex] & ~oponentPieces;
+
         // pawns
+        final long oponentPawnAtacksRght = (oponentPawns & NOT_H) >>> (SIZE + 1);
+        final long oponentPawnAtacksLeft = (oponentPawns & NOT_A) >>> (SIZE - 1);
+        final long oponentPawnAtacks = oponentPawnAtacksLeft | oponentPawnAtacksRght;
+        final long notOponentPawnAtacks = ~oponentPawnAtacks;
+
         final long pawnAtacksLeft = (pawns & NOT_A) << (SIZE + 1);
         final long pawnAtacksRght = (pawns & NOT_H) << (SIZE - 1);
 
-        valuableAtacksField |= (pawnAtacksLeft | pawnAtacksRght ) & oponentValuablePieces;
+        valuableAtacksField |= (pawnAtacksLeft | pawnAtacksRght) & oponentValuablePieces;
 
         // knights
         long knights = board.pieces(VALUE_KNIGHT);
@@ -54,7 +63,8 @@ public class EvaluationFunctionMovesBit extends EvaluationFunctionMovesAbstract<
             final long knightGoesPositions = KNIGHT_ATACKS[knightIndex] & emptyAndOponentPositions;
 
             valuableAtacksField |= knightGoesPositions & oponentHeavyPieces;
-            valueOfNumberOfMoves += bitCount(knightGoesPositions & emptyAndOponentPositions) * LIGHT_PIECE_MOVE_VALUE;
+            valueOfNumberOfMoves += bitCount(knightGoesPositions & notOponentPawnAtacks) * LIGHT_PIECE_MOVE_VALUE;
+            valueOfKingAtacks += bitCountOfZeroble(knightGoesPositions & oponentKingGoesPositions) * ATACK_NEAR_KING_EMPTY_FIELD_LIGHT;
 
             knights &= BOARD_FIELDS_INVERTED[knightIndex];
         }
@@ -81,14 +91,27 @@ public class EvaluationFunctionMovesBit extends EvaluationFunctionMovesAbstract<
                         break;
                     } else if ((oponentPieces & currentBishopField) != 0) {
                         // oponent piece
-                        valueOfNumberOfMoves += LIGHT_PIECE_MOVE_VALUE;
+                        if ((currentBishopField & oponentPawnAtacks) == 0) {
+                            valueOfNumberOfMoves += LIGHT_PIECE_MOVE_VALUE;
+                        }
+
+                        if ((currentBishopField & oponentKingGoesPositions) != 0) {
+                            valueOfKingAtacks += ATACK_NEAR_KING_EMPTY_FIELD_LIGHT;
+                        }
+
                         if ((currentBishopField & oponentHeavyPieces) != 0) {
                             valuableAtacksField |= currentBishopField;
                         }
                         break;
                     } else {
                         // empty
-                        valueOfNumberOfMoves += LIGHT_PIECE_MOVE_VALUE;
+                        if ((currentBishopField & oponentPawnAtacks) == 0) {
+                            valueOfNumberOfMoves += LIGHT_PIECE_MOVE_VALUE;
+                        }
+
+                        if ((currentBishopField & oponentKingGoesPositions) != 0) {
+                            valueOfKingAtacks += ATACK_NEAR_KING_EMPTY_FIELD_LIGHT;
+                        }
                     }
                 }
             }
@@ -118,14 +141,24 @@ public class EvaluationFunctionMovesBit extends EvaluationFunctionMovesAbstract<
                         break;
                     } else if ((oponentPieces & currentRookPosition) != 0) {
                         // oponent piece
-                        valueOfNumberOfMoves += ROOK_MOVE_VALUE;
+                        if ((currentRookPosition & oponentPawnAtacks) == 0) {
+                            valueOfNumberOfMoves += ROOK_MOVE_VALUE;
+                        }
+                        if ((currentRookPosition & oponentKingGoesPositions) != 0) {
+                            valueOfKingAtacks += ATACK_NEAR_KING_EMPTY_FIELD_HEAVY;
+                        }
                         if ((currentRookPosition & oponentKingAndQueen) != 0) {
                             valuableAtacksField |= currentRookPosition;
                         }
                         break;
                     } else {
                         // empty
-                        valueOfNumberOfMoves += ROOK_MOVE_VALUE;
+                        if ((currentRookPosition & oponentPawnAtacks) == 0) {
+                            valueOfNumberOfMoves += ROOK_MOVE_VALUE;
+                        }
+                        if ((currentRookPosition & oponentKingGoesPositions) != 0) {
+                            valueOfKingAtacks += ATACK_NEAR_KING_EMPTY_FIELD_HEAVY;
+                        }
                     }
                 }
             }
@@ -155,19 +188,29 @@ public class EvaluationFunctionMovesBit extends EvaluationFunctionMovesAbstract<
                         break;
                     } else if ((oponentPieces & currentQueenPosition) != 0) {
                         // oponent piece
-                        valueOfNumberOfMoves += QUEEN_MOVE_VALUE;
+                        if ((currentQueenPosition & oponentPawnAtacks) == 0) {
+                            valueOfNumberOfMoves += QUEEN_MOVE_VALUE;
+                        }
+                        if ((currentQueenPosition & oponentKingGoesPositions) != 0) {
+                            valueOfKingAtacks += ATACK_NEAR_KING_EMPTY_FIELD_HEAVY;
+                        }
                         if ((currentQueenPosition & oponentKing) != 0) {
                             valuableAtacksField |= currentQueenPosition;
                         }
                         break;
                     } else {
-                        valueOfNumberOfMoves += QUEEN_MOVE_VALUE;
+                        if ((currentQueenPosition & oponentPawnAtacks) == 0) {
+                            valueOfNumberOfMoves += QUEEN_MOVE_VALUE;
+                        }
+                        if ((currentQueenPosition & oponentKingGoesPositions) != 0) {
+                            valueOfKingAtacks += ATACK_NEAR_KING_EMPTY_FIELD_HEAVY;
+                        }
                     }
                 }
             }
             queens &= BOARD_FIELDS_INVERTED[queenIndex];
         }
 
-        return valueOfNumberAtacks(valuableAtacksField) + valueOfNumberOfMoves;
+        return valueOfNumberAtacks(valuableAtacksField) + valueOfNumberOfMoves + valueOfKingAtacks;
     }
 }

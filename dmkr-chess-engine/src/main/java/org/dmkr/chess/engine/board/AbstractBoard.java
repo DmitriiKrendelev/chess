@@ -95,6 +95,11 @@ public abstract class AbstractBoard implements BoardEngine {
 	public int moveNumber() {
 		return (movesHistory.size() >> 1) + 1;
 	}
+
+	@Override
+	public int movesHistorySize() {
+		return movesHistory.size();
+	}
 	
 	@Override
 	public int[] calculateAllowedMoves(MovesSelector movesSelector) {

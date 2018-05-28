@@ -23,7 +23,7 @@ public class EvaluationFunctionPawnsStructureBit extends EvaluationFunctionPawnS
 		final long pawnChainsLeft = pawns & ((pawns & NOT_A) >>> (SIZE - 1));
 		final long pawnChainsRght = pawns & ((pawns & NOT_H) >>> (SIZE + 1));
 
-		result += valueOfPownChains(pawnChainsLeft, pawnChainsRght);
+		result += valueOfPawnChains(pawnChainsLeft, pawnChainsRght);
 
 		final byte[] numPawnsOnFiles = new byte[SIZE];
 		for (int i = 0; i < SIZE; i ++) {

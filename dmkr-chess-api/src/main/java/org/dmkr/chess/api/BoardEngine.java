@@ -51,6 +51,8 @@ public interface BoardEngine extends Board {
 	int[] movesHistory();
 	
 	int moveNumber();
+
+	int movesHistorySize();
 	
 	boolean isInverted();
 	

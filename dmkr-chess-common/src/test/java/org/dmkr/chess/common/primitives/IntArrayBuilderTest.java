@@ -7,7 +7,7 @@ import org.junit.Test;
 public class IntArrayBuilderTest {
 
 	@Test
-	public void test() {
+	public void testArrayBuilder() {
 		final IntArrayBuilder builder = new IntArrayBuilder();
 	
 		final int[] array1 = builder.add(1).add(2).add(3).build();
@@ -22,5 +22,19 @@ public class IntArrayBuilderTest {
 		final int[] expected3 = {};
 		Assert.assertArrayEquals(expected3, array3);
 	}
-	
+
+	@Test
+	public void testSubstituteLowest() {
+		final IntArrayBuilder builder = new IntArrayBuilder();
+
+		builder.add(1).add(2).add(3).add(4).add(5);
+
+		builder.substituteLowest(i -> i, 0);
+		builder.substituteLowest(i -> i, 6);
+		builder.substituteLowest(i -> i, -1);
+		builder.substituteLowest(i -> i, 9);
+
+		final int[] array = builder.build();
+		Assert.assertArrayEquals(new int[]{6, 9, 3, 4, 5}, array);
+	}
 }

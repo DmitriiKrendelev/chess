@@ -15,7 +15,7 @@ public abstract class EvaluationFunctionPawnStructureAbstract<T extends BoardEng
 	private static final int PAWN_VALUE_DOUBLE = -10;
 	private static final int PAWN_VALUE_MULTIPLE = -30;
 
-	public static int valueOfPownChains(long leftPawnChains, long rghtPawnChains) {
+	public static int valueOfPawnChains(long leftPawnChains, long rghtPawnChains) {
 		return (bitCountOfZeroble(leftPawnChains) + bitCountOfZeroble(rghtPawnChains)) * PAWNS_CHAIN_VALUE;
 	}
 	

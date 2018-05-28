@@ -86,8 +86,8 @@ public class UIBoardTextHelper {
 	
 	private List<UITextBlock> getEvaluationText(AsyncEngine<BoardEngine> engine, BoardEngine board) {
 		return evaluationTextCache.updateAndGet(cached -> {
-			final int boardMoveNumber = board.moveNumber();
-			return cached.getKey() == boardMoveNumber ? cached : of(boardMoveNumber, singletonList(calculateEvaluationText(engine, board)));
+			final int halfMoves = board.movesHistorySize();
+			return cached.getKey() == halfMoves ? cached : of(halfMoves, singletonList(calculateEvaluationText(engine, board)));
 		}).getValue();
 	}
 	
