@@ -142,6 +142,20 @@ public class BoardUtils {
 
         return (BOARD_FIELDS[field] & oponentPawnAtacks) != 0;
     }
+
+    public static boolean isFieldUnderPawnDefence(int field, BoardEngine board) {
+        if (field < 2 * SIZE) {
+            return false;
+        }
+
+        return
+                ((field & 7) != 7 && board.at(field - SIZE + 1) == VALUE_PAWN) ||
+                ((field & 7) != 0 && board.at(field - SIZE - 1) == VALUE_PAWN);
+    }
+
+    public static boolean isFieldUnderPawnDefence(int field, BitBoard board) {
+        return (PAWN_DEFENDS[field] & board.pieces(VALUE_PAWN)) != 0;
+    }
     
     public static int findOponentKing(BoardEngine boardEngine) {
         for (int i = SIZE * SIZE - 1; i >= 0; i --) {

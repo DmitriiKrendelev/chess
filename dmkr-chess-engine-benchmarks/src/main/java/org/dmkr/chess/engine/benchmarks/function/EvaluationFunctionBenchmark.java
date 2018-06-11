@@ -32,6 +32,7 @@ public class EvaluationFunctionBenchmark {
 	private static final EvaluationFunction<BoardEngine> PIECE_POSITIONS_FUNCTION = PIECE_POSITIONS.getFunction(BOARD_TYPE);
 	private static final EvaluationFunction<BoardEngine> PIECE_MOVES_FUNCTION = PIECE_MOVES.getFunction(BOARD_TYPE);
 	private static final EvaluationFunction<BoardEngine> QUEEN_IN_THE_CENTER_FUNCTION = QUEEN_IN_THE_CENTER.getFunction(BOARD_TYPE);
+	private static final EvaluationFunction<BoardEngine> AVAN_POSTE_FUNCTION = AVAN_POSTES.getFunction(BOARD_TYPE);
 	private static final EvaluationFunction<BoardEngine> COMPOSITE_FUNCTION = getDefaultEvaluationFunction(BOARD_TYPE);
 
 
@@ -61,6 +62,11 @@ public class EvaluationFunctionBenchmark {
 	}
 
 	@Benchmark
+	public void boardEvaluationAvanPostes(Blackhole blackHole) {
+		blackHole.consume(AVAN_POSTE_FUNCTION.value(getNextBoardPosition()));
+	}
+
+	@Benchmark
 	public void boardEvaluationQueenInTheCenter(Blackhole blackHole) {
 		blackHole.consume(QUEEN_IN_THE_CENTER_FUNCTION.value(getNextBoardPosition()));
 	}
@@ -80,6 +86,7 @@ public class EvaluationFunctionBenchmark {
 	private static final EvaluationFunction<BitBoard> BIT_PIECE_POSITIONS_FUNCTION = PIECE_POSITIONS.getFunction(BIT_BOARD_TYPE);
 	private static final EvaluationFunction<BitBoard> BIT_PIECE_MOVES_FUNCTION = PIECE_MOVES.getFunction(BIT_BOARD_TYPE);
 	private static final EvaluationFunction<BitBoard> BIT_QUEEN_IN_THE_CENTER_FUNCTION = QUEEN_IN_THE_CENTER.getFunction(BIT_BOARD_TYPE);
+	private static final EvaluationFunction<BitBoard> BIT_AVAN_POSTE_FUNCTION = AVAN_POSTES.getFunction(BIT_BOARD_TYPE);
 	private static final EvaluationFunction<BitBoard> BIT_COMPOSITE_FUNCTION = getDefaultEvaluationFunction(BIT_BOARD_TYPE);
 
 
@@ -111,6 +118,11 @@ public class EvaluationFunctionBenchmark {
 	@Benchmark
 	public void bitEvaluationQueenInTheCenter(Blackhole blackHole) {
 		blackHole.consume(BIT_QUEEN_IN_THE_CENTER_FUNCTION.value(getNextBitBoardPosition()));
+	}
+
+	@Benchmark
+	public void bitEvaluationAvanPostes(Blackhole blackHole) {
+		blackHole.consume(BIT_AVAN_POSTE_FUNCTION.value(getNextBitBoardPosition()));
 	}
 
 	@Benchmark

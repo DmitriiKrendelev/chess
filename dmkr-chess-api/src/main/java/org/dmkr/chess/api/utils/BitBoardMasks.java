@@ -2,6 +2,7 @@ package org.dmkr.chess.api.utils;
 
 import static java.util.stream.IntStream.range;
 import static org.dmkr.chess.api.model.Constants.SIZE;
+import static org.dmkr.chess.api.utils.BoardUtils.*;
 import static org.dmkr.chess.api.utils.BoardUtils.getX;
 import static org.dmkr.chess.api.utils.BoardUtils.getY;
 import static org.dmkr.chess.api.utils.BoardUtils.index;
@@ -18,6 +19,7 @@ import java.util.function.LongPredicate;
 import java.util.function.LongUnaryOperator;
 import java.util.stream.IntStream;
 
+import org.dmkr.chess.api.Board;
 import org.dmkr.chess.api.utils.PieceGoesFunctionsBit.PieceGoesFunctionBit;
 
 public class BitBoardMasks {
@@ -77,8 +79,14 @@ public class BitBoardMasks {
 			.mapToLong(i -> 
 				((1L << (i + SIZE + 1)) & NOT_H) |
 				((1L << (i + SIZE - 1)) & NOT_A))
-			.toArray();   
-	
+			.toArray();
+
+	public static final long[] PAWN_DEFENDS = boardLongFieldsStream()
+			.mapToLong(i ->
+					((1L >>> (i + SIZE + 1)) & NOT_H) |
+					((1L >>> (i + SIZE - 1)) & NOT_A))
+			.toArray();
+
 	public static final long[] KNIGHT_ATACKS = boardLongFieldsStream()
 			.mapToLong(i -> 
 				((1L << (i + SIZE + SIZE + 1)) & NOT_12 & NOT_H) |
@@ -109,6 +117,28 @@ public class BitBoardMasks {
 			)
 			.toArray();
 
+	public static final long[] AVANT_POSTE_OPONENT_PAWN_ATACKS = boardLongFieldsStream()
+			.mapToLong(index -> {
+						final int x = getX(index);
+						final int y = getY(index);
+
+						long result = 0L;
+						if (x != 0) {
+							for (int i = y + 1; i < SIZE - 1; i ++) {
+								result |= BOARD_FIELDS[BoardUtils.index(SIZE - x, i)];
+							}
+						}
+
+						if (x != SIZE - 1) {
+							for (int i = y + 1; i < SIZE - 1; i ++) {
+								result |= BOARD_FIELDS[BoardUtils.index(SIZE - 2 - x, i)];
+							}
+						}
+
+						return result;
+					}
+			)
+			.toArray();
 
     private static long toFieldsLong(int index, PieceGoesFunctionBit pieceGoesFunction) {
 		long field = 1L << index;

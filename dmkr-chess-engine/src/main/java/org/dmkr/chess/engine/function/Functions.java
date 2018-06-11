@@ -44,8 +44,12 @@ public enum Functions {
 			EvaluationFunctionRooks.INSTANCE,
 			EvaluationFunctionRooksBit.INSTANCE,
 			true
-	)
-	;
+	),
+	AVAN_POSTES(
+			EvaluationFunctionAvanPoste.INSTANCE,
+			EvaluationFunctionAvanPosteBit.INSTANCE,
+			true
+	);
 
 	private static final Functions[] enabledValues;
 

@@ -123,29 +123,29 @@ public class UIBoardJComponent extends JComponent {
 		
 		coordsHelper.getFieldRect(field).draw((Graphics2D) g, color);
 	}
-	
+
 	private void drawMovingPiece(MovingPiece piece, Graphics g) {
 		if (piece != null) {
 			drawPiece(piece.getColoredPiece(), piece.getLocation().x(), piece.getLocation().y(), g);
 		}
 	}
-	
+
 	private void drawPiece(ColoredPiece coloredPiece, Field field, Graphics g) {
 		final UIPoint fieldCenter = coordsHelper.getFieldCenter(field);
 		drawPiece(coloredPiece, fieldCenter.x(), fieldCenter.y(), g);
 	}
-	
+
 	private void drawPiece(ColoredPiece coloredPiece, int xCenter, int yCenter, Graphics g) {
 		if (coloredPiece.isNull()) {
 			return;
 		}
-		
+
 		final BufferedImage pieceImage = imagesHelper.getImage(coloredPiece);
 		final UIPoint imagePoint = coordsHelper.getImageCoords(pieceImage, xCenter, yCenter);
-		
+
 		g.drawImage(pieceImage, imagePoint.x(), imagePoint.y(), this);
 	}
-	
+
 	private void drawBestMove(Graphics g) {
 		if (!engine.isInProgress() && (config.getArrowDrawDelayMillis() + engine.getEvaluationFinishedTime()) < currentTimeMillis()) {
 			return;

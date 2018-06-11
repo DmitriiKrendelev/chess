@@ -24,6 +24,7 @@ import static org.dmkr.chess.api.utils.PieceGoesFunctionsBit.PieceGoesFunctionBi
 import static org.dmkr.chess.api.utils.PieceGoesFunctionsBit.PieceGoesFunctionBit.GO_RIGHT;
 import static org.dmkr.chess.engine.function.PiecePositionValuesProvider.positionValues;
 import static org.dmkr.chess.engine.function.PieceValuesProvider.valueOf;
+import static org.dmkr.chess.engine.function.common.EvaluationFunctionAvanPosteAbstract.*;
 import static org.dmkr.chess.engine.function.common.EvaluationFunctionPawnStructureAbstract.*;
 import static org.dmkr.chess.engine.function.bit.EvaluationFunctionQueenInTheCenterBit.calculateQueenInTheCenterTooEarlyPenalty;
 import static org.dmkr.chess.engine.function.bit.EvaluationFunctionRooksBit.calculateValuesOfRooksOnOpenFiles;
@@ -63,6 +64,7 @@ public class EvaluationFunctionAllBit extends EvaluationFunctionMovesAbstract<Bi
 
         final long pawnAtacksLeft = (pawns & NOT_A) << (SIZE + 1);
         final long pawnAtacksRght = (pawns & NOT_H) << (SIZE - 1);
+        final long pawnAtacks = pawnAtacksLeft | pawnAtacksRght;
 
         final long pawnChainsLeft = pawnAtacksLeft & pawns;
         final long pawnChainsRght = pawnAtacksRght & pawns;
@@ -75,7 +77,7 @@ public class EvaluationFunctionAllBit extends EvaluationFunctionMovesAbstract<Bi
         }
 
         valueOfPawnStructure += isolatedAndDoubledPawns(numPawnsOnFiles);
-        valuableAtacksField |= (pawnAtacksLeft | pawnAtacksRght) & oponentValuablePieces;
+        valuableAtacksField |= pawnAtacks & oponentValuablePieces;
 
         // knights
         long knights = board.pieces(VALUE_KNIGHT);
@@ -233,6 +235,19 @@ public class EvaluationFunctionAllBit extends EvaluationFunctionMovesAbstract<Bi
             queens &= BOARD_FIELDS_INVERTED[queenIndex];
         }
 
+        // avan posts
+        int valueOfAvanPosts = 0;
+        long avanPostesCandidates = (board.pieces(VALUE_BISHOP) | board.pieces(VALUE_KNIGHT)) & pawnAtacks;
+        while (avanPostesCandidates != 0L) {
+            final int avanPosteBitIndex = numberOfTrailingZeros(avanPostesCandidates);
+            final int avanPosteIndex = BOARD_INDEX_TO_LONG_INDEX[avanPosteBitIndex];
+            if ((AVANT_POSTE_OPONENT_PAWN_ATACKS[avanPosteIndex] & oponentPawns) == 0) {
+                valueOfAvanPosts += AVAN_POST_VALUE;
+            }
+
+            avanPostesCandidates &= BOARD_FIELDS_INVERTED[avanPosteIndex];
+        }
+
         // value of item positions
         int valueOfItemPositions = 0;
         for (int i = 0; i < NUMBER_OF_PIECES; i ++) {
@@ -257,7 +272,8 @@ public class EvaluationFunctionAllBit extends EvaluationFunctionMovesAbstract<Bi
                 + valueOfItemPositions
                 + calculateQueenInTheCenterTooEarlyPenalty(board)
                 + calculateValuesOfRooksOnOpenFiles(board)
-                + valueOfKingAtacks;
+                + valueOfKingAtacks
+                + valueOfAvanPosts;
     }
 
     @Override
