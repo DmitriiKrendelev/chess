@@ -46,6 +46,9 @@ import static org.dmkr.chess.api.utils.PieceGoesFunctionsBit.PieceGoesFunctionBi
 import static org.dmkr.chess.common.primitives.Bytes.byte2;
 import static org.dmkr.chess.common.primitives.Bytes.intByte4;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.function.LongPredicate;
 import java.util.function.LongUnaryOperator;
 
@@ -60,7 +63,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
-@NoArgsConstructor(force = true, access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(of = {"pieces", "oponentPieces"}, callSuper = true)
 public class BitBoardImpl extends AbstractBoard implements BitBoard {
 	public static final int INDEX_PAWN = VALUE_PAWN - 1;
@@ -75,9 +77,18 @@ public class BitBoardImpl extends AbstractBoard implements BitBoard {
 	private final long[] oponentPieces;
 	private long empty;
 
-	
+	@Deprecated // Used for deserializetion
+	public BitBoardImpl() {
+		this(new long[PIECES_LENGTH], new long[PIECES_LENGTH], false, false, false, false, false, false);
+	}
+
+
 	protected BitBoardImpl(@NonNull long[] pieces, @NonNull long[] oponentPieces, boolean canCastleLeft, boolean canCastleRght, boolean canOponentCastleLeft, boolean canOponentCastleRght, boolean inverted) {
-		super(canCastleLeft, canCastleRght, canOponentCastleLeft, canOponentCastleRght);
+		this(pieces, oponentPieces, canCastleLeft, canCastleRght, canOponentCastleLeft, canOponentCastleRght, inverted, false);
+	}
+	
+	private BitBoardImpl(@NonNull long[] pieces, @NonNull long[] oponentPieces, boolean canCastleLeft, boolean canCastleRght, boolean canOponentCastleLeft, boolean canOponentCastleRght, boolean inverted, boolean isDummy) {
+		super(canCastleLeft, canCastleRght, canOponentCastleLeft, canOponentCastleRght, isDummy);
 		
 		this.pieces = pieces.clone();
 		this.oponentPieces = oponentPieces.clone();
@@ -482,8 +493,8 @@ public class BitBoardImpl extends AbstractBoard implements BitBoard {
 	}
 	
 	@Override
-	protected BitBoardImpl cloneImpl() {
-		return new BitBoardImpl(pieces, oponentPieces, canCastleLeft, canCastleRght, canOponentCastleLeft, canOponentCastleRght, inverted);
+	protected BitBoardImpl cloneImpl(boolean isDummy) {
+		return new BitBoardImpl(pieces, oponentPieces, canCastleLeft, canCastleRght, canOponentCastleLeft, canOponentCastleRght, inverted, isDummy);
 	}
 	
 	public String toBinaryString() {
@@ -538,6 +549,20 @@ public class BitBoardImpl extends AbstractBoard implements BitBoard {
 		return oponentPieces[pieceType - 1];
 	}
 
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		super.writeExternal(out);
+		out.writeObject(this.pieces);
+		out.writeObject(this.oponentPieces);
+	}
+
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		super.readExternal(in);
+		System.arraycopy(in.readObject(), 0, this.pieces, 0, pieces.length);
+		System.arraycopy(in.readObject(), 0, this.oponentPieces, 0, oponentPieces.length);
+		this.empty = calculateEmpty();
+	}
 
 	@Override
 	public long emptyPositions() {

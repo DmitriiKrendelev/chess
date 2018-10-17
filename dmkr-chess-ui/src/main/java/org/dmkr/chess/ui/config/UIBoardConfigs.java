@@ -1,6 +1,7 @@
 package org.dmkr.chess.ui.config;
 
 import static java.awt.Font.BOLD;
+import static org.dmkr.chess.api.model.Constants.ENGINE_NAME_AND_VERSION;
 import static org.dmkr.chess.ui.api.model.UIRect.newRect;
 import static org.dmkr.chess.ui.helpers.UIColorsHelper.getAlphaColor;
 
@@ -8,16 +9,15 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 
+import lombok.experimental.UtilityClass;
 import org.dmkr.chess.ui.api.model.UIPoint;
 import org.dmkr.chess.ui.api.model.UIRect;
 
-public final class UIBoardConfigs {
-
-	private UIBoardConfigs() {
-	}
+@UtilityClass
+public class UIBoardConfigs {
 
 	public static final UIBoardConfig DEFAULT_UI_CONFIG = UIBoardConfig.builder()
-			.title("DMKR Chess Engine v_0.0.1")
+			.title(ENGINE_NAME_AND_VERSION)
 			.size(new Dimension(1000, 700))
 			.backGroundPathForWhite("ui/style1/board/empty_board_white.png")
 			.backGroundPathForBlack("ui/style1/board/empty_board_black.png")

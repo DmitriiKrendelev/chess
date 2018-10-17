@@ -1,7 +1,9 @@
 package org.dmkr.chess.api.model;
 
 public interface Constants {
-	
+	// common
+	String ENGINE_NAME_AND_VERSION = "DMKR Chess Engine v_0.0.1";
+
 	// colors
 	byte VALUE_WHITE = 1;
 	byte VALUE_BLACK = -1;

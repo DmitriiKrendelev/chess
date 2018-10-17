@@ -26,8 +26,10 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.dmkr.chess.api.BoardEngine;
 import org.dmkr.chess.api.model.Move;
 import org.dmkr.chess.engine.api.AsyncEngine;
+import org.dmkr.chess.engine.api.EvaluationHistoryManager;
 import org.dmkr.chess.engine.api.ProgressProvider;
 import org.dmkr.chess.engine.minimax.BestLine;
+import org.dmkr.chess.ui.Player;
 import org.dmkr.chess.ui.api.model.UIPoint;
 import org.dmkr.chess.ui.api.model.UIPointMutable;
 import org.dmkr.chess.ui.api.model.UIText;
@@ -40,8 +42,10 @@ import com.google.inject.Inject;
 
 public class UIBoardTextHelper {
 	private static final int MAX_BEST_LINES = 3;
+	private final Player player;
 	private final UIMousePositionHelper mousePositionHelper;
 	private final BestLineVisualizerListener bestLineVisualizerListener;
+	private final EvaluationHistoryManager evaluationHistoryManager;
 	private final Color textColor;
 	private final Color focusedTextColor;
 	private final Color focusedAreaColor;
@@ -56,9 +60,16 @@ public class UIBoardTextHelper {
 	private static final String durationFormatS = "ss'sec' SSS'ms'";
 	
 	@Inject
-	public UIBoardTextHelper(UIBoardConfig config, UIMousePositionHelper mousePositionHelper, BestLineVisualizerListener bestLineVisualizerListener) {
-		this.mousePositionHelper = mousePositionHelper;
+	public UIBoardTextHelper(
+	        Player player,
+			UIBoardConfig config,
+			UIMousePositionHelper mousePositionHelper,
+			BestLineVisualizerListener bestLineVisualizerListener,
+			EvaluationHistoryManager evaluationHistoryManager) {
+		this.player = player;
+	    this.mousePositionHelper = mousePositionHelper;
 		this.bestLineVisualizerListener = bestLineVisualizerListener;
+		this.evaluationHistoryManager = evaluationHistoryManager;
 		this.textColor = config.getTextColor();
 		this.focusedTextColor = config.getFocusedTextColor();
 		this.focusedAreaColor = config.getFocusedAreaColor();
@@ -78,7 +89,7 @@ public class UIBoardTextHelper {
 		final ArrayList<UITextBlock> result = new ArrayList<>();
 		
 		result.addAll(getEvaluationText(engine, board));
-		result.addAll(getProgressText(engine, board, g));
+		result.addAll(getProgressText(engine));
 
 		final UIPointMutable mutableTextPosition = new UIPointMutable(textPosition, x -> x, y -> y + textStyle.getSize());
 		result.forEach(uiTextBlock -> uiTextBlock.draw(g, mutableTextPosition));
@@ -93,10 +104,17 @@ public class UIBoardTextHelper {
 	
 	private UITextBlock calculateEvaluationText(AsyncEngine<BoardEngine> engine, BoardEngine board) {
 		final UITextBlockBuilder builder = uiTextBlockBuilder();
+		builder.textLine("Game :");
+		builder.textLine("     " + board.moveNumber() + "-th move : " + (board.isInverted() ? "Black" : "White"));
+		builder.textLine(EMPTY);
+
+
 		builder.textLine("Static Position Evaluation :");
 		final BoardEngine boardCopy = board.clone();
-		
-		boardCopy.invert();
+		if (player.isBoardInvertedForPlayer(boardCopy)) {
+			boardCopy.invert();
+		}
+
 		getEvaluationDetails(engine.getEvaluationFunction(), boardCopy).forEach((name, value) -> {
 			if (StringUtils.isNotBlank(name)) {
 				builder.textLine("     " + name + " : " + formatValue(value));
@@ -111,7 +129,7 @@ public class UIBoardTextHelper {
 		return builder.build(); 
 	}
 	
-	private List<UITextBlock> getProgressText(AsyncEngine<BoardEngine> engine, BoardEngine board, Graphics2D g) {
+	private List<UITextBlock> getProgressText(AsyncEngine<BoardEngine> engine) {
 		final List<UITextBlock> currentProgressText = progressTextCache.updateAndGet((Pair<Move, List<UITextBlock>> cache) -> {
 			final Move cacheKey = cache.getKey();
 			final Move currentMove = engine.getCurrentMove();
@@ -120,7 +138,7 @@ public class UIBoardTextHelper {
 				return of(null, Collections.emptyList());
 			}
 
-			return cacheKey == currentMove ? cache : of(currentMove, getProgressTextImpl(engine));
+			return cacheKey == currentMove ? cache : of(currentMove, calculateProgressText(engine));
 		}).getValue();
 
 		final UITextBlock timeProgress = uiTextBlockBuilder()
@@ -133,7 +151,7 @@ public class UIBoardTextHelper {
 		return result;
 	}
 	
-	private List<UITextBlock> getProgressTextImpl(ProgressProvider progress) {
+	private List<UITextBlock> calculateProgressText(ProgressProvider progress) {
 		final List<UITextBlock> result = new ArrayList<>();
 		final UITextBlockBuilder builder = uiTextBlockBuilder();
 
@@ -168,7 +186,8 @@ public class UIBoardTextHelper {
 			while (moves.hasNext()) {
 				builder.textLine("     " + (++ i) + ". " + moves.next() + " : " + (moves.hasNext() ? moves.next() : "..."));
 			}
-			
+
+			builder.textLine("     time: " + (bestLine.isCached() ? "cached" : formatDurationMillis(bestLine.getDuration())));
 			builder.textLine(EMPTY);
 			
 			final UITextBlock uiTextBlock = builder.build();
@@ -179,6 +198,10 @@ public class UIBoardTextHelper {
 
 			result.add(uiTextBlock);
 		}
+
+//	    builder.textLine(evaluationHistoryManager.toString());
+//		builder.textLine(EMPTY);
+//		result.add(builder.build());
 		
 		return result;
 	}

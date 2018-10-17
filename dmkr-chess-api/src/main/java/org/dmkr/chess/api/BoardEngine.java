@@ -57,6 +57,8 @@ public interface BoardEngine extends Board {
 	boolean isInverted();
 	
 	BoardEngine clone();
+
+	BoardEngine cloneDummy();
 	
 	boolean isKingUnderAtack();
 	

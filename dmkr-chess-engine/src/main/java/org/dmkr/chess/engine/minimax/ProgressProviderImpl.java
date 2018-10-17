@@ -6,6 +6,7 @@ import static org.dmkr.chess.api.utils.MoveUtils.valueOf;
 import static java.util.Comparator.comparing;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.SortedSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -58,7 +59,7 @@ public class ProgressProviderImpl implements ProgressProvider {
 		finish.set(currentTimeMillis());
 		currentProgressPercent.set(1d);
 		currentMove.set(NOT_IN_PROGRESS_MOVE);
-		finalEvalution = checkNotNull(getCurrentEvaluation());
+		finalEvalution = Optional.ofNullable(finalEvalution).orElseGet(() -> checkNotNull(getCurrentEvaluation()));
 		currentEvalution.clear();
 		inProgress.set(false);
 	}
@@ -72,6 +73,11 @@ public class ProgressProviderImpl implements ProgressProvider {
 		finalEvalution = null;
 		currentEvalution.clear();
 		totalCalculationTime.set(0);
+	}
+
+	void setFinalEvalution(SortedSet<BestLine> finalEvalution) {
+		checkState(this.finalEvalution == null);
+		this.finalEvalution = finalEvalution;
 	}
 	
 	void update(BestLine bestLine, double progressStep) {

@@ -6,7 +6,10 @@ import java.util.SortedSet;
 import org.dmkr.chess.api.model.Move;
 import org.dmkr.chess.engine.minimax.BestLine;
 
+import static org.dmkr.chess.common.collections.CollectionUtils.isEmpty;
+
 public interface ProgressProvider {
+	int REPEAT_MOVES_TREASHOLD = 50;
 
 	int getCurrentProgressPercents();
 	
@@ -27,9 +30,25 @@ public interface ProgressProvider {
 	double getParallelLevel();
 
 	default BestLine getBestLine() {
-		return Optional.ofNullable(getCurrentEvaluation())
-			.map(lines -> lines.isEmpty() ? null : lines.first())
-			.orElse(null);
+		final SortedSet<BestLine> evaluation = getCurrentEvaluation();
+		if (isEmpty(evaluation)) {
+			return null;
+		}
+
+		final BestLine first = evaluation.first();
+		if (!first.isCached() || evaluation.size() == 1) {
+			return first;
+		}
+
+		for (BestLine bestLine: evaluation) {
+			if (!bestLine.isCached() && bestLine.getLineValue() > REPEAT_MOVES_TREASHOLD) {
+                System.out.println("Use not first line with value: " + bestLine.getLineValue() + ". Don't repeat moves.");
+                return bestLine;
+			}
+		}
+
+        System.out.println("Use cached line with value: " + first.getLineValue() + ". Repeat moves.");
+		return first;
 	}
 	
 	default Move getBestMove() {

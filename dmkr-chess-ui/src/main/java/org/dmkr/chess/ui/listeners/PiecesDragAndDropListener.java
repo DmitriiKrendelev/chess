@@ -7,6 +7,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.dmkr.chess.api.model.Field;
 import org.dmkr.chess.api.model.Move;
 import org.dmkr.chess.ui.Player;
@@ -15,6 +17,7 @@ import org.dmkr.chess.ui.api.model.UIPoint;
 import org.dmkr.chess.ui.helpers.UIBoardCoordsHelper;
 import org.dmkr.chess.ui.helpers.UIMousePositionHelper;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @_(@Inject))
 public class PiecesDragAndDropListener extends MouseAdapter {
 	private final AtomicBoolean mousePressed = new AtomicBoolean();
 	private final AtomicReference<Field> pressedField = new AtomicReference<>();
@@ -34,7 +37,7 @@ public class PiecesDragAndDropListener extends MouseAdapter {
 		if (!coordsHelper.isOnBoard(x, y)) {
 			return;
 		}
-		final Field field = coordsHelper.resolveField(x, y);
+		final Field field = coordsHelper.resolveField(x, y, player);
 
 		mousePressed.set(true);
 		pressedField.set(field);
@@ -52,7 +55,7 @@ public class PiecesDragAndDropListener extends MouseAdapter {
 			return;
 		}
 		
-		final Field toField = coordsHelper.resolveField(x, y);
+		final Field toField = coordsHelper.resolveField(x, y, player);
 		uiComponent.onMove(Move.moveOf(fromField, toField));
 	}
 	
@@ -74,6 +77,6 @@ public class PiecesDragAndDropListener extends MouseAdapter {
 		final int x = mousePosition.x();
 		final int y = mousePosition.y();
 		
-		return coordsHelper.isOnBoard(x, y) ? coordsHelper.resolveField(x, y) : null;
+		return coordsHelper.isOnBoard(x, y) ? coordsHelper.resolveField(x, y, player) : null;
 	}
 }

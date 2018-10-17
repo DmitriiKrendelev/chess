@@ -7,7 +7,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 public class IntArrayBuilder {
 	private static final int[] EMPTY = {};
-	private static final int DEFAULT_SIZE = 1 << 10; 
+	private static final int DEFAULT_SIZE = 1 << 9;
 	
 	private final int[] array;
 	private int size;

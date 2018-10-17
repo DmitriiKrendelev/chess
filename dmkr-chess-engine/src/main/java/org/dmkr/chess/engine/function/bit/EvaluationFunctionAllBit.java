@@ -248,8 +248,8 @@ public class EvaluationFunctionAllBit extends EvaluationFunctionMovesAbstract<Bi
             avanPostesCandidates &= BOARD_FIELDS_INVERTED[avanPosteIndex];
         }
 
-        // value of item positions
-        int valueOfItemPositions = 0;
+        // value of piece positions
+        int valueOfPiecePositions = 0;
         for (int i = 0; i < NUMBER_OF_PIECES; i ++) {
             final byte pieceType = (byte) (i + 1);
             final int valueOfPieceType = valueOf(pieceType);
@@ -258,8 +258,8 @@ public class EvaluationFunctionAllBit extends EvaluationFunctionMovesAbstract<Bi
             while (pieces != 0L) {
                 final int piecesLastBit = numberOfTrailingZeros(pieces);
                 final int piecesBoardIndex = BOARD_INDEX_TO_LONG_INDEX[piecesLastBit];
-                valueOfItemPositions += positionValues(pieceType)[piecesBoardIndex];
-                valueOfItemPositions += valueOfPieceType;
+                valueOfPiecePositions += positionValues(pieceType)[piecesBoardIndex];
+                valueOfPiecePositions += valueOfPieceType;
 
                 pieces &= BOARD_FIELDS_INVERTED[piecesBoardIndex];
             }
@@ -269,7 +269,7 @@ public class EvaluationFunctionAllBit extends EvaluationFunctionMovesAbstract<Bi
                 valueOfPawnStructure
                 + valueOfNumberAtacks(valuableAtacksField)
                 + valueOfNumberOfMoves
-                + valueOfItemPositions
+                + valueOfPiecePositions
                 + calculateQueenInTheCenterTooEarlyPenalty(board)
                 + calculateValuesOfRooksOnOpenFiles(board)
                 + valueOfKingAtacks

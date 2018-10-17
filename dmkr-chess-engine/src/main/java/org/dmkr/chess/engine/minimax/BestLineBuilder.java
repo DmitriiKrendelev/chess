@@ -1,6 +1,7 @@
 package org.dmkr.chess.engine.minimax;
 
 import static org.dmkr.chess.common.primitives.Ints.reset;
+import static org.dmkr.chess.engine.minimax.BestLine.newBestLine;
 
 import java.util.List;
 import java.util.stream.IntStream;
@@ -63,7 +64,7 @@ class BestLineBuilder {
 	}
 	
 	BestLine build() {
-		return new BestLine(bestLine.get(0), inverted, lineValue, lineValue - initialPositionValue, duration);
+		return newBestLine(bestLine.get(0), inverted, lineValue, lineValue - initialPositionValue, duration);
 	}
 	
 	@Override

@@ -4,9 +4,11 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.Integer.MIN_VALUE;
 import static java.lang.Math.max;
+import static org.dmkr.chess.engine.api.EvaluationHistoryManager.newForgetHistoryManager;
 import static org.dmkr.chess.engine.function.EvaluationFunctionUtils.*;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
@@ -15,19 +17,16 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import com.google.common.collect.ImmutableSortedSet;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.dmkr.chess.api.BoardEngine;
 import org.dmkr.chess.api.model.Move;
-import org.dmkr.chess.engine.api.AsyncEngine;
-import org.dmkr.chess.engine.api.EvaluationFunctionAware;
-import org.dmkr.chess.engine.api.MiniMaxListener;
-import org.dmkr.chess.engine.api.ProgressProvider;
-import org.dmkr.chess.engine.function.EvaluationFunctionUtils;
+import org.dmkr.chess.engine.api.*;
 import org.dmkr.chess.engine.minimax.MiniMaxContextImpl.MiniMaxContextFactory;
 import org.dmkr.chess.engine.minimax.tree.TreeBuildingStrategy;
 
@@ -36,7 +35,7 @@ import lombok.NonNull;
 import lombok.experimental.Delegate;
 
 public class MiniMax<T extends BoardEngine> implements AsyncEngine<T>, ProgressProvider {
-	private final TreeBuildingStrategy rootLevelTreeStrategy;
+    private final TreeBuildingStrategy rootLevelTreeStrategy;
 	private final boolean isAsynchronous;
 	private final boolean enableLinesCutOff;
 	private final ExecutorService executorService;
@@ -48,9 +47,10 @@ public class MiniMax<T extends BoardEngine> implements AsyncEngine<T>, ProgressP
 	// State variables
 	@Delegate(types = ProgressProvider.class)
 	private final ProgressProviderImpl progress = new ProgressProviderImpl();
-	
+	private final EvaluationHistoryManager<T> evaluationHistoryManager;
+
 	private final List<Pair<Move, Future<BestLine>>> moveCalculationTasks = new CopyOnWriteArrayList<>();
-	private final AtomicReference<Integer> zeroLevelBestValue = new AtomicReference<>(MIN_VALUE + 1);
+	private final AtomicInteger zeroLevelBestValue = new AtomicInteger(MIN_VALUE + 1);
 	
 	private Future<?> task;
 	
@@ -61,6 +61,7 @@ public class MiniMax<T extends BoardEngine> implements AsyncEngine<T>, ProgressP
 		private Boolean isAsynchronous = false;
 		private Integer parallelLevel = 4;
 		private Boolean enableLinesCutOff = true;
+		private EvaluationHistoryManager<T> evaluationHistoryManager = newForgetHistoryManager();
 	}
 	
 	@Builder(builderClassName = "MiniMaxBuilder", builderMethodName = "minimax")
@@ -70,7 +71,8 @@ public class MiniMax<T extends BoardEngine> implements AsyncEngine<T>, ProgressP
 			@NonNull Integer maxBestLineLenght, 
 			@NonNull Boolean isAsynchronous,
 			@NonNull Integer parallelLevel,
-			@NonNull Boolean enableLinesCutOff) {
+			@NonNull Boolean enableLinesCutOff,
+			@NonNull EvaluationHistoryManager<T> evaluationHistoryManager) {
 		
 		checkArgument(parallelLevel > 0);
 		
@@ -80,6 +82,7 @@ public class MiniMax<T extends BoardEngine> implements AsyncEngine<T>, ProgressP
 		this.executorService = isAsynchronous ? Executors.newSingleThreadExecutor() : null;
 		this.movesCalculationExecutor = parallelLevel == 1 ? Executors.newSingleThreadExecutor() : Executors.newFixedThreadPool(parallelLevel);
 		this.miniMaxContextFactory = new MiniMaxContextFactory<>(evaluationFunctionAware, maxBestLineLenght, miniMaxListener, treeStrategyCreator);
+		this.evaluationHistoryManager = evaluationHistoryManager;
 	}
 	
 	@Override
@@ -90,8 +93,33 @@ public class MiniMax<T extends BoardEngine> implements AsyncEngine<T>, ProgressP
 		progress.start();
 		final Runnable runner = () -> {
 			try {
-				submit(boardCopy);
+			    ImmutableSortedSet<BestLine> cachedEvaluation = evaluationHistoryManager.get(board);
+
+				if (cachedEvaluation != null) {
+				    if (cachedEvaluation.size() > 1) {
+				        final Iterator<BestLine> iterator = cachedEvaluation.iterator();
+				        final BestLine first = iterator.next();
+				        final BestLine second = iterator.next();
+
+				        final int secondLineEvaluation = second.getLineValue();
+				        if (secondLineEvaluation > REPEAT_MOVES_TREASHOLD) {
+				            final ImmutableSortedSet<BestLine> newEvaluation = cachedEvaluation.tailSet(first, false);
+				            evaluationHistoryManager.put(board, newEvaluation);
+				            cachedEvaluation = newEvaluation;
+                            System.out.println("Second line evaluation: " + secondLineEvaluation + ". Don't repeat moves.");
+                        } else {
+				            System.out.println("Second line evaluation: " + secondLineEvaluation + ". Repeat moves.");
+                        }
+
+                    }
+					progress.setFinalEvalution(cachedEvaluation);
+					System.out.println("Use cached evaluation:\n" + cachedEvaluation.first());
+				} else {
+					submit(boardCopy);
+				}
+
 				progress.finish();
+				evaluationHistoryManager.put(board, (ImmutableSortedSet<BestLine>) progress.getCurrentEvaluation());
 			} catch (Exception e) {
 				e.printStackTrace();
 				progress.cleanup();
@@ -116,9 +144,18 @@ public class MiniMax<T extends BoardEngine> implements AsyncEngine<T>, ProgressP
 			final boolean isInverted = board.isInverted();
 			for (int moveValue : moves) {
 				final Move move = Move.moveOf(moveValue, isInverted);
-				@SuppressWarnings("unchecked")
-				final Callable<BestLine> moveCalculation = new MiniMaxCallable<T>((T) board.clone(), this, moveValue, miniMaxContextFactory.get(), this::miniMax, isInverted);
-				
+				final ImmutableSortedSet<BestLine> afterMoveEvaluation = evaluationHistoryManager.getAfterMove(board, moveValue);
+				final Callable<BestLine> moveCalculation;
+				if (afterMoveEvaluation != null) {
+					final BestLine cachedBestLine = afterMoveEvaluation.first();
+					final int currentEvaluation = getEvaluationFunction().value(board);
+					final BestLine adaptedEvaluation = cachedBestLine.cloneSubstitutingFirst(move, currentEvaluation);
+					moveCalculation = () -> adaptedEvaluation;
+					System.out.println("Use cached evaluation for move: " + move + " value: " + adaptedEvaluation.getLineValue());
+				} else {
+					moveCalculation = new MiniMaxCallable<T>((T) board.clone(), this, moveValue, miniMaxContextFactory.get(), this::miniMax, isInverted);
+				}
+
 				moveCalculationTasks.add(ImmutablePair.of(move, movesCalculationExecutor.submit(moveCalculation)));
 			}
 

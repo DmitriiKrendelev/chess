@@ -44,13 +44,13 @@ public class UIBoardJComponent extends JComponent {
 	@Inject private UIBoardImagesHelper imagesHelper;
 	@Inject private UIBoardCoordsHelper coordsHelper;
 	@Inject private UIBoardTextHelper textHelper;
-	
+
 	@Inject private PiecesDragAndDropListener mouseListener;
 	@Inject private BestLineVisualizerListener bestLineVisualizerListener;
-   
-	private final AtomicReference<MovingPiece> movingPieceHolder = new AtomicReference<>();
-	private final AtomicReference<BestLineVisualizer> paintComponentOverride = new AtomicReference<>();
-	
+
+	@Inject private AtomicReference<MovingPiece> movingPieceHolder = new AtomicReference<>();
+	@Inject private AtomicReference<BestLineVisualizer> paintComponentOverride = new AtomicReference<>();
+
 	public void run() {
 	    if (!player.isWhite()) {
             engine.run(board);
@@ -121,7 +121,7 @@ public class UIBoardJComponent extends JComponent {
 			return;
 		}
 		
-		coordsHelper.getFieldRect(field).draw((Graphics2D) g, color);
+		coordsHelper.getFieldRect(field, player).draw((Graphics2D) g, color);
 	}
 
 	private void drawMovingPiece(MovingPiece piece, Graphics g) {
@@ -131,7 +131,7 @@ public class UIBoardJComponent extends JComponent {
 	}
 
 	private void drawPiece(ColoredPiece coloredPiece, Field field, Graphics g) {
-		final UIPoint fieldCenter = coordsHelper.getFieldCenter(field);
+		final UIPoint fieldCenter = coordsHelper.getFieldCenter(field, player);
 		drawPiece(coloredPiece, fieldCenter.x(), fieldCenter.y(), g);
 	}
 
@@ -159,7 +159,7 @@ public class UIBoardJComponent extends JComponent {
 
 		if (bestMove != null) {
 			final Color arrowColor = config.getArrowColor() != null ? config.getArrowColor() : getPositionChangedColor(bestLine.getLineValueChange());
-			coordsHelper.arrow(bestMove).draw(arrowColor, (Graphics2D) g);
+			coordsHelper.arrow(bestMove, player).draw(arrowColor, (Graphics2D) g);
 		}
 	}
 	
@@ -205,13 +205,12 @@ public class UIBoardJComponent extends JComponent {
 	}
 	
 	private void doOponentMove() {
-		final boolean isBoardInvertedForPlayer = board.isInverted() != player.isWhite();
-		if (isBoardInvertedForPlayer || engine.isInProgress()) {
+		if (!player.isBoardInvertedForPlayer(board) || engine.isInProgress()) {
 			return;
 		}
 		final Move oponentMove = engine.getBestMove();
 		final ColoredPiece piece = board.at(oponentMove.from());
-		movingPieceHolder.set(coordsHelper.new MovingPiece(oponentMove, piece, () -> movingPieceHolder.set(null)));
+		movingPieceHolder.set(coordsHelper.new MovingPiece(oponentMove, piece, player, () -> movingPieceHolder.set(null)));
 		board.applyMove(oponentMove);
 	}
 
@@ -221,7 +220,7 @@ public class UIBoardJComponent extends JComponent {
 	
 	public void startBestLineVisualisation(BestLine bestLine) {
 		paintComponentOverride.set(
-				new BestLineVisualizer(bestLine, board, coordsHelper) {
+				new BestLineVisualizer(bestLine, board, player, coordsHelper) {
 					@Override
 					public void accept(Graphics g) {
 						drawBoardPieces(board, movingPieceHolder.get(), null, g);

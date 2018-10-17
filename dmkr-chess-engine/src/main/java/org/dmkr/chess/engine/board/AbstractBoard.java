@@ -20,6 +20,9 @@ import static org.dmkr.chess.common.primitives.Bytes.byte4;
 import static org.dmkr.chess.common.primitives.Bytes.intByte4;
 import static org.dmkr.chess.common.primitives.Bytes.toInt;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.function.Function;
 import java.util.function.IntPredicate;
 
@@ -36,11 +39,11 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@EqualsAndHashCode(of = {"canCastleLeft", "canCastleRght", "canOponentCastleLeft", "canOponentCastleRght", "inverted"})
+@EqualsAndHashCode(of = {"canCastleLeft", "canCastleRght", "canOponentCastleLeft", "canOponentCastleRght", "inverted"}, callSuper = false)
 @NoArgsConstructor(force = true, access = AccessLevel.PROTECTED)
 public abstract class AbstractBoard implements BoardEngine {
-	protected final IntArrayBuilder movesBuilder = new IntArrayBuilder();
-	protected final IntStack movesHistory = new IntStack();
+	protected final IntArrayBuilder movesBuilder;
+	protected final IntStack movesHistory;
 
 	@Getter
 	protected boolean canCastleLeft, canCastleRght, canOponentCastleLeft, canOponentCastleRght;
@@ -63,11 +66,13 @@ public abstract class AbstractBoard implements BoardEngine {
 		((AbstractBoard) board).resetCache();
 	}
 	
-	protected AbstractBoard(boolean canCastleLeft, boolean canCastleRght, boolean canOponentCastleLeft, boolean canOponentCastleRght) {
+	protected AbstractBoard(boolean canCastleLeft, boolean canCastleRght, boolean canOponentCastleLeft, boolean canOponentCastleRght, boolean isDummy) {
 		this.canCastleLeft = canCastleLeft;
 		this.canCastleRght = canCastleRght;
 		this.canOponentCastleLeft = canOponentCastleLeft;
 		this.canOponentCastleRght = canOponentCastleRght;
+		this.movesHistory = isDummy ? null : new IntStack();
+		this.movesBuilder = isDummy ? null : new IntArrayBuilder();
 	}
 
 	@Override
@@ -367,24 +372,56 @@ public abstract class AbstractBoard implements BoardEngine {
 		return this;
 	}	
 	
-	protected abstract AbstractBoard cloneImpl();
+	protected abstract AbstractBoard cloneImpl(boolean isDummy);
 	
 	@Override
 	public AbstractBoard clone() {
-		final AbstractBoard clone = cloneImpl();
+		final AbstractBoard clone = cloneImpl(false);
+
+		clone.movesHistory.reset(this.movesHistory);
 
 		clone.canCastleLeft = canCastleLeft;
 		clone.canCastleRght = canCastleRght;
 		clone.canOponentCastleLeft = canOponentCastleLeft;
 		clone.canOponentCastleRght = canOponentCastleRght;
-		
-		clone.movesHistory.reset(this.movesHistory);
-		clone.movesBuilder.reset(this.movesBuilder);
 		clone.inverted = inverted;
-		
+
 		return clone;
 	}
-	
+
+	@Override
+	public AbstractBoard cloneDummy() {
+		final AbstractBoard clone = cloneImpl(true);
+
+		clone.canCastleLeft = canCastleLeft;
+		clone.canCastleRght = canCastleRght;
+		clone.canOponentCastleLeft = canOponentCastleLeft;
+		clone.canOponentCastleRght = canOponentCastleRght;
+		clone.inverted = inverted;
+
+		return clone;
+	}
+
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeObject(movesHistory.array());
+		out.writeBoolean(canCastleLeft);
+		out.writeBoolean(canCastleRght);
+		out.writeBoolean(canOponentCastleLeft);
+		out.writeBoolean(canOponentCastleRght);
+		out.writeBoolean(inverted);
+	}
+
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		this.movesHistory.reset((int[]) in.readObject());
+		this.canCastleLeft = in.readBoolean();
+		this.canCastleRght = in.readBoolean();
+		this.canOponentCastleLeft = in.readBoolean();
+		this.canOponentCastleRght = in.readBoolean();
+		this.inverted = in.readBoolean();
+	}
+
 	@Override
 	public String toString() {
 		return new StringBuilder(256)

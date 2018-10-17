@@ -1,10 +1,12 @@
 package org.dmkr.chess.ui.listeners;
 
+import com.google.inject.Inject;
+
 public class PrintThreadDumpListener extends AbstractPressAndTypedListener {
-	private static final int CTRL = 17;
 	private static final int P = 80;
-	
-	public PrintThreadDumpListener() {
+
+	@Inject
+	private PrintThreadDumpListener() {
 		super(CTRL, P);
 	}
 

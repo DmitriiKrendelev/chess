@@ -29,6 +29,15 @@ public enum Field {
 	private final int y;
 	@Getter
 	private final int index;
+
+	private static final Field[] indexedFields;
+
+	static {
+        indexedFields = new Field[Field.values().length];
+        for (Field field : values()) {
+            indexedFields[field.index] = field;
+        }
+    }
 	
 	private Field() {
 		final String name = name();
@@ -39,7 +48,7 @@ public enum Field {
 		
 		checkArgument(isOnBoard(x, y));
 	}
-	
+
 	public static char xName(int y) {
 		return YNAMES.charAt(y);
 	}
@@ -57,10 +66,7 @@ public enum Field {
 	}
 	
 	public static Field resolve(int index) {
-		return Stream.of(values())
-			.filter(field -> field.index == index)
-			.findFirst()
-			.orElseThrow(() -> new IllegalArgumentException("index = " + index));
+		return indexedFields[index];
 	}
 	
 	public static Stream<Field> stream() {

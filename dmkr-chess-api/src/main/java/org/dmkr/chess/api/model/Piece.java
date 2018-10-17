@@ -42,12 +42,13 @@ public enum Piece {
 		if (value == VALUE_EMPTY)
 			return NO_PIECE;
 		
-		for (Piece piece : values())
-			if (piece.value == value)
+		for (Piece piece : values()) {
+			if (piece.value == value) {
 				return piece.shortName;
-			else if (piece.value == -value)
+			} else if (piece.value == -value) {
 				return Character.toLowerCase(piece.shortName);
-		
+			}
+		}
 		throw new IllegalArgumentException("value = " + value);
 	}
 	

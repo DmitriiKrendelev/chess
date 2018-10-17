@@ -15,8 +15,8 @@ public class EvaluationFunctionAvanPoste extends EvaluationFunctionAvanPosteAbst
     public int calculateOneSidedValue(BoardEngine board) {
         int result = 0;
         nextBoardIndex: for (int i = 0; i < SIZE * SIZE; i ++) {
-            final byte item = board.at(i);
-            if (item != VALUE_KNIGHT && item != VALUE_BISHOP) {
+            final byte piece = board.at(i);
+            if (piece != VALUE_KNIGHT && piece != VALUE_BISHOP) {
                 continue;
             }
 

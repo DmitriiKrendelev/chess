@@ -1,22 +1,29 @@
 package org.dmkr.chess.ui.guice;
 
-import org.dmkr.chess.ui.listeners.BestLineVisualizerListener;
-import org.dmkr.chess.ui.listeners.PiecesDragAndDropListener;
-import org.dmkr.chess.ui.listeners.MovesRollbackListener;
-import org.dmkr.chess.ui.listeners.PrintBoardListener;
-import org.dmkr.chess.ui.listeners.PrintThreadDumpListener;
+import com.google.common.collect.ImmutableList;
+import org.dmkr.chess.ui.listeners.*;
 
 import com.google.inject.AbstractModule;
 
+import java.util.EventListener;
+import java.util.List;
+
 public class UIListenersModule extends AbstractModule {
+	private static final List<Class<? extends EventListener>> UI_LISTENERS =
+			ImmutableList.of(
+					MovesRollbackListener.class,
+					PrintBoardListener.class,
+					PrintThreadDumpListener.class,
+					BestLineVisualizerListener.class,
+					PiecesDragAndDropListener.class,
+					SavePositionListener.class,
+					LoadPositionListener.class
+			);
+
 
 	@Override
 	protected void configure() {
-		bind(MovesRollbackListener.class).asEagerSingleton();
-		bind(PrintBoardListener.class).asEagerSingleton();
-		bind(PrintThreadDumpListener.class).asEagerSingleton();
-		bind(BestLineVisualizerListener.class).asEagerSingleton();
-		bind(PiecesDragAndDropListener.class).asEagerSingleton();
+		UI_LISTENERS.forEach(listener -> bind(listener).asEagerSingleton());
 	}
 
 }

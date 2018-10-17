@@ -33,6 +33,9 @@ import static org.dmkr.chess.common.primitives.Bytes.apply;
 import static org.dmkr.chess.common.primitives.Bytes.byte2;
 import static org.dmkr.chess.common.primitives.Bytes.intByte4;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.function.IntPredicate;
 import java.util.function.IntUnaryOperator;
 
@@ -40,18 +43,25 @@ import org.dmkr.chess.api.utils.BoardUtils;
 import org.dmkr.chess.api.utils.PieceGoesFunctions.PieceGoesFunction;
 import org.dmkr.chess.engine.board.AbstractBoard;
 
-import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 @EqualsAndHashCode(of = {"board"}, callSuper = true)
-@NoArgsConstructor(force = true, access = AccessLevel.PROTECTED)
 public class BoardImpl extends AbstractBoard {
 	private final byte[] board;
-	
+
+	@Deprecated // Used for deserializetion
+    public BoardImpl() {
+        this(new byte[SIZE * SIZE], false, false, false, false, false, false);
+    }
+
 	BoardImpl(@NonNull byte[] board, boolean canCastleLeft, boolean canCastleRght, boolean canOponentCastleLeft, boolean canOponentCastleRght, boolean inverted) {
-		super(canCastleLeft, canCastleRght, canOponentCastleLeft, canOponentCastleRght);
+		this(board, canCastleLeft, canCastleRght, canOponentCastleLeft, canOponentCastleRght, inverted, false);
+	}
+
+
+	private BoardImpl(@NonNull byte[] board, boolean canCastleLeft, boolean canCastleRght, boolean canOponentCastleLeft, boolean canOponentCastleRght, boolean inverted, boolean isDummy) {
+		super(canCastleLeft, canCastleRght, canOponentCastleLeft, canOponentCastleRght, isDummy);
 		
 		checkArgument(board.length == SIZE * SIZE);
 		
@@ -276,7 +286,7 @@ public class BoardImpl extends AbstractBoard {
 	}
 		
 	@Override
-	protected BoardImpl cloneImpl() {
+	protected BoardImpl cloneImpl(boolean isDummy) {
 		return new BoardImpl(board, canCastleLeft, canCastleRght, canOponentCastleLeft, canOponentCastleRght, inverted);
 	}
 	
@@ -345,5 +355,16 @@ public class BoardImpl extends AbstractBoard {
 	private boolean test(int x, int y, int piece) {
 		return isOnBoard(x, y) && at(index(x, y)) == piece;
 	}
-	
+
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		super.writeExternal(out);
+		out.write(board);
+	}
+
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		super.readExternal(in);
+		in.read(this.board);
+	}
 }

@@ -1,5 +1,6 @@
 package org.dmkr.chess.engine.functions;
 
+import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -9,6 +10,7 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 import org.dmkr.chess.api.BitBoard;
+import org.dmkr.chess.api.Board;
 import org.dmkr.chess.api.BoardEngine;
 import static org.dmkr.chess.api.model.Constants.*;
 import org.dmkr.chess.api.model.Move;
@@ -35,7 +37,7 @@ public class EvaluationFunctionReconciliationTest {
 	}
 
 	@Test
-	public void test() {
+	public void test() throws Exception {
 		for (int gameNum = 0; gameNum < 100; gameNum ++) {
 			
 			final BoardEngine board = BoardBuilder.newInitialPositionBoard();
@@ -64,6 +66,9 @@ public class EvaluationFunctionReconciliationTest {
 				
 				board.applyMove(randomMove);
 				bitBoard.applyMove(randomMove);
+
+				checkSerialization(board);
+				checkSerialization(bitBoard);
 
 				checkEquals(board, bitBoard);
 				((BitBoardImpl) bitBoard).checkSum();
@@ -114,6 +119,29 @@ public class EvaluationFunctionReconciliationTest {
 		Assert.assertEquals(message, board1.canCastleRght(), board2.canCastleRght());
 		Assert.assertEquals(message, board1.canOponentCastleLeft(), board2.canOponentCastleLeft());
 		Assert.assertEquals(message, board1.canOponentCastleRght(), board2.canOponentCastleRght());
+	}
+
+	private static void checkSerialization(Board board) throws IOException, ClassNotFoundException {
+		final byte[] serialized;
+		try (
+				final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				final ObjectOutputStream oos = new ObjectOutputStream(baos)
+		) {
+			oos.writeObject(board);
+			serialized = baos.toByteArray();
+		}
+
+		final Board deserialized;
+		try (
+				final ByteArrayInputStream bios = new ByteArrayInputStream(serialized);
+				final ObjectInputStream ois = new ObjectInputStream(bios)
+		) {
+			deserialized = (Board) ois.readObject();
+		}
+
+		if (!board.equals(deserialized)) {
+			Assert.fail("Before serialization:\n" + board + "\n\nAfter deserialization:\n" + deserialized + "\n");
+		}
 	}
 	
 }

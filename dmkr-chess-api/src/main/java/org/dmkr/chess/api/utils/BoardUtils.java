@@ -92,15 +92,17 @@ public class BoardUtils {
         for (int y = SIZE - 1; y >= 0; y--) {
             sb.append(Field.xName(invertCoord(y, inverted))).append(' ');
 
-            for (int x = 0; x < SIZE; x++)
+            for (int x = 0; x < SIZE; x++) {
                 sb.append(Piece.shortName(board.at(x, y))).append(' ');
+            }
 
             sb.append("\n");
         }
 
         sb.append("  ");
-        for (int x = 0; x < SIZE; x++)
+        for (int x = 0; x < SIZE; x++) {
             sb.append(Field.yName(invertCoord(x, inverted))).append(' ');
+        }
 
         return sb.toString();
     }

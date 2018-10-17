@@ -11,13 +11,12 @@ import static org.dmkr.chess.engine.function.EvaluationFunctionUtils.getEvaluati
 import java.util.Optional;
 
 public class PrintBoardListener extends AbstractPressAndTypedListener {
-	private static final int CTRL = 17;
 	private static final int B = 66;
 	private final Board board;
 	private final AsyncEngine<BoardEngine> engine;
 	
 	@Inject
-	public PrintBoardListener(BoardEngine board, AsyncEngine<BoardEngine> engine) {
+	private PrintBoardListener(BoardEngine board, AsyncEngine<BoardEngine> engine) {
 		super(CTRL, B);
 		this.board = board;
 		this.engine = engine;

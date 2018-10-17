@@ -3,7 +3,7 @@ package org.dmkr.chess.common.primitives;
 import static com.google.common.base.Preconditions.checkArgument;
 
 public class IntStack {
-	private static final int DEFAULT_SIZE = 1 << 10; 
+	private static final int DEFAULT_SIZE = 1 << 9;
 	private final int[] array;
 	private int size;
 	
@@ -21,7 +21,7 @@ public class IntStack {
 	}
 	
 	public int pop() {
-		return array[-- size];
+		return array[--size];
 	}
 	
 	public int peek() {
@@ -50,6 +50,12 @@ public class IntStack {
 		checkArgument(other.array.length == array.length);
 		System.arraycopy(other.array, 0, array, 0, array.length);
 		size = other.size;
+	}
+
+	public void reset(int[] array) {
+		checkArgument(array.length <= this.array.length);
+		System.arraycopy(array, 0, this.array, 0, array.length);
+		size = array.length;
 	}
 	
 	public void clear() {

@@ -3,11 +3,7 @@ package org.dmkr.chess.ui;
 import javax.swing.JFrame;
 
 import org.dmkr.chess.ui.config.UIBoardConfig;
-import org.dmkr.chess.ui.listeners.BestLineVisualizerListener;
-import org.dmkr.chess.ui.listeners.PiecesDragAndDropListener;
-import org.dmkr.chess.ui.listeners.MovesRollbackListener;
-import org.dmkr.chess.ui.listeners.PrintBoardListener;
-import org.dmkr.chess.ui.listeners.PrintThreadDumpListener;
+import org.dmkr.chess.ui.listeners.*;
 
 import com.google.inject.Inject;
 
@@ -20,8 +16,10 @@ public class UIBoard extends JFrame {
 	@Inject private PrintThreadDumpListener printThreadDumpListener;
 	@Inject private PiecesDragAndDropListener dragAndDropListener;
 	@Inject private BestLineVisualizerListener bestLineVisualizerListener;
-	
-	public void run() throws Exception {
+	@Inject private SavePositionListener savePositionListener;
+	@Inject private LoadPositionListener loadPositionListener;
+
+	public void run() {
 		setVisible(true);
 		setResizable(false);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -34,6 +32,8 @@ public class UIBoard extends JFrame {
 		addKeyListener(movesRollbackListener);
 		addKeyListener(printBoardListener);
 		addKeyListener(printThreadDumpListener);
+		addKeyListener(savePositionListener);
+		addKeyListener(loadPositionListener);
 		
 		addMouseListener(dragAndDropListener);
 		addMouseMotionListener(dragAndDropListener);

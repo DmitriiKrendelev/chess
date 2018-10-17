@@ -2,6 +2,7 @@ package org.dmkr.chess.ui;
 
 import lombok.Builder;
 import lombok.Getter;
+import org.dmkr.chess.api.Board;
 import org.dmkr.chess.api.model.Color;
 
 @Builder(builderMethodName = "player")
@@ -16,5 +17,13 @@ public class Player {
 
     public boolean isWhite() {
         return color == Color.WHITE;
+    }
+
+    public boolean isBoardInvertedForPlayer(Board board) {
+        return board.isInverted() == isWhite();
+    }
+
+    public Player withColor(Color color) {
+        return new Player(name, color);
     }
 }

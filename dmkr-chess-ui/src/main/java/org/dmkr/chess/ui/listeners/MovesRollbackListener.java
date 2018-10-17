@@ -7,14 +7,13 @@ import org.dmkr.chess.engine.api.AsyncEngine;
 import com.google.inject.Inject;
 
 public class MovesRollbackListener extends AbstractPressAndTypedListener {
-	private static final int CTRL = 17;
 	private static final int Z = 90;
 	
 	private final AsyncEngine<?extends BoardEngine> engine;
 	private final Board board;
 	
 	@Inject
-	public MovesRollbackListener(BoardEngine board, AsyncEngine<BoardEngine> engine) {
+	private MovesRollbackListener(BoardEngine board, AsyncEngine<BoardEngine> engine) {
 		super(CTRL, Z);
 		this.board = board;
 		this.engine = engine;

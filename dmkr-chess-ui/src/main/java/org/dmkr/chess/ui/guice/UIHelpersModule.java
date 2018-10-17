@@ -1,11 +1,9 @@
 package org.dmkr.chess.ui.guice;
 
-import org.dmkr.chess.ui.helpers.UIBoardCoordsHelper;
-import org.dmkr.chess.ui.helpers.UIBoardImagesHelper;
-import org.dmkr.chess.ui.helpers.UIBoardTextHelper;
-import org.dmkr.chess.ui.helpers.UIMousePositionHelper;
+import org.dmkr.chess.ui.helpers.*;
 
 import com.google.inject.AbstractModule;
+import org.dmkr.chess.ui.saveandload.SaveAndLoadPositionManager;
 
 public class UIHelpersModule extends AbstractModule {
 
@@ -15,6 +13,7 @@ public class UIHelpersModule extends AbstractModule {
 		bind(UIBoardImagesHelper.class).asEagerSingleton();
 		bind(UIBoardCoordsHelper.class).asEagerSingleton();
 		bind(UIBoardTextHelper.class).asEagerSingleton();
+		bind(SaveAndLoadPositionManager.class).asEagerSingleton();
 	}
 	
 	

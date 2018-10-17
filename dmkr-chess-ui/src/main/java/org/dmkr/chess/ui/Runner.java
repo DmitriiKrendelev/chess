@@ -5,7 +5,10 @@ import java.awt.EventQueue;
 import org.dmkr.chess.api.BoardEngine;
 import org.dmkr.chess.engine.api.AsyncEngine;
 import org.dmkr.chess.engine.api.EvaluationFunctionAware;
+import org.dmkr.chess.engine.api.EvaluationHistoryManager;
+import org.dmkr.chess.engine.board.impl.EvaluationHistoryManagerImpl;
 import org.dmkr.chess.engine.function.bit.EvaluationFunctionAllBit;
+import org.dmkr.chess.ui.guice.SaveAndLoadPositionModule;
 import org.dmkr.chess.ui.guice.UIHelpersModule;
 import org.dmkr.chess.ui.guice.UIListenersModule;
 import org.dmkr.chess.ui.guice.UIModule;
@@ -13,6 +16,8 @@ import org.dmkr.chess.ui.guice.UIModule;
 import com.google.inject.Guice;
 
 import static org.dmkr.chess.api.model.Color.BLACK;
+import static org.dmkr.chess.api.model.Color.WHITE;
+import static org.dmkr.chess.engine.board.BoardFactory.newInitialPositionBoard;
 import static org.dmkr.chess.engine.minimax.MiniMax.minimax;
 import static org.dmkr.chess.engine.minimax.tree.TreeBuildingStrategyImpl.treeBuildingStrategy;
 import static org.dmkr.chess.engine.minimax.tree.TreeLevelMovesProvider.allMovesProvider;
@@ -25,11 +30,26 @@ public class Runner {
 	public static void main(String args[]) {
 		EventQueue.invokeLater(() -> {
             final Player player = player()
-                    .name("Player")
+                    .name("Test Player")
                     .color(BLACK)
                     .build();
 
+            final BoardEngine board = newInitialPositionBoard();
+//                    BitBoardBuilder.of(
+//                    "- k - - - - - r",
+//                    "- - - - - - - -",
+//                    "- - - - - K - -",
+//                    "- - - - - - - -",
+//                    "- - - - - - - -",
+//                    "- - - - - - - -",
+//                    "- - - - - - - -",
+//                    "- - - - - - - -")
+//                    .build();
+
+
             final EvaluationFunctionAware<BoardEngine> evaluationFunction = (EvaluationFunctionAware) EvaluationFunctionAware.of(EvaluationFunctionAllBit.INSTANCE);
+
+            final EvaluationHistoryManager evaluationHistoryManager = new EvaluationHistoryManagerImpl();
 
             final AsyncEngine<BoardEngine> engine = minimax()
                     .treeStrategyCreator(() ->
@@ -41,6 +61,7 @@ public class Runner {
                                     .onFifthLevel(capturedMovesProvider(2, 4))
                                     .build())
                     .evaluationFunctionAware(evaluationFunction)
+                    .evaluationHistoryManager(evaluationHistoryManager)
                     .isAsynchronous(true)
                     .parallelLevel(4)
                     .build();
@@ -48,9 +69,10 @@ public class Runner {
 
             try {
                 Guice.createInjector(
-                        new UIModule(player, engine),
+                        new UIModule(player, engine, board, evaluationHistoryManager),
                         new UIHelpersModule(),
-                        new UIListenersModule()
+                        new UIListenersModule(),
+                        new SaveAndLoadPositionModule()
                 ).getInstance(UIBoard.class).run();
 
             } catch (Exception e) {

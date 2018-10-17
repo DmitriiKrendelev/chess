@@ -4,22 +4,22 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import lombok.EqualsAndHashCode;
+import lombok.*;
 import org.dmkr.chess.api.model.Move;
 
 import com.google.common.collect.ImmutableList;
 
-import lombok.Value;
-
-@Value
+@Getter
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(exclude = "duration")
 public class BestLine {
-	List<Move> moves;
-	int lineValue;
-	int lineValueChange;
-	long duration;
+	private static final long CACHED_BEST_LINE_DURATION = -1L;
+	private final List<Move> moves;
+	private final int lineValue;
+	private final int lineValueChange;
+	private final long duration;
 	
-	BestLine(int[] movesArray, boolean inverted, int lineValue, int lineValueChange, long duration) {
+	static BestLine newBestLine(int[] movesArray, boolean inverted, int lineValue, int lineValueChange, long duration) {
 		final List<Move> moves = new ArrayList<>();
 		
 		for (int move : movesArray) {
@@ -30,11 +30,18 @@ public class BestLine {
 			moves.add(Move.moveOf(move, inverted));
 			inverted = !inverted;
 		}
-		
-		this.moves = ImmutableList.copyOf(moves);
-		this.lineValue = lineValue;
-		this.lineValueChange = lineValueChange;
-		this.duration = duration;
+
+		return new BestLine(moves, lineValue, lineValueChange, duration);
+	}
+
+	public boolean isCached() {
+		return duration == CACHED_BEST_LINE_DURATION;
+	}
+
+	public BestLine cloneSubstitutingFirst(Move newFirstMove, int initialPositionValue) {
+		final List<Move> moves = new ArrayList<>(this.moves);
+		moves.set(0, newFirstMove);
+		return new BestLine(ImmutableList.copyOf(moves), lineValue, lineValue - initialPositionValue, CACHED_BEST_LINE_DURATION);
 	}
 	
 	@Override
