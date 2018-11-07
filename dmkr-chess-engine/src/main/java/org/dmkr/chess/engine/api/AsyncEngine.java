@@ -3,9 +3,7 @@ package org.dmkr.chess.engine.api;
 import org.dmkr.chess.api.BoardEngine;
 import org.dmkr.chess.engine.minimax.BestLine;
 
-import java.util.Optional;
-
-public interface AsyncEngine<T extends BoardEngine> extends ProgressProvider, EvaluationFunctionAware<T> {
+public interface AsyncEngine<T extends BoardEngine> extends ProgressProvider, EvaluationFunctionAware<T>, AutoCloseable {
 
 	void run(T board);
 	

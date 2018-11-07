@@ -34,7 +34,7 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.experimental.Delegate;
 
-public class MiniMax<T extends BoardEngine> implements AsyncEngine<T>, ProgressProvider {
+public class MiniMax<T extends BoardEngine> implements AsyncEngine<T>, ProgressProvider, AutoCloseable {
     private final TreeBuildingStrategy rootLevelTreeStrategy;
 	private final boolean isAsynchronous;
 	private final boolean enableLinesCutOff;
@@ -251,7 +251,14 @@ public class MiniMax<T extends BoardEngine> implements AsyncEngine<T>, ProgressP
 			}
 		}
 	}
-	
+
+	@Override
+	public void close() {
+        System.out.println("Close: " + getClass().getSimpleName());
+		this.executorService.shutdownNow();
+		this.movesCalculationExecutor.shutdownNow();
+	}
+
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder(256);

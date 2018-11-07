@@ -46,6 +46,10 @@ public class UIBoardTextHelper {
 	private final UIMousePositionHelper mousePositionHelper;
 	private final BestLineVisualizerListener bestLineVisualizerListener;
 	private final EvaluationHistoryManager evaluationHistoryManager;
+	private final AsyncEngine<BoardEngine> engine;
+	private final BoardEngine board;
+
+
 	private final Color textColor;
 	private final Color focusedTextColor;
 	private final Color focusedAreaColor;
@@ -65,11 +69,16 @@ public class UIBoardTextHelper {
 			UIBoardConfig config,
 			UIMousePositionHelper mousePositionHelper,
 			BestLineVisualizerListener bestLineVisualizerListener,
-			EvaluationHistoryManager evaluationHistoryManager) {
+			EvaluationHistoryManager evaluationHistoryManager,
+			AsyncEngine<BoardEngine> engine,
+			BoardEngine board) {
 		this.player = player;
 	    this.mousePositionHelper = mousePositionHelper;
 		this.bestLineVisualizerListener = bestLineVisualizerListener;
 		this.evaluationHistoryManager = evaluationHistoryManager;
+		this.engine = engine;
+		this.board = board;
+
 		this.textColor = config.getTextColor();
 		this.focusedTextColor = config.getFocusedTextColor();
 		this.focusedAreaColor = config.getFocusedAreaColor();
@@ -85,7 +94,7 @@ public class UIBoardTextHelper {
 		new UIText(text).draw(g, textStyle, x, y);
 	}
 
-	public void drawText(AsyncEngine<BoardEngine> engine, BoardEngine board, Graphics2D g) {
+	public void drawText(Graphics2D g) {
 		final ArrayList<UITextBlock> result = new ArrayList<>();
 		
 		result.addAll(getEvaluationText(engine, board));

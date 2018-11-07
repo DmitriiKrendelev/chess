@@ -9,6 +9,7 @@ import org.dmkr.chess.engine.api.EvaluationHistoryManager;
 import org.dmkr.chess.ui.Player;
 import org.dmkr.chess.ui.UIBoard;
 import org.dmkr.chess.ui.UIBoardJComponent;
+import org.dmkr.chess.ui.UIBoardJMenuBar;
 import org.dmkr.chess.ui.config.UIBoardConfig;
 
 import com.google.inject.AbstractModule;
@@ -30,6 +31,7 @@ public class UIModule extends AbstractModule {
         bind(UIBoard.class).asEagerSingleton();
         bind(Player.class).toInstance(player);
         bind(EvaluationHistoryManager.class).toInstance(evaluationHistoryManager);
+        bind(UIBoardJMenuBar.class).asEagerSingleton();
     }
 
 }

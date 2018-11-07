@@ -24,6 +24,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Optional;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -34,7 +35,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.dmkr.chess.ui.helpers.UIColorsHelper.getPositionChangedColor;
 
 @SuppressWarnings("serial")
-public class UIBoardJComponent extends JComponent {
+public class UIBoardJComponent extends JComponent implements AutoCloseable {
 	@Inject private Player player;
 	@Inject private UIBoardConfig config;
 	@Inject private BoardEngine board;
@@ -51,12 +52,14 @@ public class UIBoardJComponent extends JComponent {
 	@Inject private AtomicReference<MovingPiece> movingPieceHolder = new AtomicReference<>();
 	@Inject private AtomicReference<BestLineVisualizer> paintComponentOverride = new AtomicReference<>();
 
+	private final ScheduledExecutorService oponentMoveExecutorService = newScheduledThreadPool(1);
+
 	public void run() {
-	    if (!player.isWhite()) {
+	    if (player.isBoardInvertedForPlayer(board)) {
             engine.run(board);
         }
 
-		newScheduledThreadPool(1).scheduleWithFixedDelay(this::doOponentMove, 0, config.getRepaintTimeoutMillis(), MILLISECONDS);
+		oponentMoveExecutorService.scheduleWithFixedDelay(this::doOponentMove, 0, config.getRepaintTimeoutMillis(), MILLISECONDS);
 	}
 	
 	@Override
@@ -80,13 +83,23 @@ public class UIBoardJComponent extends JComponent {
 		
 		if (isPressed) {
 			final UIPoint mousePosition = mousePositionHelper.getMouseLocation();
-			drawPiece(board.at(pressedField), mousePosition.x(), mousePosition.y(), g);
+			final ColoredPiece takenPiece = board.at(pressedField);
+
+			if (!takenPiece.isNull()) {
+                final boolean drawAllowedMoveField = board.getAllowedMovesFields().getOrDefault(pressedField, emptySet()).contains(mouseAtField);
+
+                if (drawAllowedMoveField) {
+                    draw(mouseAtField, config.getPressedFieldColor(), g);
+                }
+
+                drawPiece(takenPiece, mousePosition.x(), mousePosition.y(), g);
+            }
 		}
 		
 		resetCursor(pressedField, mouseAtField, isPressed);
 
 		drawProgressBar(g);
-		textHelper.drawText(engine, board, (Graphics2D) g);
+		textHelper.drawText((Graphics2D) g);
 		drawBestMove(g);
 
 		repaint();
@@ -230,5 +243,13 @@ public class UIBoardJComponent extends JComponent {
 						paintComponentOverride.set(null);
 					}
 				});
+	}
+
+	@Override
+	public void close() throws Exception {
+        System.out.println("Close: " + getClass().getSimpleName());
+		this.oponentMoveExecutorService.shutdownNow();
+		this.engine.close();
+		this.setVisible(false);
 	}
 }

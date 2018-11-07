@@ -15,4 +15,8 @@ public class SavedPosition implements Serializable {
     private Color color;
     private BoardEngine board;
 
+    @Override
+    protected SavedPosition clone() {
+        return new SavedPosition(color, board.clone());
+    }
 }

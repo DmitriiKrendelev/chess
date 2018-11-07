@@ -61,7 +61,7 @@ SaveAndLoadPositionManager {
     }
 
     public Optional<SavedPosition> getPosition(File file) {
-        return gamesCache.computeIfAbsent(file, this::loadPosition);
+        return gamesCache.computeIfAbsent(file, this::loadPosition).map(SavedPosition::clone);
     }
 
     @SneakyThrows

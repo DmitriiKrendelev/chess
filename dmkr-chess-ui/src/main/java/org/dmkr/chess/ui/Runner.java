@@ -26,26 +26,20 @@ import static org.dmkr.chess.engine.minimax.tree.TreeLevelMovesProvider.captured
 import static org.dmkr.chess.ui.Player.player;
 
 public class Runner {
-	
-	public static void main(String args[]) {
+
+    public static void main(String[] args) {
+        final Player player = player()
+                .name("Test Player")
+                .color(BLACK)
+                .build();
+
+        final BoardEngine board = newInitialPositionBoard();
+
+        run(player, board);
+    }
+
+	public static void run(Player player, BoardEngine board) {
 		EventQueue.invokeLater(() -> {
-            final Player player = player()
-                    .name("Test Player")
-                    .color(BLACK)
-                    .build();
-
-            final BoardEngine board = newInitialPositionBoard();
-//                    BitBoardBuilder.of(
-//                    "- k - - - - - r",
-//                    "- - - - - - - -",
-//                    "- - - - - K - -",
-//                    "- - - - - - - -",
-//                    "- - - - - - - -",
-//                    "- - - - - - - -",
-//                    "- - - - - - - -",
-//                    "- - - - - - - -")
-//                    .build();
-
 
             final EvaluationFunctionAware<BoardEngine> evaluationFunction = (EvaluationFunctionAware) EvaluationFunctionAware.of(EvaluationFunctionAllBit.INSTANCE);
 

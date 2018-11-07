@@ -1,23 +1,25 @@
 package org.dmkr.chess.ui;
 
-import javax.swing.JFrame;
+import javax.swing.*;
 
+import com.google.inject.Injector;
+import org.dmkr.chess.common.lang.SwitchByType;
 import org.dmkr.chess.ui.config.UIBoardConfig;
-import org.dmkr.chess.ui.listeners.*;
+import org.dmkr.chess.ui.guice.UIListenersModule;
 
 import com.google.inject.Inject;
 
+import java.awt.event.KeyListener;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.util.EventListener;
+
 @SuppressWarnings("serial")
-public class UIBoard extends JFrame {
+public class UIBoard extends JFrame implements AutoCloseable {
 	@Inject private UIBoardConfig config;
 	@Inject private UIBoardJComponent jComponent;
-	@Inject private MovesRollbackListener movesRollbackListener;
-	@Inject private PrintBoardListener printBoardListener;
-	@Inject private PrintThreadDumpListener printThreadDumpListener;
-	@Inject private PiecesDragAndDropListener dragAndDropListener;
-	@Inject private BestLineVisualizerListener bestLineVisualizerListener;
-	@Inject private SavePositionListener savePositionListener;
-	@Inject private LoadPositionListener loadPositionListener;
+	@Inject private UIBoardJMenuBar menuBar;
+	@Inject private Injector injector;
 
 	public void run() {
 		setVisible(true);
@@ -29,16 +31,29 @@ public class UIBoard extends JFrame {
 		setBackground(config.getBackgroundColor());
 		
 		setContentPane(jComponent);
-		addKeyListener(movesRollbackListener);
-		addKeyListener(printBoardListener);
-		addKeyListener(printThreadDumpListener);
-		addKeyListener(savePositionListener);
-		addKeyListener(loadPositionListener);
-		
-		addMouseListener(dragAndDropListener);
-		addMouseMotionListener(dragAndDropListener);
-		addMouseListener(bestLineVisualizerListener);
-		
-		jComponent.run();
+
+		UIListenersModule.UI_LISTENERS.forEach(
+			uiListenerClass -> {
+				final EventListener listener = injector.getInstance(uiListenerClass);
+
+				SwitchByType.switchByType(listener)
+						.ifInstanceThenDo(MouseMotionListener.class, this::addMouseMotionListener)
+						.ifInstanceThenDo(MouseListener.class, this::addMouseListener)
+						.ifInstanceThenDo(KeyListener.class, this::addKeyListener)
+						.elseFail();
+			}
+		);
+
+		setJMenuBar(menuBar);
+
+        jComponent.run();
+	}
+
+	@Override
+	public void close() throws Exception {
+        System.out.println("Close: " + getClass().getSimpleName());
+		jComponent.close();
+		setVisible(false);
+		dispose();
 	}
 }

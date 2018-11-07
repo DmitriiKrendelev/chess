@@ -45,8 +45,10 @@ public class PiecesDragAndDropListener extends MouseAdapter {
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		final int x = e.getX();
-		final int y = e.getY();
+		final UIPoint uiPoint = mousePositionHelper.getMouseLocation();
+
+		final int x = uiPoint.x();
+		final int y = uiPoint.y();
 		
 		final Field fromField = this.pressedField.get();
 		mousePressed.set(false);

@@ -6,15 +6,21 @@ import org.dmkr.chess.engine.api.AsyncEngine;
 
 import com.google.inject.Inject;
 
+import javax.swing.*;
+
+import java.awt.event.KeyEvent;
+
+import static java.awt.event.KeyEvent.*;
+import static javax.swing.KeyStroke.getKeyStroke;
+
 public class MovesRollbackListener extends AbstractPressAndTypedListener {
-	private static final int Z = 90;
-	
+
 	private final AsyncEngine<?extends BoardEngine> engine;
 	private final Board board;
 	
 	@Inject
 	private MovesRollbackListener(BoardEngine board, AsyncEngine<BoardEngine> engine) {
-		super(CTRL, Z);
+		super(CTRL, VK_Z, "Undo", getKeyStroke("ctrl Z"));
 		this.board = board;
 		this.engine = engine;
 	}

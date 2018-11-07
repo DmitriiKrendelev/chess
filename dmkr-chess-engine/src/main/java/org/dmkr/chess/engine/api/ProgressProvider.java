@@ -42,12 +42,10 @@ public interface ProgressProvider {
 
 		for (BestLine bestLine: evaluation) {
 			if (!bestLine.isCached() && bestLine.getLineValue() > REPEAT_MOVES_TREASHOLD) {
-                System.out.println("Use not first line with value: " + bestLine.getLineValue() + ". Don't repeat moves.");
                 return bestLine;
 			}
 		}
 
-        System.out.println("Use cached line with value: " + first.getLineValue() + ". Repeat moves.");
 		return first;
 	}
 	

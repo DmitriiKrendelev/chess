@@ -6,18 +6,18 @@ import org.dmkr.chess.engine.api.AsyncEngine;
 
 import com.google.inject.Inject;
 
+import static java.awt.event.KeyEvent.VK_P;
 import static org.dmkr.chess.engine.function.EvaluationFunctionUtils.getEvaluationDetails;
 
 import java.util.Optional;
 
 public class PrintBoardListener extends AbstractPressAndTypedListener {
-	private static final int B = 66;
 	private final Board board;
 	private final AsyncEngine<BoardEngine> engine;
 	
 	@Inject
 	private PrintBoardListener(BoardEngine board, AsyncEngine<BoardEngine> engine) {
-		super(CTRL, B);
+		super(CTRL, VK_P, null, null);
 		this.board = board;
 		this.engine = engine;
 	}
