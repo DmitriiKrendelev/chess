@@ -1,4 +1,4 @@
-package org.dmkr.chess.ui.listeners;
+package org.dmkr.chess.ui.listeners.impl;
 
 import com.google.inject.Inject;
 import lombok.SneakyThrows;
@@ -6,6 +6,7 @@ import org.dmkr.chess.api.model.Color;
 import org.dmkr.chess.ui.Player;
 import org.dmkr.chess.ui.Runner;
 import org.dmkr.chess.ui.UIBoard;
+import org.dmkr.chess.ui.listeners.AbstractPressAndTypedListener;
 
 
 import static java.awt.event.KeyEvent.*;

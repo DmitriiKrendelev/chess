@@ -1,10 +1,11 @@
-package org.dmkr.chess.ui.listeners;
+package org.dmkr.chess.ui.listeners.impl;
 
 import com.google.inject.Inject;
 import lombok.SneakyThrows;
 import org.dmkr.chess.ui.Player;
 import org.dmkr.chess.ui.Runner;
 import org.dmkr.chess.ui.UIBoard;
+import org.dmkr.chess.ui.listeners.AbstractPressAndTypedListener;
 import org.dmkr.chess.ui.saveandload.LoadFileChooser;
 import org.dmkr.chess.ui.saveandload.SaveAndLoadPositionManager;
 import org.dmkr.chess.ui.saveandload.SavedPosition;
@@ -16,7 +17,7 @@ import java.io.*;
 import static java.awt.event.KeyEvent.VK_L;
 import static javax.swing.KeyStroke.getKeyStroke;
 
-public class LoadPositionListener extends AbstractPressAndTypedListener{
+public class LoadPositionListener extends AbstractPressAndTypedListener {
     private final SaveAndLoadPositionManager saveAndLoadPositionManager;
     private final LoadFileChooser fileChooser;
     private final UIBoard uiBoard;

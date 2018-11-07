@@ -1,4 +1,4 @@
-package org.dmkr.chess.ui.listeners;
+package org.dmkr.chess.ui.listeners.impl;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;

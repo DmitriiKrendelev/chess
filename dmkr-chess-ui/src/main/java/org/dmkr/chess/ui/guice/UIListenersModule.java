@@ -1,9 +1,9 @@
 package org.dmkr.chess.ui.guice;
 
 import com.google.common.collect.ImmutableList;
-import org.dmkr.chess.ui.listeners.*;
 
 import com.google.inject.AbstractModule;
+import org.dmkr.chess.ui.listeners.impl.*;
 
 import java.util.EventListener;
 import java.util.List;

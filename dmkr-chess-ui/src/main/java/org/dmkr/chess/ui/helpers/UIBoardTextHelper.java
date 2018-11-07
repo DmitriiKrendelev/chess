@@ -36,7 +36,7 @@ import org.dmkr.chess.ui.api.model.UIText;
 import org.dmkr.chess.ui.api.model.UITextBlock;
 import org.dmkr.chess.ui.api.model.UITextBlock.UITextBlockBuilder;
 import org.dmkr.chess.ui.config.UIBoardConfig;
-import org.dmkr.chess.ui.listeners.BestLineVisualizerListener;
+import org.dmkr.chess.ui.listeners.impl.BestLineVisualizerListener;
 
 import com.google.inject.Inject;
 

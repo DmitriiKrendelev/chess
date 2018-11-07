@@ -1,6 +1,7 @@
-package org.dmkr.chess.ui.listeners;
+package org.dmkr.chess.ui.listeners.impl;
 
 import com.google.inject.Inject;
+import org.dmkr.chess.ui.listeners.AbstractPressAndTypedListener;
 
 import java.awt.event.KeyEvent;
 

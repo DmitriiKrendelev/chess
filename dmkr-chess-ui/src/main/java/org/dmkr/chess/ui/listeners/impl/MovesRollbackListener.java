@@ -1,10 +1,11 @@
-package org.dmkr.chess.ui.listeners;
+package org.dmkr.chess.ui.listeners.impl;
 
 import org.dmkr.chess.api.Board;
 import org.dmkr.chess.api.BoardEngine;
 import org.dmkr.chess.engine.api.AsyncEngine;
 
 import com.google.inject.Inject;
+import org.dmkr.chess.ui.listeners.AbstractPressAndTypedListener;
 
 import javax.swing.*;
 

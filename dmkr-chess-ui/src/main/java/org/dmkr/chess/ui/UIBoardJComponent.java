@@ -16,8 +16,8 @@ import org.dmkr.chess.ui.helpers.UIBoardCoordsHelper.MovingPiece;
 import org.dmkr.chess.ui.helpers.UIBoardImagesHelper;
 import org.dmkr.chess.ui.helpers.UIBoardTextHelper;
 import org.dmkr.chess.ui.helpers.UIMousePositionHelper;
-import org.dmkr.chess.ui.listeners.BestLineVisualizerListener;
-import org.dmkr.chess.ui.listeners.PiecesDragAndDropListener;
+import org.dmkr.chess.ui.listeners.impl.BestLineVisualizerListener;
+import org.dmkr.chess.ui.listeners.impl.PiecesDragAndDropListener;
 import org.dmkr.chess.ui.visualize.BestLineVisualizer;
 
 import javax.swing.*;
