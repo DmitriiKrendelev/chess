@@ -16,7 +16,6 @@ import org.dmkr.chess.ui.guice.UIModule;
 import com.google.inject.Guice;
 
 import static org.dmkr.chess.api.model.Color.BLACK;
-import static org.dmkr.chess.api.model.Color.WHITE;
 import static org.dmkr.chess.engine.board.BoardFactory.newInitialPositionBoard;
 import static org.dmkr.chess.engine.minimax.MiniMax.minimax;
 import static org.dmkr.chess.engine.minimax.tree.TreeBuildingStrategyImpl.treeBuildingStrategy;
@@ -67,7 +66,7 @@ public class Runner {
                         new UIHelpersModule(),
                         new UIListenersModule(),
                         new SaveAndLoadPositionModule()
-                ).getInstance(UIBoard.class).run();
+                ).getInstance(UIBoardJFrame.class).run();
 
             } catch (Exception e) {
                 throw new RuntimeException(e);

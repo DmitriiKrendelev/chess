@@ -7,7 +7,7 @@ import org.dmkr.chess.api.BoardEngine;
 import org.dmkr.chess.engine.api.AsyncEngine;
 import org.dmkr.chess.engine.api.EvaluationHistoryManager;
 import org.dmkr.chess.ui.Player;
-import org.dmkr.chess.ui.UIBoard;
+import org.dmkr.chess.ui.UIBoardJFrame;
 import org.dmkr.chess.ui.UIBoardJComponent;
 import org.dmkr.chess.ui.UIBoardJMenuBar;
 import org.dmkr.chess.ui.config.UIBoardConfig;
@@ -28,7 +28,7 @@ public class UIModule extends AbstractModule {
         bind(BoardEngine.class).toInstance(board);
         bind(UIBoardConfig.class).toInstance(DEFAULT_UI_CONFIG);
         bind(UIBoardJComponent.class).asEagerSingleton();
-        bind(UIBoard.class).asEagerSingleton();
+        bind(UIBoardJFrame.class).asEagerSingleton();
         bind(Player.class).toInstance(player);
         bind(EvaluationHistoryManager.class).toInstance(evaluationHistoryManager);
         bind(UIBoardJMenuBar.class).asEagerSingleton();

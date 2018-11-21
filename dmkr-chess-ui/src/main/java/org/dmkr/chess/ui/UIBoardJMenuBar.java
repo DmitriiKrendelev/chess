@@ -2,21 +2,21 @@ package org.dmkr.chess.ui;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import org.dmkr.chess.ui.guice.UIListenersModule;
 import org.dmkr.chess.ui.listeners.UIListener;
 
 import javax.swing.*;
+import java.util.List;
+
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class UIBoardJMenuBar extends JMenuBar {
 
     @Inject
-    private UIBoardJMenuBar(Injector injector) {
+    private UIBoardJMenuBar(Injector injector, List<Class<? extends UIListener>> listenerTypes) {
         final JMenu file = new JMenu("Game Menu");
         add(file);
 
-        UIListenersModule.UI_LISTENERS.stream()
-            .filter(UIListener.class::isAssignableFrom)
+        listenerTypes.stream()
             .map(injector::getInstance)
             .map(UIListener.class::cast)
             .filter(listener -> isNotBlank(listener.getDisplayedName()))

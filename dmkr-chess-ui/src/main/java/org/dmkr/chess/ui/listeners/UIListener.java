@@ -1,12 +1,19 @@
 package org.dmkr.chess.ui.listeners;
 
 import javax.swing.*;
+import java.util.EventListener;
 
-public interface UIListener {
+public interface UIListener  extends EventListener {
 
-    String getDisplayedName();
+    default String getDisplayedName() {
+        return null;
+    }
 
-    KeyStroke getRunKeys();
+    default KeyStroke getRunKeys() {
+        return null;
+    }
 
-    void run();
+    default void run() {
+        throw new UnsupportedOperationException();
+    }
 }

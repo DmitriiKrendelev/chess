@@ -10,8 +10,9 @@ import org.dmkr.chess.ui.UIBoardJComponent;
 import org.dmkr.chess.ui.api.model.UITextBlock;
 
 import com.google.inject.Inject;
+import org.dmkr.chess.ui.listeners.UIListener;
 
-public class BestLineVisualizerListener extends MouseAdapter {
+public class BestLineVisualizerListener extends MouseAdapter implements UIListener {
 	private final Map<BestLine, UITextBlock> bestLines = new ConcurrentHashMap<>(); 
 	@Inject private UIBoardJComponent jComponent;
 	

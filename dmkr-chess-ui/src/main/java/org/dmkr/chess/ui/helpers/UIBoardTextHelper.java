@@ -27,7 +27,6 @@ import org.dmkr.chess.api.BoardEngine;
 import org.dmkr.chess.api.model.Move;
 import org.dmkr.chess.engine.api.AsyncEngine;
 import org.dmkr.chess.engine.api.EvaluationHistoryManager;
-import org.dmkr.chess.engine.api.ProgressProvider;
 import org.dmkr.chess.engine.minimax.BestLine;
 import org.dmkr.chess.ui.Player;
 import org.dmkr.chess.ui.api.model.UIPoint;
@@ -97,21 +96,21 @@ public class UIBoardTextHelper {
 	public void drawText(Graphics2D g) {
 		final ArrayList<UITextBlock> result = new ArrayList<>();
 		
-		result.addAll(getEvaluationText(engine, board));
-		result.addAll(getProgressText(engine));
+		result.addAll(getEvaluationText());
+		result.addAll(getProgressText());
 
 		final UIPointMutable mutableTextPosition = new UIPointMutable(textPosition, x -> x, y -> y + textStyle.getSize());
 		result.forEach(uiTextBlock -> uiTextBlock.draw(g, mutableTextPosition));
 	}
 	
-	private List<UITextBlock> getEvaluationText(AsyncEngine<BoardEngine> engine, BoardEngine board) {
+	private List<UITextBlock> getEvaluationText() {
 		return evaluationTextCache.updateAndGet(cached -> {
 			final int halfMoves = board.movesHistorySize();
-			return cached.getKey() == halfMoves ? cached : of(halfMoves, singletonList(calculateEvaluationText(engine, board)));
+			return cached.getKey() == halfMoves ? cached : of(halfMoves, singletonList(calculateEvaluationText()));
 		}).getValue();
 	}
 	
-	private UITextBlock calculateEvaluationText(AsyncEngine<BoardEngine> engine, BoardEngine board) {
+	private UITextBlock calculateEvaluationText() {
 		final UITextBlockBuilder builder = uiTextBlockBuilder();
 		builder.textLine("Game :");
 		builder.textLine("     " + board.moveNumber() + "-th move : " + (board.isInverted() ? "Black" : "White"));
@@ -138,7 +137,7 @@ public class UIBoardTextHelper {
 		return builder.build(); 
 	}
 	
-	private List<UITextBlock> getProgressText(AsyncEngine<BoardEngine> engine) {
+	private List<UITextBlock> getProgressText() {
 		final List<UITextBlock> currentProgressText = progressTextCache.updateAndGet((Pair<Move, List<UITextBlock>> cache) -> {
 			final Move cacheKey = cache.getKey();
 			final Move currentMove = engine.getCurrentMove();
@@ -147,7 +146,7 @@ public class UIBoardTextHelper {
 				return of(null, Collections.emptyList());
 			}
 
-			return cacheKey == currentMove ? cache : of(currentMove, calculateProgressText(engine));
+			return cacheKey == currentMove ? cache : of(currentMove, calculateProgressText());
 		}).getValue();
 
 		final UITextBlock timeProgress = uiTextBlockBuilder()
@@ -160,27 +159,27 @@ public class UIBoardTextHelper {
 		return result;
 	}
 	
-	private List<UITextBlock> calculateProgressText(ProgressProvider progress) {
+	private List<UITextBlock> calculateProgressText() {
 		final List<UITextBlock> result = new ArrayList<>();
 		final UITextBlockBuilder builder = uiTextBlockBuilder();
 
 		builder.textLine("Engine Progress :");
 		builder.textLine(EMPTY);
-		builder.textLine("Count : " + longFormat.format(progress.getCurrentCount()));
-		builder.textLine("Speed : " + longFormat.format(progress.getSpeed()) + " per sec");
-		builder.textLine("Parallel Level : " + formatParallelLevel(progress.getParallelLevel()));
+		builder.textLine("Count : " + longFormat.format(engine.getCurrentCount()));
+		builder.textLine("Speed : " + longFormat.format(engine.getSpeed()) + " per sec");
+		builder.textLine("Parallel Level : " + formatParallelLevel(engine.getParallelLevel()));
 		builder.textLine(EMPTY);
 		builder.textLine("Evaluation : ");
 		builder.isFocusable(false);
 		result.add(builder.build());
 		
 		int index = 0;
-		final SortedSet<BestLine> currentEvaluation = progress.getCurrentEvaluation();
+		final SortedSet<BestLine> currentEvaluation = engine.getCurrentEvaluation();
 		if (currentEvaluation == null) {
 			return result;
 		}
 
-		final boolean isInProgress = progress.isInProgress();
+		final boolean isInProgress = engine.isInProgress();
 		if (!isInProgress) {
 			builder.isFocusable(true);
 		}

@@ -16,9 +16,10 @@ import org.dmkr.chess.ui.UIBoardJComponent;
 import org.dmkr.chess.ui.api.model.UIPoint;
 import org.dmkr.chess.ui.helpers.UIBoardCoordsHelper;
 import org.dmkr.chess.ui.helpers.UIMousePositionHelper;
+import org.dmkr.chess.ui.listeners.UIListener;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE, onConstructor = @_(@Inject))
-public class PiecesDragAndDropListener extends MouseAdapter {
+public class PiecesDragAndDropListener extends MouseAdapter implements UIListener {
 	private final AtomicBoolean mousePressed = new AtomicBoolean();
 	private final AtomicReference<Field> pressedField = new AtomicReference<>();
 	
