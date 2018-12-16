@@ -21,19 +21,25 @@ public class UIArrow {
 	private final UIPoint to;
 	private final Polygon arrowHead = new Polygon(ARROW_HEAD_X_COORDS, ARROW_HEAD_Y_COORDS, ARROW_HEAD_X_COORDS.length); 
 	private final AffineTransform tx = new AffineTransform();
+
+	private static final int LINUX_TRANSFORMATION_X_OFFSET = 0;
+	private static final int LINUX_TRANSFORMATION_Y_OFFSET = 20;
 	
 	public void draw(Color color, Graphics2D g) {
 		g.setColor(color);
 		g.setStroke(arrowStyle);
 		g.drawLine(from.x(), from.y(), to.x(), to.y());
-		
-		tx.setToIdentity();
+
 		final double angle = Math.atan2(to.y() - from.y(), to.x() - from.x());
-		tx.translate(to.x(), to.y());
-		tx.rotate(angle - Math.PI / 2.0);  
-		g.setTransform(tx);   
+		tx.setToIdentity();
+		tx.translate(to.x() + LINUX_TRANSFORMATION_X_OFFSET, to.y() + LINUX_TRANSFORMATION_Y_OFFSET);
+		tx.rotate(angle - Math.PI / 2.0);
+
+		g.setTransform(tx);
 		g.fill(arrowHead);
 		tx.setToIdentity();
+		tx.translate(0, 0);
+		tx.rotate(0);
 	}
 	
 }
