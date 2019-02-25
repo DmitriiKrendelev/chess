@@ -92,7 +92,7 @@ public class IntsValuesCollectorTest {
 			collector.add(i, i);
 		}
 
-		collector.collect(intAndValueConsumer);
+		collector.forEach(intAndValueConsumer);
 		assertArrayEquals(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, collector.intsArray());
 		assertEquals(map(
 				new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9},
@@ -101,7 +101,7 @@ public class IntsValuesCollectorTest {
 		intAndValueConsumer.cleanup();
 		
 		collector.add(6, 6);
-		collector.collect(intAndValueConsumer);
+		collector.forEach(intAndValueConsumer);
 		assertArrayEquals(new int[]{1, 2, 3, 4, 5, 6, 6, 7, 8, 9}, collector.intsArray());
 		assertEquals(map(
 				new int[]{1, 2, 3, 4, 5, 6, 6, 7, 8, 9},
@@ -110,7 +110,7 @@ public class IntsValuesCollectorTest {
 		intAndValueConsumer.cleanup();
 		
 		collector.add(5, 5);
-		collector.collect(intAndValueConsumer);
+		collector.forEach(intAndValueConsumer);
 		assertArrayEquals(new int[]{2, 3, 4, 5, 5, 6, 6, 7, 8, 9}, collector.intsArray());
 		assertEquals(map(
 				new int[]{2, 3, 4, 5, 5, 6, 6, 7, 8, 9},
@@ -119,7 +119,7 @@ public class IntsValuesCollectorTest {
 		intAndValueConsumer.cleanup();
 		
 		collector.add(11, 11);
-		collector.collect(intAndValueConsumer);
+		collector.forEach(intAndValueConsumer);
 		assertArrayEquals(new int[]{3, 4, 5, 5, 6, 6, 7, 8, 9, 11}, collector.intsArray());
 		assertEquals(map(
 				new int[]{3, 4, 5, 5, 6, 6, 7, 8, 9, 11},
@@ -128,7 +128,7 @@ public class IntsValuesCollectorTest {
 		intAndValueConsumer.cleanup();
 		
 		collector.add(10, 10);
-		collector.collect(intAndValueConsumer);
+		collector.forEach(intAndValueConsumer);
 		assertArrayEquals(new int[]{4, 5, 5, 6, 6, 7, 8, 9, 10, 11}, collector.intsArray());
 		assertEquals(map(
 				new int[]{4, 5, 5, 6, 6, 7, 8, 9, 10, 11},
@@ -137,7 +137,7 @@ public class IntsValuesCollectorTest {
 		intAndValueConsumer.cleanup();
 		
 		collector.add(11, 11);
-		collector.collect(intAndValueConsumer);
+		collector.forEach(intAndValueConsumer);
 		assertArrayEquals(new int[]{5, 5, 6, 6, 7, 8, 9, 10, 11, 11}, collector.intsArray());
 		assertEquals(map(
 				new int[]{5, 5, 6, 6, 7, 8, 9, 10, 11, 11},
@@ -146,7 +146,7 @@ public class IntsValuesCollectorTest {
 		intAndValueConsumer.cleanup();
 		
 		collector.add(1234567890, 1234567890);
-		collector.collect(intAndValueConsumer);
+		collector.forEach(intAndValueConsumer);
 		assertArrayEquals(new int[]{5, 6, 6, 7, 8, 9, 10, 11, 11, 1234567890}, collector.intsArray());
 		assertEquals(map(
 				new int[]{5, 6, 6, 7, 8, 9, 10, 11, 11, 1234567890},
@@ -165,7 +165,7 @@ public class IntsValuesCollectorTest {
 			collector.add(-i, -i);
 		}
 		
-		collector.collect(intAndValueConsumer);
+		collector.forEach(intAndValueConsumer);
 		assertArrayEquals(new int[]{-9, -8, -7, -6, -5, -4, -3, -2, -1, 0}, collector.intsArray());
 		assertEquals(map(
 				new int[]{-9, -8, -7, -6, -5, -4, -3, -2, -1, 0},
@@ -174,7 +174,7 @@ public class IntsValuesCollectorTest {
 		intAndValueConsumer.cleanup();
 		
 		collector.add(-6, -6);
-		collector.collect(intAndValueConsumer);
+		collector.forEach(intAndValueConsumer);
 		assertArrayEquals(new int[]{-8, -7, -6, -6, -5, -4, -3, -2, -1, 0}, collector.intsArray());
 		assertEquals(map(
 				new int[]{-8, -7, -6, -6, -5, -4, -3, -2, -1, 0},
@@ -183,7 +183,7 @@ public class IntsValuesCollectorTest {
 		intAndValueConsumer.cleanup();
 		
 		collector.add(-5, -5);
-		collector.collect(intAndValueConsumer);
+		collector.forEach(intAndValueConsumer);
 		assertArrayEquals(new int[]{-7, -6, -6, -5, -5, -4, -3, -2, -1, 0}, collector.intsArray());
 		assertEquals(map(
 				new int[]{-7, -6, -6, -5, -5, -4, -3, -2, -1, 0},
@@ -192,7 +192,7 @@ public class IntsValuesCollectorTest {
 		intAndValueConsumer.cleanup();
 		
 		collector.add(0, 0);
-		collector.collect(intAndValueConsumer);
+		collector.forEach(intAndValueConsumer);
 		assertArrayEquals(new int[]{-6, -6, -5, -5, -4, -3, -2, -1, 0, 0}, collector.intsArray());
 		assertEquals(map(
 				new int[]{-6, -6, -5, -5, -4, -3, -2, -1, 0, 0},
@@ -201,7 +201,7 @@ public class IntsValuesCollectorTest {
 		intAndValueConsumer.cleanup();
 		
 		collector.add(-7, -7);
-		collector.collect(intAndValueConsumer);
+		collector.forEach(intAndValueConsumer);
 		assertArrayEquals(new int[]{-6, -6, -5, -5, -4, -3, -2, -1, 0, 0}, collector.intsArray());
 		assertEquals(map(
 				new int[]{-6, -6, -5, -5, -4, -3, -2, -1, 0, 0},
@@ -210,7 +210,7 @@ public class IntsValuesCollectorTest {
 		intAndValueConsumer.cleanup();
 		
 		collector.add(-1234567890, -1234567890);
-		collector.collect(intAndValueConsumer);
+		collector.forEach(intAndValueConsumer);
 		assertArrayEquals(new int[]{-6, -6, -5, -5, -4, -3, -2, -1, 0, 0}, collector.intsArray());
 		assertEquals(map(
 				new int[]{-6, -6, -5, -5, -4, -3, -2, -1, 0, 0},
@@ -219,7 +219,7 @@ public class IntsValuesCollectorTest {
 		intAndValueConsumer.cleanup();
 		
 		collector.add(MIN_VALUE, MIN_VALUE);
-		collector.collect(intAndValueConsumer);
+		collector.forEach(intAndValueConsumer);
 		assertArrayEquals(new int[]{-6, -6, -5, -5, -4, -3, -2, -1, 0, 0}, collector.intsArray());
 		assertEquals(map(
 				new int[]{-6, -6, -5, -5, -4, -3, -2, -1, 0, 0},
@@ -275,7 +275,7 @@ public class IntsValuesCollectorTest {
 		collector.add(7, -1234567890);
 		collector.add(8, Integer.MIN_VALUE);
 		
-		collector.collect(intAndValueConsumer);
+		collector.forEach(intAndValueConsumer);
 		
 		assertEquals(map(
 				new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8},

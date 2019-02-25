@@ -24,6 +24,7 @@ public interface EvaluationHistoryManager<T extends BoardEngine> {
             }
         };
     }
+
     void put(T board, ImmutableSortedSet<BestLine> evaluation);
 
     ImmutableSortedSet<BestLine> get(T board);

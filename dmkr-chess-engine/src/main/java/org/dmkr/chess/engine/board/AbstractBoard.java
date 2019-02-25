@@ -49,7 +49,7 @@ public abstract class AbstractBoard implements BoardEngine {
 	protected boolean canCastleLeft, canCastleRght, canOponentCastleLeft, canOponentCastleRght;
 	protected boolean inverted;
 	
-	// moves to collect 
+	// moves to collect
 	protected MovesSelector movesSelector;
 	
 	// caching 

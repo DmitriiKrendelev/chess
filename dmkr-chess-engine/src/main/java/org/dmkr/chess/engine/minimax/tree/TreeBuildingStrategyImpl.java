@@ -1,13 +1,11 @@
 package org.dmkr.chess.engine.minimax.tree;
 
 import static org.dmkr.chess.api.utils.MoveUtils.isCapturedMove;
-import static org.dmkr.chess.engine.minimax.tree.TreeLevelMovesProvider.allMovesProvider;
-import static org.dmkr.chess.engine.minimax.tree.TreeLevelMovesProvider.bestNMovesProvider;
-import static org.dmkr.chess.engine.minimax.tree.TreeLevelMovesProvider.capturedMovesProvider;
+import static org.dmkr.chess.engine.minimax.tree.TreeLevelMovesProvider.allMoves;
+import static org.dmkr.chess.engine.minimax.tree.TreeLevelMovesProvider.bestNMoves;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.base.Preconditions.checkArgument;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 import org.dmkr.chess.api.BoardEngine;
@@ -63,13 +61,13 @@ public class TreeBuildingStrategyImpl implements TreeBuildingStrategy {
 		
 		final List<TreeLevelMovesProvider> levelMovesProviders = newArrayList();
 		IntStream.range(0, fullScanLevel)
-			.forEach(level -> levelMovesProviders.add(allMovesProvider()));
+			.forEach(level -> levelMovesProviders.add(allMoves()));
 		
 		IntStream.range(0, cutOffLevel)
-			.forEach(level -> levelMovesProviders.add(bestNMovesProvider(cutOffNumberOfMoves, evaluationFunctionAware)));
+			.forEach(level -> levelMovesProviders.add(bestNMoves(cutOffNumberOfMoves, evaluationFunctionAware)));
 		
 		IntStream.range(0, captureMovesLevel)
-			.forEach(level -> levelMovesProviders.add(capturedMovesProvider()));
+			.forEach(level -> levelMovesProviders.add(TreeLevelMovesProvider.capturedMoves()));
 		
 		return treeBuildingStrategyWithLevelMoveProviders(levelMovesProviders.stream().toArray(TreeLevelMovesProvider[]::new));
 	}

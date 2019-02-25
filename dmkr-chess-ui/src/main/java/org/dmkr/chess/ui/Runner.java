@@ -19,9 +19,9 @@ import static org.dmkr.chess.api.model.Color.BLACK;
 import static org.dmkr.chess.engine.board.BoardFactory.newInitialPositionBoard;
 import static org.dmkr.chess.engine.minimax.MiniMax.minimax;
 import static org.dmkr.chess.engine.minimax.tree.TreeBuildingStrategyImpl.treeBuildingStrategy;
-import static org.dmkr.chess.engine.minimax.tree.TreeLevelMovesProvider.allMovesProvider;
-import static org.dmkr.chess.engine.minimax.tree.TreeLevelMovesProvider.bestNMovesProvider;
-import static org.dmkr.chess.engine.minimax.tree.TreeLevelMovesProvider.capturedMovesProvider;
+import static org.dmkr.chess.engine.minimax.tree.TreeLevelMovesProvider.allMoves;
+import static org.dmkr.chess.engine.minimax.tree.TreeLevelMovesProvider.bestNMoves;
+import static org.dmkr.chess.engine.minimax.tree.TreeLevelMovesProvider.capturedMoves;
 import static org.dmkr.chess.ui.Player.player;
 
 public class Runner {
@@ -47,11 +47,11 @@ public class Runner {
             final AsyncEngine<BoardEngine> engine = minimax()
                     .treeStrategyCreator(() ->
                             treeBuildingStrategy()
-                                    .onFirstLevel(allMovesProvider())
-                                    .onSecondLevel(bestNMovesProvider(16, evaluationFunction))
-                                    .onThirdLevel(bestNMovesProvider(12, evaluationFunction))
-                                    .onFourthLevel(capturedMovesProvider(2, 4))
-                                    .onFifthLevel(capturedMovesProvider(2, 4))
+                                    .onFirstLevel(allMoves())
+                                    .onSecondLevel(bestNMoves(16, evaluationFunction))
+                                    .onThirdLevel(bestNMoves(12, evaluationFunction))
+                                    .onFourthLevel(capturedMoves(2, 4))
+                                    .onFifthLevel(capturedMoves(2, 4))
                                     .build())
                     .evaluationFunctionAware(evaluationFunction)
                     .evaluationHistoryManager(evaluationHistoryManager)

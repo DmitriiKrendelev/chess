@@ -20,19 +20,19 @@ public interface TreeLevelMovesProvider {
 		return false;
 	}
 	
-	static TreeLevelMovesProvider allMovesProvider() {
+	static TreeLevelMovesProvider allMoves() {
 		return new AllMovesProvider();
 	}
 	
-	static TreeLevelMovesProvider bestNMovesProvider(int numberOfBestMoves, EvaluationFunctionAware<? extends BoardEngine> evaluationFunctionAware) {
+	static TreeLevelMovesProvider bestNMoves(int numberOfBestMoves, EvaluationFunctionAware<? extends BoardEngine> evaluationFunctionAware) {
 		return new BestEvaluationProvider(new IntsValuesCollector(numberOfBestMoves), evaluationFunctionAware);
 	}
 
-	static TreeLevelMovesProvider capturedMovesProvider() {
+	static TreeLevelMovesProvider capturedMoves() {
 		return new CaptureMovesProvider();
 	}
 
-	static TreeLevelMovesProvider capturedMovesProvider(int maxNotCaptureMovesLimit, int maxCaptureMovesLimit) {
+	static TreeLevelMovesProvider capturedMoves(int maxNotCaptureMovesLimit, int maxCaptureMovesLimit) {
 		return new CaptureMovesProvider(maxNotCaptureMovesLimit, maxCaptureMovesLimit);
 	}
 	

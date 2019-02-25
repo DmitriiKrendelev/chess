@@ -104,7 +104,7 @@ public class IntsValuesCollector {
 		return arr;
 	}
 	
-	public void collect(IntAndValueConsumer consumer) {
+	public void forEach(IntAndValueConsumer consumer) {
 		for (int i = 0; i < size; i ++) {
 			consumer.consume(valueAt(i), weightAt(i));
 		}
