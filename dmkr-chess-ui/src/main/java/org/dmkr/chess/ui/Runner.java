@@ -42,8 +42,6 @@ public class Runner {
 
             final EvaluationFunctionAware<BoardEngine> evaluationFunction = (EvaluationFunctionAware) EvaluationFunctionAware.of(EvaluationFunctionAllBit.INSTANCE);
 
-            final EvaluationHistoryManager evaluationHistoryManager = new EvaluationHistoryManagerImpl();
-
             final AsyncEngine<BoardEngine> engine = minimax()
                     .treeStrategyCreator(() ->
                             treeBuildingStrategy()
@@ -54,7 +52,7 @@ public class Runner {
                                     .onFifthLevel(capturedMoves(2, 4))
                                     .build())
                     .evaluationFunctionAware(evaluationFunction)
-                    .evaluationHistoryManager(evaluationHistoryManager)
+                    .evaluationHistoryManager(new EvaluationHistoryManagerImpl())
                     .isAsynchronous(true)
                     .parallelLevel(4)
                     .build();
@@ -62,7 +60,7 @@ public class Runner {
 
             try {
                 Guice.createInjector(
-                        new UIModule(player, engine, board, evaluationHistoryManager),
+                        new UIModule(player, engine, board),
                         new UIHelpersModule(),
                         new UIListenersModule(),
                         new SaveAndLoadPositionModule()

@@ -1,50 +1,12 @@
 package org.dmkr.chess.engine.board.bit;
 
-import static com.google.common.base.Preconditions.checkState;
-import static java.lang.Long.numberOfTrailingZeros;
-import static java.lang.Long.reverse;
-import static org.dmkr.chess.api.model.Constants.SIZE;
-import static org.dmkr.chess.api.model.Constants.SPECIAL_MOVE_DISSALOW_CASTELING_LEFT;
-import static org.dmkr.chess.api.model.Constants.SPECIAL_MOVE_DISSALOW_CASTELING_RGHT;
-import static org.dmkr.chess.api.model.Constants.SPECIAL_MOVE_NO;
-import static org.dmkr.chess.api.model.Constants.SPECIAL_MOVE_PAWN_EN_PASSANT;
-import static org.dmkr.chess.api.model.Constants.SPECIAL_MOVE_PAWN_GOES_TWO_STEPS;
-import static org.dmkr.chess.api.model.Constants.VALUE_BISHOP;
-import static org.dmkr.chess.api.model.Constants.VALUE_EMPTY;
-import static org.dmkr.chess.api.model.Constants.VALUE_KING;
-import static org.dmkr.chess.api.model.Constants.VALUE_KNIGHT;
-import static org.dmkr.chess.api.model.Constants.VALUE_PAWN;
-import static org.dmkr.chess.api.model.Constants.VALUE_QUEEN;
-import static org.dmkr.chess.api.model.Constants.VALUE_ROOK;
-import static org.dmkr.chess.api.utils.BitBoardMasks.BISHOP_ATACKS;
-import static org.dmkr.chess.api.utils.BitBoardMasks.BOARD_FIELDS;
-import static org.dmkr.chess.api.utils.BitBoardMasks.BOARD_INDEX_TO_LONG_INDEX;
-import static org.dmkr.chess.api.utils.BitBoardMasks.EMPTY_FOR_CASTELING_LEFT_LONG;
-import static org.dmkr.chess.api.utils.BitBoardMasks.EMPTY_FOR_CASTELING_LEFT_SHORT;
-import static org.dmkr.chess.api.utils.BitBoardMasks.EMPTY_FOR_CASTELING_RGHT_LONG;
-import static org.dmkr.chess.api.utils.BitBoardMasks.EMPTY_FOR_CASTELING_RGHT_SHORT;
-import static org.dmkr.chess.api.utils.BitBoardMasks.KING_ATACKS;
-import static org.dmkr.chess.api.utils.BitBoardMasks.KNIGHT_ATACKS;
-import static org.dmkr.chess.api.utils.BitBoardMasks.LINE_2;
-import static org.dmkr.chess.api.utils.BitBoardMasks.NOT_A;
-import static org.dmkr.chess.api.utils.BitBoardMasks.NOT_H;
-import static org.dmkr.chess.api.utils.BitBoardMasks.PAWN_ATACKS;
-import static org.dmkr.chess.api.utils.BitBoardMasks.PAWN_CAN_GO_TWO_STEPS;
-import static org.dmkr.chess.api.utils.BitBoardMasks.ROOK_ATACKS;
-import static org.dmkr.chess.api.utils.BitBoardUtils.doWithUpBits;
-import static org.dmkr.chess.api.utils.BoardUtils.getX;
-import static org.dmkr.chess.api.utils.BoardUtils.getY;
-import static org.dmkr.chess.api.utils.BoardUtils.invertIndex;
-import static org.dmkr.chess.api.utils.PieceGoesFunctionsBit.PieceGoesFunctionBit.GO_DOWN;
-import static org.dmkr.chess.api.utils.PieceGoesFunctionsBit.PieceGoesFunctionBit.GO_DOWN_LEFT;
-import static org.dmkr.chess.api.utils.PieceGoesFunctionsBit.PieceGoesFunctionBit.GO_DOWN_RIGHT;
-import static org.dmkr.chess.api.utils.PieceGoesFunctionsBit.PieceGoesFunctionBit.GO_LEFT;
-import static org.dmkr.chess.api.utils.PieceGoesFunctionsBit.PieceGoesFunctionBit.GO_RIGHT;
-import static org.dmkr.chess.api.utils.PieceGoesFunctionsBit.PieceGoesFunctionBit.GO_UP;
-import static org.dmkr.chess.api.utils.PieceGoesFunctionsBit.PieceGoesFunctionBit.GO_UP_LEFT;
-import static org.dmkr.chess.api.utils.PieceGoesFunctionsBit.PieceGoesFunctionBit.GO_UP_RIGHT;
-import static org.dmkr.chess.common.primitives.Bytes.byte2;
-import static org.dmkr.chess.common.primitives.Bytes.intByte4;
+import lombok.EqualsAndHashCode;
+import lombok.NonNull;
+import org.dmkr.chess.api.BitBoard;
+import org.dmkr.chess.api.model.Piece;
+import org.dmkr.chess.api.utils.BitBoardUtils;
+import org.dmkr.chess.api.utils.PieceGoesFunctionsBit.PieceGoesFunctionBit;
+import org.dmkr.chess.engine.board.AbstractBoard;
 
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -52,16 +14,16 @@ import java.io.ObjectOutput;
 import java.util.function.LongPredicate;
 import java.util.function.LongUnaryOperator;
 
-import org.dmkr.chess.api.BitBoard;
-import org.dmkr.chess.api.model.Piece;
-import org.dmkr.chess.api.utils.BitBoardUtils;
-import org.dmkr.chess.api.utils.PieceGoesFunctionsBit.PieceGoesFunctionBit;
-import org.dmkr.chess.engine.board.AbstractBoard;
-
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import static com.google.common.base.Preconditions.*;
+import static java.lang.Long.reverse;
+import static java.lang.Long.*;
+import static org.dmkr.chess.api.model.Constants.SIZE;
+import static org.dmkr.chess.api.model.Constants.*;
+import static org.dmkr.chess.api.utils.BitBoardMasks.*;
+import static org.dmkr.chess.api.utils.BitBoardUtils.*;
+import static org.dmkr.chess.api.utils.BoardUtils.*;
+import static org.dmkr.chess.api.utils.PieceGoesFunctionsBit.PieceGoesFunctionBit.*;
+import static org.dmkr.chess.common.primitives.Bytes.*;
 
 @EqualsAndHashCode(of = {"pieces", "oponentPieces"}, callSuper = true)
 public class BitBoardImpl extends AbstractBoard implements BitBoard {

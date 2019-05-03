@@ -20,7 +20,6 @@ public class UIModule extends AbstractModule {
     private final Player player;
     private final AsyncEngine<BoardEngine> engine;
     private final BoardEngine board;
-    private final EvaluationHistoryManager evaluationHistoryManager;
 
     @Override
     protected void configure() {
@@ -30,7 +29,6 @@ public class UIModule extends AbstractModule {
         bind(UIBoardJComponent.class).asEagerSingleton();
         bind(UIBoardJFrame.class).asEagerSingleton();
         bind(Player.class).toInstance(player);
-        bind(EvaluationHistoryManager.class).toInstance(evaluationHistoryManager);
         bind(UIBoardJMenuBar.class).asEagerSingleton();
     }
 

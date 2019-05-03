@@ -1,32 +1,11 @@
 package org.dmkr.chess.ui.helpers;
 
-import static java.util.Collections.singletonList;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
-import static org.apache.commons.lang3.time.DateUtils.MILLIS_PER_HOUR;
-import static org.apache.commons.lang3.time.DateUtils.MILLIS_PER_MINUTE;
-import static org.apache.commons.lang3.time.DurationFormatUtils.formatDuration;
-import static org.dmkr.chess.engine.function.EvaluationFunctionUtils.getEvaluationDetails;
-import static org.apache.commons.lang3.tuple.ImmutablePair.of;
-import static java.util.Collections.emptyList;
-import static java.lang.Double.*;
-
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.concurrent.atomic.AtomicReference;
-
+import com.google.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.dmkr.chess.api.BoardEngine;
 import org.dmkr.chess.api.model.Move;
 import org.dmkr.chess.engine.api.AsyncEngine;
-import org.dmkr.chess.engine.api.EvaluationHistoryManager;
 import org.dmkr.chess.engine.minimax.BestLine;
 import org.dmkr.chess.ui.Player;
 import org.dmkr.chess.ui.api.model.UIPoint;
@@ -37,14 +16,25 @@ import org.dmkr.chess.ui.api.model.UITextBlock.UITextBlockBuilder;
 import org.dmkr.chess.ui.config.UIBoardConfig;
 import org.dmkr.chess.ui.listeners.impl.BestLineVisualizerListener;
 
-import com.google.inject.Inject;
+import java.awt.*;
+import java.text.DecimalFormat;
+import java.util.List;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static java.lang.Double.*;
+import static java.util.Collections.*;
+import static org.apache.commons.lang3.StringUtils.*;
+import static org.apache.commons.lang3.time.DateUtils.*;
+import static org.apache.commons.lang3.time.DurationFormatUtils.*;
+import static org.apache.commons.lang3.tuple.ImmutablePair.*;
+import static org.dmkr.chess.engine.function.EvaluationFunctionUtils.*;
 
 public class UIBoardTextHelper {
 	private static final int MAX_BEST_LINES = 3;
 	private final Player player;
 	private final UIMousePositionHelper mousePositionHelper;
 	private final BestLineVisualizerListener bestLineVisualizerListener;
-	private final EvaluationHistoryManager evaluationHistoryManager;
 	private final AsyncEngine<BoardEngine> engine;
 	private final BoardEngine board;
 
@@ -68,13 +58,12 @@ public class UIBoardTextHelper {
 			UIBoardConfig config,
 			UIMousePositionHelper mousePositionHelper,
 			BestLineVisualizerListener bestLineVisualizerListener,
-			EvaluationHistoryManager evaluationHistoryManager,
 			AsyncEngine<BoardEngine> engine,
 			BoardEngine board) {
+
 		this.player = player;
 	    this.mousePositionHelper = mousePositionHelper;
 		this.bestLineVisualizerListener = bestLineVisualizerListener;
-		this.evaluationHistoryManager = evaluationHistoryManager;
 		this.engine = engine;
 		this.board = board;
 
@@ -207,10 +196,6 @@ public class UIBoardTextHelper {
 			result.add(uiTextBlock);
 		}
 
-//	    builder.textLine(evaluationHistoryManager.toString());
-//		builder.textLine(EMPTY);
-//		result.add(builder.build());
-		
 		return result;
 	}
 	

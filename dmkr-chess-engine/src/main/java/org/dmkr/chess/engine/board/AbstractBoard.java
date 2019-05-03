@@ -59,6 +59,7 @@ public abstract class AbstractBoard implements BoardEngine {
 	
 	private void resetCache() {
 		cachedAllowedMoves = null;
+		cachedAllowedMovesOponent = null;
 		cachedIsKingUnderAtack = null;
 	}
 	

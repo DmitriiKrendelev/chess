@@ -75,7 +75,7 @@ public interface BoardEngine extends Board {
 	default BoardEngine useCache() {
 		return createCachableProxy(this);
 	}
-	
+
 	@Override
 	@CacheReset
 	default void applyMove(Move move) {
@@ -121,19 +121,19 @@ public interface BoardEngine extends Board {
 		forEach(null, consumer);
 	}
 	
-	@CacheValue	
+	@CacheValue
 	@Override
 	default Set<Move> getAllowedMoves() {
 		return toSet(allowedMoves(), isInverted());
 	}
 	
-	@CacheValue	
+	@CacheValue
 	@Override
 	default List<Move> getMovesHistory() {
 		return toMovesHistory(movesHistory(), isInverted());
 	}
 	
-	@CacheValue			
+	@CacheValue
 	@Override
 	default Map<Field, Set<Field>> getAllowedMovesFields() {
 		final int[] allowedMoves = allowedMoves();

@@ -5,7 +5,7 @@ import org.dmkr.chess.api.BoardEngine;
 
 public interface TreeBuildingStrategy {
 
-	public static interface TreeContext {
+	interface TreeContext {
 		int getDeep();
 		
 		default int getLevel() {
