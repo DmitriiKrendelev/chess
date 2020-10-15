@@ -1,19 +1,18 @@
 package org.dmkr.chess.engine.minimax;
 
-import static org.dmkr.chess.api.model.Field.C1;
-import static org.dmkr.chess.api.model.Field.C2;
-import static org.dmkr.chess.api.model.Field.D3;
-import static org.dmkr.chess.api.model.Move.moveOf;
-import static org.dmkr.chess.engine.board.BoardFactory.getBoardType;
-import static org.dmkr.chess.engine.function.Functions.PIECE_VALUES;
-import static org.dmkr.chess.engine.minimax.MiniMax.minimax;
-import static org.dmkr.chess.engine.minimax.tree.TreeBuildingStrategyImpl.treeBuildingStrategyWithParams;
-
 import org.dmkr.chess.api.BoardEngine;
 import org.dmkr.chess.engine.api.AsyncEngine;
 import org.dmkr.chess.engine.api.EvaluationFunctionAware;
 import org.dmkr.chess.engine.board.BoardFactory;
 import org.junit.Test;
+
+import static org.dmkr.chess.api.model.Field.*;
+import static org.dmkr.chess.api.model.Move.*;
+import static org.dmkr.chess.engine.board.BoardFactory.*;
+import static org.dmkr.chess.engine.function.Functions.*;
+import static org.dmkr.chess.engine.minimax.MiniMax.*;
+import static org.dmkr.chess.engine.minimax.tree.TreeBuildingStrategyImpl.*;
+import static org.dmkr.chess.engine.minimax.tree.TreeLevelMovesProviders.*;
 
 public class FindMoveStalemateTest extends FindMoveAbstractTest<BoardEngine> {
 	
@@ -21,14 +20,13 @@ public class FindMoveStalemateTest extends FindMoveAbstractTest<BoardEngine> {
 	protected AsyncEngine<BoardEngine> getEngine() {
 		final EvaluationFunctionAware<BoardEngine> evaluationFunctionAware = EvaluationFunctionAware.of(PIECE_VALUES.getFunction(getBoardType()));
 		return minimax()
-				.treeStrategyCreator(() -> 
-					treeBuildingStrategyWithParams()
-						.fullScanLevel(4)
-						.cutOffLevel(0)
-						.cutOffNumberOfMoves(0)
-						.captureMovesLevel(0)
-						.evaluationFunctionAware(evaluationFunctionAware)
-						.build())
+				.treeStrategyCreator(() ->
+						treeBuildingStrategy()
+								.onLevel1(allMoves())
+								.onLevel2(allMoves())
+								.onLevel3(allMoves())
+								.onLevel4(allMoves())
+				)
 				.evaluationFunctionAware(evaluationFunctionAware)
 				.build();
 	} 

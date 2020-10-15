@@ -11,9 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicLong;
-
-import static org.dmkr.chess.engine.board.AbstractBoard.resetCache;
 
 @UtilityClass
 public class PositionsProvider {
@@ -63,15 +60,11 @@ public class PositionsProvider {
     }
 
     public static BoardEngine getNextBoardPosition()  {
-        final BoardEngine next = GENERATED_BOARD_POSITIONS.get((int) ((++ l) & MASK));
-        resetCache(next);
-        return next;
+        return GENERATED_BOARD_POSITIONS.get((int) ((++ l) & MASK));
     }
 
     public static BitBoard getNextBitBoardPosition()  {
-        final BitBoard next = GENERATED_BIDBOARD_POSITIONS.get((int) ((++ l) & MASK));
-        resetCache(next);
-        return next;
+        return GENERATED_BIDBOARD_POSITIONS.get((int) ((++ l) & MASK));
     }
 
     public static BoardEngine aBoard()  {

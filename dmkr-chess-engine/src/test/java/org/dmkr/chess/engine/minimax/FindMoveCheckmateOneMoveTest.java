@@ -3,7 +3,8 @@ package org.dmkr.chess.engine.minimax;
 import static org.dmkr.chess.api.model.Move.moveOf;
 import static org.dmkr.chess.engine.function.Functions.getDefaultEvaluationFunction;
 import static org.dmkr.chess.engine.minimax.MiniMax.minimax;
-import static org.dmkr.chess.engine.minimax.tree.TreeBuildingStrategyImpl.treeBuildingStrategyWithParams;
+import static org.dmkr.chess.engine.minimax.tree.TreeBuildingStrategyImpl.*;
+import static org.dmkr.chess.engine.minimax.tree.TreeLevelMovesProviders.*;
 
 import org.dmkr.chess.api.BoardEngine;
 import org.dmkr.chess.api.model.Move;
@@ -19,14 +20,11 @@ public class FindMoveCheckmateOneMoveTest extends FindMoveAbstractTest<BoardEngi
 		final EvaluationFunctionAware<BoardEngine> evaluationFunctionAware = EvaluationFunctionAware.of(getDefaultEvaluationFunction());
 		
 		return minimax()
-				.treeStrategyCreator(() -> 
-					treeBuildingStrategyWithParams()
-						.fullScanLevel(2)
-						.cutOffLevel(0)
-						.cutOffNumberOfMoves(0)
-						.captureMovesLevel(0)
-						.evaluationFunctionAware(evaluationFunctionAware)
-						.build())
+				.treeStrategyCreator(() ->
+						treeBuildingStrategy()
+								.onLevel1(allMoves())
+								.onLevel2(allMoves())
+				)
 				.evaluationFunctionAware(evaluationFunctionAware)
 				.build();
 	} 

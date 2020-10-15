@@ -136,9 +136,9 @@ public class EvaluationFunctionUtils {
 		final IntsValuesCollector movesCollector = new IntsValuesCollector(moves.length);
 
 		for (int move : moves) {
-			board.applyMove(move);
+			board.previewMove(move);
 			movesCollector.add(move, function.value(board));
-			board.rollbackMove();
+			board.rollbackPreviewMove(move);
 		}
 
 		return movesCollector.intsArrayDescending();

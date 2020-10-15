@@ -16,7 +16,7 @@ import static org.dmkr.chess.api.model.Move.moveOf;
 import static org.dmkr.chess.engine.function.Functions.getDefaultEvaluationFunction;
 import static org.dmkr.chess.engine.minimax.MiniMax.minimax;
 import static org.dmkr.chess.engine.minimax.tree.TreeBuildingStrategyImpl.treeBuildingStrategy;
-import static org.dmkr.chess.engine.minimax.tree.TreeLevelMovesProvider.allMoves;
+import static org.dmkr.chess.engine.minimax.tree.TreeLevelMovesProviders.*;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -35,11 +35,13 @@ public class FindMoveCheckmateTwoMovesTest extends FindMoveAbstractTest<BoardEng
 		return minimax()
 				.treeStrategyCreator(() ->
 						treeBuildingStrategy()
-								.onFirstLevel(allMoves())
-								.onSecondLevel(allMoves())
-								.build())
+								.onLevel1(allMoves())
+								.onLevel2(allMoves())
+								.onLevel3(nBestMoves(1))
+				)
 				.evaluationFunctionAware(evaluationFunctionAware)
 				.isAsynchronous(false)
+				.parallelLevel(4)
 				.build();
 	}
 	

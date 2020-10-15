@@ -20,6 +20,7 @@ import org.dmkr.chess.ui.listeners.impl.BestLineVisualizerListener;
 import org.dmkr.chess.ui.listeners.impl.PiecesDragAndDropListener;
 import org.dmkr.chess.ui.visualize.BestLineVisualizer;
 
+import javax.inject.Named;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -27,6 +28,7 @@ import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import static java.lang.System.currentTimeMillis;
 import static java.util.Collections.emptySet;
@@ -39,7 +41,9 @@ public class UIBoardJComponent extends JComponent implements AutoCloseable {
 	@Inject private Player player;
 	@Inject private UIBoardConfig config;
 	@Inject private BoardEngine board;
-	@Inject private AsyncEngine<BoardEngine> engine;
+	@Inject Supplier<AsyncEngine<BoardEngine>> engineProvider;
+
+
 	@Inject private UIMousePositionHelper mousePositionHelper;
 
 	@Inject private UIBoardImagesHelper imagesHelper;
@@ -56,7 +60,7 @@ public class UIBoardJComponent extends JComponent implements AutoCloseable {
 
 	public void run() {
 	    if (player.isBoardInvertedForPlayer(board)) {
-            engine.run(board);
+			engineProvider.get().run(board);
         }
 
 		oponentMoveExecutorService.scheduleWithFixedDelay(this::doOponentMove, 0, config.getRepaintTimeoutMillis(), MILLISECONDS);
@@ -124,7 +128,7 @@ public class UIBoardJComponent extends JComponent implements AutoCloseable {
 		
 	    draw(pressedField, config.getPressedFieldColor(), g);
 	    
-	    if (!engine.isInProgress()) {
+	    if (!engineProvider.get().isInProgress()) {
 	    	board.getAllowedMovesFields().getOrDefault(pressedField, emptySet()).forEach(f -> draw(f, config.getAllowedMovesColor(), g));
 	    }
 	}
@@ -160,6 +164,7 @@ public class UIBoardJComponent extends JComponent implements AutoCloseable {
 	}
 
 	private void drawBestMove(Graphics g) {
+		final AsyncEngine<BoardEngine> engine = engineProvider.get();
 		if (!engine.isInProgress() && (config.getArrowDrawDelayMillis() + engine.getEvaluationFinishedTime()) < currentTimeMillis()) {
 			return;
 		}
@@ -177,6 +182,7 @@ public class UIBoardJComponent extends JComponent implements AutoCloseable {
 	}
 	
 	private void drawProgressBar(Graphics g) {
+		final AsyncEngine<BoardEngine> engine = engineProvider.get();
 		final UIRect progressBar = config.getProgressBar();
 		final Color progressBarColor = config.getProgressBarColor();
 		final Color progressBarBorderColor = config.getProgressBarColor();
@@ -207,6 +213,7 @@ public class UIBoardJComponent extends JComponent implements AutoCloseable {
 	}
 	
 	public void onMove(Move move) {
+		final AsyncEngine<BoardEngine> engine = engineProvider.get();
 		if (engine.isInProgress() || !board.getAllowedMoves().contains(move)) {
 			return;
 		}
@@ -218,6 +225,7 @@ public class UIBoardJComponent extends JComponent implements AutoCloseable {
 	}
 	
 	private void doOponentMove() {
+		final AsyncEngine<BoardEngine> engine = engineProvider.get();
 		if (!player.isBoardInvertedForPlayer(board) || engine.isInProgress()) {
 			return;
 		}
@@ -228,6 +236,7 @@ public class UIBoardJComponent extends JComponent implements AutoCloseable {
 	}
 
 	public boolean isBestLineVisualisationEnabled() {
+		final AsyncEngine<BoardEngine> engine = engineProvider.get();
 		return paintComponentOverride.get() == null && !engine.isInProgress();
 	}
 	
@@ -247,9 +256,10 @@ public class UIBoardJComponent extends JComponent implements AutoCloseable {
 
 	@Override
 	public void close() throws Exception {
+		final AsyncEngine<BoardEngine> engine = engineProvider.get();
         System.out.println("Close: " + getClass().getSimpleName());
-		this.oponentMoveExecutorService.shutdownNow();
-		this.engine.close();
-		this.setVisible(false);
+		oponentMoveExecutorService.shutdownNow();
+		engine.close();
+		setVisible(false);
 	}
 }

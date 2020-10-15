@@ -1,9 +1,5 @@
 package org.dmkr.chess.engine.minimax.utils;
 
-import static org.dmkr.chess.engine.function.Functions.getDefaultEvaluationFunction;
-import static org.dmkr.chess.engine.minimax.MiniMax.minimax;
-import static org.dmkr.chess.engine.minimax.tree.TreeBuildingStrategyImpl.treeBuildingStrategyWithParams;
-
 import org.dmkr.chess.api.BoardEngine;
 import org.dmkr.chess.engine.api.AsyncEngine;
 import org.dmkr.chess.engine.api.EvaluationFunctionAware;
@@ -11,6 +7,11 @@ import org.dmkr.chess.engine.board.BoardFactory;
 import org.dmkr.chess.engine.minimax.BestLine;
 import org.junit.Ignore;
 import org.junit.Test;
+
+import static org.dmkr.chess.engine.function.Functions.*;
+import static org.dmkr.chess.engine.minimax.MiniMax.*;
+import static org.dmkr.chess.engine.minimax.tree.TreeBuildingStrategyImpl.*;
+import static org.dmkr.chess.engine.minimax.tree.TreeLevelMovesProviders.*;
 
 @Ignore
 public class PrintoutMiniMaxListenerTest {
@@ -43,14 +44,13 @@ public class PrintoutMiniMaxListenerTest {
 		final EvaluationFunctionAware<BoardEngine> evaluationFunctionAware = EvaluationFunctionAware.of(getDefaultEvaluationFunction());
 		
 		return minimax()
-				.treeStrategyCreator(() -> 
-					treeBuildingStrategyWithParams()
-						.fullScanLevel(4)
-						.cutOffLevel(0)
-						.cutOffNumberOfMoves(0)
-						.captureMovesLevel(0)
-						.evaluationFunctionAware(evaluationFunctionAware)
-						.build())
+				.treeStrategyCreator(() ->
+						treeBuildingStrategy()
+								.onLevel1(allMoves())
+								.onLevel2(allMoves())
+								.onLevel3(allMoves())
+								.onLevel4(allMoves())
+				)
 				.evaluationFunctionAware(evaluationFunctionAware)
 				.isAsynchronous(true)
 				.miniMaxListener(new PrintoutMiniMaxListener("C6-D4", "C2-C3", "D4-E6"))

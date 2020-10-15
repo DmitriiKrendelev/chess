@@ -30,11 +30,16 @@ public class ProgressProviderImpl implements ProgressProvider {
 	private final AtomicLong finish = new AtomicLong();
 	private final AtomicLong currentCount = new AtomicLong();
 	private final AtomicLong speed = new AtomicLong();
-	private final AtomicLong totalCalculationTime = new AtomicLong();
+	private final AtomicLong currentTotalCalculationTime = new AtomicLong();
 	private final AtomicReference<Move> currentMove = new AtomicReference<>();
 	private final List<BestLine> currentEvalution = new CopyOnWriteArrayList<>();
 	private SortedSet<BestLine> finalEvalution = null;
-	
+
+	private final AtomicLong fullCount = new AtomicLong();
+	private final AtomicLong fullTime = new AtomicLong();
+	private final AtomicLong fullTotalTime = new AtomicLong();
+
+
 	private static final Comparator<BestLine> linesComparator = comparing(BestLine::getLineValue).thenComparing(bestLine -> valueOf(bestLine.getMoves().get(0))).reversed();
 	
 	private static final Move NOT_IN_PROGRESS_MOVE = new Move() {
@@ -49,7 +54,7 @@ public class ProgressProviderImpl implements ProgressProvider {
 		cleanup();
 		start.set(currentTimeMillis());
 		finish.set(0);
-		totalCalculationTime.set(0);
+		currentTotalCalculationTime.set(0);
 		inProgress.set(true);
 	}
 	
@@ -62,6 +67,10 @@ public class ProgressProviderImpl implements ProgressProvider {
 		finalEvalution = Optional.ofNullable(finalEvalution).orElseGet(() -> checkNotNull(getCurrentEvaluation()));
 		currentEvalution.clear();
 		inProgress.set(false);
+
+		fullTime.addAndGet(time.get());
+		fullCount.addAndGet(currentCount.get());
+		fullTotalTime.addAndGet(currentTotalCalculationTime.get());
 	}
 	
 	void cleanup() {
@@ -72,7 +81,7 @@ public class ProgressProviderImpl implements ProgressProvider {
 		currentCount.set(0);
 		finalEvalution = null;
 		currentEvalution.clear();
-		totalCalculationTime.set(0);
+		currentTotalCalculationTime.set(0);
 	}
 
 	void setFinalEvalution(SortedSet<BestLine> finalEvalution) {
@@ -86,7 +95,7 @@ public class ProgressProviderImpl implements ProgressProvider {
 		
 		final double secs = getCurrentTimeInProgress() / 1000d;
 		speed.set((long) (currentCount.get() / secs));
-		totalCalculationTime.addAndGet(bestLine.getDuration());
+		currentTotalCalculationTime.addAndGet(bestLine.getDuration());
 	}
 	
 	void update(Move nextMove) {
@@ -139,6 +148,32 @@ public class ProgressProviderImpl implements ProgressProvider {
 
 	@Override
 	public double getParallelLevel() {
-		return ((double) totalCalculationTime.get()) / ((double) getCurrentTimeInProgress());
+		return ((double) currentTotalCalculationTime.get()) / ((double) getCurrentTimeInProgress());
+	}
+
+	@Override
+	public long getFullCount() {
+		return fullCount.get();
+	}
+
+	@Override
+	public long getFullTime() {
+		return fullTime.get();
+	}
+
+	@Override
+	public long getFullTotalTime() {
+		return fullTotalTime.get();
+	}
+
+	@Override
+	public long getFullSpeed() {
+		final double secs = getFullTime() / 1000d;
+		return (long) (fullCount.get() / secs);
+	}
+
+	@Override
+	public double getFullParallelLevel() {
+		return ((double) getFullTotalTime()) / ((double) getFullTime());
 	}
 }

@@ -21,9 +21,9 @@ public class EvaluationHistoryManagerImpl<T extends BoardEngine> implements Eval
         cache.put((T) board.cloneDummy(), evaluation);
 
         final int move = board.valueOf(evaluation.first().getMoves().get(0));
-        board.applyMove(move);
+        board.previewMove(move);
         afterMoveCache.put((T) board.cloneDummy(), evaluation);
-        board.rollbackMove();
+        board.rollbackPreviewMove(move);
     }
 
     @Override
@@ -40,10 +40,10 @@ public class EvaluationHistoryManagerImpl<T extends BoardEngine> implements Eval
 
     @Override
     public ImmutableSortedSet<BestLine> getAfterMove(T board, int move) {
-        board.applyMove(move);
+        board.previewMove(move);
         cacheAsk.incrementAndGet();
         final ImmutableSortedSet<BestLine> cached = afterMoveCache.get(board);
-        board.rollbackMove();
+        board.rollbackPreviewMove(move);
 
         if (cached != null) {
             cacheGotResult.incrementAndGet();

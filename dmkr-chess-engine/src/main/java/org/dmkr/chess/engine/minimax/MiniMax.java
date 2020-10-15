@@ -1,27 +1,9 @@
 package org.dmkr.chess.engine.minimax;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
-import static java.lang.Integer.MIN_VALUE;
-import static java.lang.Math.max;
-import static org.dmkr.chess.engine.api.EvaluationHistoryManager.newForgetHistoryManager;
-import static org.dmkr.chess.engine.function.EvaluationFunctionUtils.*;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
 import com.google.common.collect.ImmutableSortedSet;
+import lombok.Builder;
+import lombok.NonNull;
+import lombok.experimental.Delegate;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.dmkr.chess.api.BoardEngine;
@@ -29,10 +11,19 @@ import org.dmkr.chess.api.model.Move;
 import org.dmkr.chess.engine.api.*;
 import org.dmkr.chess.engine.minimax.MiniMaxContextImpl.MiniMaxContextFactory;
 import org.dmkr.chess.engine.minimax.tree.TreeBuildingStrategy;
+import org.dmkr.chess.engine.minimax.tree.TreeBuildingStrategyImpl;
 
-import lombok.Builder;
-import lombok.NonNull;
-import lombok.experimental.Delegate;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+import static com.google.common.base.Preconditions.*;
+import static java.lang.Integer.*;
+import static java.lang.Math.max;
+import static org.dmkr.chess.engine.api.EvaluationHistoryManager.*;
+import static org.dmkr.chess.engine.function.EvaluationFunctionUtils.*;
 
 public class MiniMax<T extends BoardEngine> implements AsyncEngine<T>, ProgressProvider, AutoCloseable {
     private final TreeBuildingStrategy rootLevelTreeStrategy;
@@ -67,7 +58,7 @@ public class MiniMax<T extends BoardEngine> implements AsyncEngine<T>, ProgressP
 	@Builder(builderClassName = "MiniMaxBuilder", builderMethodName = "minimax")
 	MiniMax(@NonNull MiniMaxListener miniMaxListener,
 			@NonNull EvaluationFunctionAware<T> evaluationFunctionAware, 
-			@NonNull Supplier<TreeBuildingStrategy> treeStrategyCreator,
+			@NonNull Supplier<TreeBuildingStrategyImpl.TreeBuildingStrategyBuilder> treeStrategyCreator,
 			@NonNull Integer maxBestLineLenght, 
 			@NonNull Boolean isAsynchronous,
 			@NonNull Integer parallelLevel,
@@ -75,13 +66,19 @@ public class MiniMax<T extends BoardEngine> implements AsyncEngine<T>, ProgressP
 			@NonNull EvaluationHistoryManager<T> evaluationHistoryManager) {
 		
 		checkArgument(parallelLevel > 0);
-		
-		this.rootLevelTreeStrategy = treeStrategyCreator.get();
+
+		final Supplier<TreeBuildingStrategy> treeStrategyCreatorWithEvaluationFunction = () -> {
+			TreeBuildingStrategyImpl.TreeBuildingStrategyBuilder strategyBuilder = treeStrategyCreator.get();
+			strategyBuilder.evaluationFunction(evaluationFunctionAware.getEvaluationFunction());
+			return strategyBuilder.build();
+		};
+
+		this.rootLevelTreeStrategy = treeStrategyCreatorWithEvaluationFunction.get();
 		this.isAsynchronous = isAsynchronous;
 		this.enableLinesCutOff = enableLinesCutOff;
 		this.executorService = isAsynchronous ? Executors.newSingleThreadExecutor() : null;
 		this.movesCalculationExecutor = parallelLevel == 1 ? Executors.newSingleThreadExecutor() : Executors.newFixedThreadPool(parallelLevel);
-		this.miniMaxContextFactory = new MiniMaxContextFactory<>(evaluationFunctionAware, maxBestLineLenght, miniMaxListener, treeStrategyCreator);
+		this.miniMaxContextFactory = new MiniMaxContextFactory<>(evaluationFunctionAware, maxBestLineLenght, miniMaxListener, treeStrategyCreatorWithEvaluationFunction);
 		this.evaluationHistoryManager = evaluationHistoryManager;
 	}
 	
@@ -93,7 +90,7 @@ public class MiniMax<T extends BoardEngine> implements AsyncEngine<T>, ProgressP
 		progress.start();
 		final Runnable runner = () -> {
 			try {
-			    ImmutableSortedSet<BestLine> cachedEvaluation = evaluationHistoryManager.get(board);
+			    ImmutableSortedSet<BestLine> cachedEvaluation = evaluationHistoryManager.get(boardCopy);
 
 				if (cachedEvaluation != null) {
 				    if (cachedEvaluation.size() > 1) {
@@ -104,7 +101,7 @@ public class MiniMax<T extends BoardEngine> implements AsyncEngine<T>, ProgressP
 				        final int secondLineEvaluation = second.getLineValue();
 				        if (secondLineEvaluation > REPEAT_MOVES_TREASHOLD) {
 				            final ImmutableSortedSet<BestLine> newEvaluation = cachedEvaluation.tailSet(first, false);
-				            evaluationHistoryManager.put(board, newEvaluation);
+				            evaluationHistoryManager.put(boardCopy, newEvaluation);
 				            cachedEvaluation = newEvaluation;
                             System.out.println("Second line evaluation: " + secondLineEvaluation + ". Don't repeat moves.");
                         } else {
@@ -137,7 +134,7 @@ public class MiniMax<T extends BoardEngine> implements AsyncEngine<T>, ProgressP
 		final int[] moves = getSortedMoves(rootLevelTreeStrategy.getSubtreeMoves(board, () -> 0), board, getEvaluationFunction());
 		final double progressPercent = 1d / moves.length;
 		if (moves.length == 0) {
-			System.out.println(board.isCheckmate() ? "Chackmate" : "Stalemate");
+			System.out.println(board.isKingUnderAtack() ? "Chackmate" : "Stalemate");
 			
 		} else {
 			final List<Pair<Move, Future<BestLine>>> moveCalculationTasks = new ArrayList<>();
@@ -265,7 +262,7 @@ public class MiniMax<T extends BoardEngine> implements AsyncEngine<T>, ProgressP
 		sb.append("Time: ").append(getCurrentTimeInProgress()).append("ms,  Count: ").append(getCurrentCount()).append('\n');
 		sb.append(getBestLine()).append('\n');
 		int index = 0;
-		for (BestLine bestLine : getCurrentEvaluation()) {
+		for (BestLine bestLine : Optional.ofNullable(getCurrentEvaluation()).orElse(Collections.emptySortedSet())) {
 			sb.append((++ index) + ". " + bestLine.getMoves() + " : " + bestLine.getLineValue() + '\n');
 		}
 		return sb.toString();

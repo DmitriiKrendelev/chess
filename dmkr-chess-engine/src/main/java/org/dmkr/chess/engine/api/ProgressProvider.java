@@ -29,6 +29,16 @@ public interface ProgressProvider {
 
 	double getParallelLevel();
 
+	long getFullCount();
+
+	long getFullTime();
+
+	long getFullTotalTime();
+
+	long getFullSpeed();
+
+	double getFullParallelLevel();
+
 	default BestLine getBestLine() {
 		final SortedSet<BestLine> evaluation = getCurrentEvaluation();
 		if (isEmpty(evaluation)) {

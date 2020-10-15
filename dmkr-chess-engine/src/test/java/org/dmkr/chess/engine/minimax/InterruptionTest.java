@@ -3,7 +3,8 @@ package org.dmkr.chess.engine.minimax;
 import static org.dmkr.chess.engine.board.BoardFactory.getBoardType;
 import static org.dmkr.chess.engine.function.Functions.PIECE_VALUES;
 import static org.dmkr.chess.engine.minimax.MiniMax.minimax;
-import static org.dmkr.chess.engine.minimax.tree.TreeBuildingStrategyImpl.treeBuildingStrategyWithParams;
+import static org.dmkr.chess.engine.minimax.tree.TreeBuildingStrategyImpl.*;
+import static org.dmkr.chess.engine.minimax.tree.TreeLevelMovesProviders.*;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -21,14 +22,13 @@ public class InterruptionTest {
 		final EvaluationFunctionAware<BoardEngine> evaluationFunctionAware = EvaluationFunctionAware.of(PIECE_VALUES.getFunction(getBoardType()));
 		
 		final MiniMax<BoardEngine> minimax = minimax()
-				.treeStrategyCreator(() -> 
-					treeBuildingStrategyWithParams()
-						.fullScanLevel(4)
-						.cutOffLevel(0)
-						.cutOffNumberOfMoves(0)
-						.captureMovesLevel(0)
-						.evaluationFunctionAware(evaluationFunctionAware)
-						.build())
+				.treeStrategyCreator(() ->
+						treeBuildingStrategy()
+								.onLevel1(allMoves())
+								.onLevel2(allMoves())
+								.onLevel3(allMoves())
+								.onLevel4(allMoves())
+				)
 				.evaluationFunctionAware(evaluationFunctionAware)
 				.isAsynchronous(true)
 				.build();

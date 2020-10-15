@@ -39,15 +39,11 @@ public interface BoardEngine extends Board {
 	boolean isEmpty(int index);
 	
 	int[] calculateAllowedMoves(MovesSelector movesSelector);
-	
-	int[] calculateAllowedMovesOponent(MovesSelector movesSelector);
-	
+
 	int[] allowedMoves();
 	
 	int[] allowedMoves(Function<int[], int[]> movesFilter);
 
-	int[] allowedMovesOponent();
-	
 	int[] movesHistory();
 	
 	int moveNumber();
@@ -69,7 +65,13 @@ public interface BoardEngine extends Board {
 	void applyMove(int move);
 	
 	void rollbackMove();
-	
+
+	// region: optimization methods
+	void previewMove(int move);
+
+	void rollbackPreviewMove(int move);
+	// endregion
+
 	BoardEngine invert();
 	
 	default BoardEngine useCache() {

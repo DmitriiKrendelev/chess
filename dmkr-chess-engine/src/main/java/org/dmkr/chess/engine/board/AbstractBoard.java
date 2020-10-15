@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.function.Function;
-import java.util.function.IntPredicate;
 
 import org.dmkr.chess.api.BoardEngine;
 import org.dmkr.chess.api.MovesSelector;
@@ -48,25 +47,10 @@ public abstract class AbstractBoard implements BoardEngine {
 	@Getter
 	protected boolean canCastleLeft, canCastleRght, canOponentCastleLeft, canOponentCastleRght;
 	protected boolean inverted;
-	
+
 	// moves to collect
 	protected MovesSelector movesSelector;
-	
-	// caching 
-	private int[] cachedAllowedMoves = null;
-	private int[] cachedAllowedMovesOponent = null;
-	private Boolean cachedIsKingUnderAtack = null;
-	
-	private void resetCache() {
-		cachedAllowedMoves = null;
-		cachedAllowedMovesOponent = null;
-		cachedIsKingUnderAtack = null;
-	}
-	
-	public static void resetCache(BoardEngine board) {
-		((AbstractBoard) board).resetCache();
-	}
-	
+
 	protected AbstractBoard(boolean canCastleLeft, boolean canCastleRght, boolean canOponentCastleLeft, boolean canOponentCastleRght, boolean isDummy) {
 		this.canCastleLeft = canCastleLeft;
 		this.canCastleRght = canCastleRght;
@@ -80,23 +64,23 @@ public abstract class AbstractBoard implements BoardEngine {
 	public boolean isInverted() {
 		return inverted;
 	}
-	
+
 	@Override
 	public abstract byte at(int index);
-	
+
 	protected abstract void set(int index, byte value);
-	
+
 	protected abstract void reverseBoardRepresentation();
-	
+
 	protected abstract void doApplyMove(int from, int to);
-	
+
 	protected abstract void doRollbackMove(int from, int to, byte captured);
-	
+
 	@Override
 	public int[] movesHistory() {
 		return movesHistory.array();
 	}
-	
+
 	@Override
 	public int moveNumber() {
 		return (movesHistory.size() >> 1) + 1;
@@ -106,92 +90,59 @@ public abstract class AbstractBoard implements BoardEngine {
 	public int movesHistorySize() {
 		return movesHistory.size();
 	}
-	
+
 	@Override
 	public int[] calculateAllowedMoves(MovesSelector movesSelector) {
 		this.movesSelector = movesSelector;
 		final int[] moves = calculateAllowedMoves();
 		this.movesSelector = MovesSelectorImpl.DEFAULT;
-		
+
 		return moves;
 	}
-	
-	@Override
-	public int[] calculateAllowedMovesOponent(MovesSelector movesSelector) {
-		invert();
-		movesHistory.push(0);
-		final int[] moves = calculateAllowedMoves(movesSelector);
-		movesHistory.pop();
-		invert();
-		
-		return moves;
-	}
-	
+
 	@Override
 	public int[] allowedMoves() {
-		if (cachedAllowedMoves == null)
-			cachedAllowedMoves = calculateAllowedMoves(MovesSelectorImpl.DEFAULT);
-			
-		return cachedAllowedMoves;
+		return calculateAllowedMoves(MovesSelectorImpl.DEFAULT);
 	}
-	
+
 	@Override
 	public int[] allowedMoves(Function<int[], int[]> movesFilter) {
 		return movesFilter.apply(allowedMoves());
 	}
-	
-	@Override
-	public int[] allowedMovesOponent() {
-		if (cachedAllowedMovesOponent == null) {
-			invert();
-			movesHistory.push(0);
-			final int[] result = calculateAllowedMoves();
-			movesHistory.pop();
-			invert();
 
-			cachedAllowedMovesOponent = result;
-		}
-		
-		return cachedAllowedMovesOponent;
-	}
-	
 	protected abstract int[] calculateAllowedMoves();
-	
+
 	@Override
 	public boolean isKingUnderAtack() {
-		if (cachedIsKingUnderAtack == null) {
-			cachedIsKingUnderAtack = calculateIsKingUnderAtack();
-		}
-		return cachedIsKingUnderAtack;
+		return calculateIsKingUnderAtack();
 	}
-	
+
 	@Override
 	public boolean isKingUnderAtackAfterMove(int move) {
-		applyMove(move);
+		applyMove(move, false);
 		final boolean isKingUnderAtack = calculateIsKingUnderAtack();
-		rollbackMove();
-		
-		return isKingUnderAtack;		
+		rollbackMove(move);
+
+		return isKingUnderAtack;
 	}
-	
+
 	protected boolean isKingUnderAtack(int move) {
 		return movesSelector.checkKingUnderAtack() && isKingUnderAtackAfterMove(move);
 	}
-	
+
 	protected void collectPawnMoves(int move, boolean promotion) {
 		if (isKingUnderAtack(move))
 			return;
-		
+
 		if (promotion) {
 			movesBuilder.add(specialMoveOf(move, SPECIAL_MOVE_PAWN_TO_QUEEN));
 			movesBuilder.add(specialMoveOf(move, SPECIAL_MOVE_PAWN_TO_ROOK));
 			movesBuilder.add(specialMoveOf(move, SPECIAL_MOVE_PAWN_TO_BISHOP));
 			movesBuilder.add(specialMoveOf(move, SPECIAL_MOVE_PAWN_TO_KNIGHT));
-		}
-		else
+		} else
 			movesBuilder.add(move);
 	}
-	
+
 	protected int moveOf(int from, int to) {
 		return toInt(from, to, (byte) -at(to));
 	}
@@ -199,17 +150,26 @@ public abstract class AbstractBoard implements BoardEngine {
 	protected int specialMoveOf(int move, int specialMove) {
 		return move | specialMove;
 	}
-	
+
 	protected int specialMoveOf(int from, int to, int specialMove) {
 		return specialMoveOf(moveOf(from, to), specialMove);
 	}
-	
+
 	@Override
 	public void applyMove(int move) {
 		applyMove(move, true);
-		resetCache();
 	}
-	
+
+	@Override
+	public void previewMove(int move) {
+		applyMove(move, false);
+	}
+
+	@Override
+	public void rollbackPreviewMove(int move) {
+		rollbackMove(move);
+	}
+
 	private void applyMove(int move, boolean safeHistory) {
 		if (safeHistory) {
 			movesHistory.push(move);
@@ -264,10 +224,9 @@ public abstract class AbstractBoard implements BoardEngine {
 	public void rollbackMove() {
 		if (movesHistory.size() != 0) {
 			rollbackMove(movesHistory.pop());
-			resetCache();
 		}
 	}
-	
+
 	private void rollbackMove(int move) {
 		final byte from = byte1(move);
 		final byte to = byte2(move);
@@ -369,7 +328,6 @@ public abstract class AbstractBoard implements BoardEngine {
 		
 		reverseBoardRepresentation();
 		
-		resetCache();
 		return this;
 	}	
 	

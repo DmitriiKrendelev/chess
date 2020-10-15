@@ -14,7 +14,6 @@
 		<module>dmkr-chess-engine</module>
 		<module>dmkr-chess-engine-benchmarks</module>
 		<module>dmkr-chess-ui</module>
-		<module>dmkr-chess-server</module>
 	</modules>
 
 	<properties>

@@ -12,7 +12,8 @@ import static org.dmkr.chess.api.model.Field.H6;
 import static org.dmkr.chess.api.model.Field.H8;
 import static org.dmkr.chess.api.model.Move.moveOf;
 import static org.dmkr.chess.engine.minimax.MiniMax.minimax;
-import static org.dmkr.chess.engine.minimax.tree.TreeBuildingStrategyImpl.treeBuildingStrategyWithParams;
+import static org.dmkr.chess.engine.minimax.tree.TreeBuildingStrategyImpl.*;
+import static org.dmkr.chess.engine.minimax.tree.TreeLevelMovesProviders.*;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -31,14 +32,13 @@ public class FindMoveCheckmateThreeMovesTest extends FindMoveAbstractTest<BoardE
 	protected AsyncEngine<BoardEngine> getEngine() {
 		final EvaluationFunctionAware<BoardEngine> evaluationFunctionAware = EvaluationFunctionAware.of(getDefaultEvaluationFunction());
 		return minimax()
-				.treeStrategyCreator(() -> 
-					treeBuildingStrategyWithParams()
-						.fullScanLevel(3)
-						.cutOffLevel(0)
-						.cutOffNumberOfMoves(0)
-						.captureMovesLevel(0)
-						.evaluationFunctionAware(evaluationFunctionAware)
-						.build())
+				.treeStrategyCreator(() ->
+						treeBuildingStrategy()
+								.onLevel1(allMoves())
+								.onLevel2(allMoves())
+								.onLevel3(allMoves())
+
+				)
 				.evaluationFunctionAware(evaluationFunctionAware)
 				.build();
 	} 
