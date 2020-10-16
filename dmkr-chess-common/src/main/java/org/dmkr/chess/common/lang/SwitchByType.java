@@ -10,7 +10,8 @@ public class SwitchByType<T> {
     private @NonNull final T object;
     private boolean executed;
 
-    public <S extends T> SwitchByType<T> ifInstanceThenDo(Class<S> cl, Consumer<S> action) {
+    @SuppressWarnings("unchecked")
+    public <S> SwitchByType<T> ifInstanceThenDo(Class<S> cl, Consumer<S> action) {
         if (cl.isInstance(object)) {
             action.accept((S) object);
             executed = true;

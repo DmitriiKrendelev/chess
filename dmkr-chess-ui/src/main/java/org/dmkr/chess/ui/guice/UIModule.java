@@ -2,10 +2,9 @@ package org.dmkr.chess.ui.guice;
 
 import static org.dmkr.chess.ui.config.UIBoardConfigs.DEFAULT_UI_CONFIG;
 
-import lombok.RequiredArgsConstructor;
+import lombok.Builder;
 import org.dmkr.chess.api.BoardEngine;
 import org.dmkr.chess.engine.api.AsyncEngine;
-import org.dmkr.chess.engine.api.EvaluationHistoryManager;
 import org.dmkr.chess.ui.Player;
 import org.dmkr.chess.ui.UIBoardJFrame;
 import org.dmkr.chess.ui.UIBoardJComponent;
@@ -15,7 +14,7 @@ import org.dmkr.chess.ui.config.UIBoardConfig;
 import com.google.inject.AbstractModule;
 import com.google.inject.TypeLiteral;
 
-@RequiredArgsConstructor
+@Builder
 public class UIModule extends AbstractModule {
     private final Player player;
     private final AsyncEngine<BoardEngine> engine;

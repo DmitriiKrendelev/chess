@@ -158,6 +158,10 @@ public class UIBoardTextHelper {
 		builder.textLine("Speed : " + longFormat.format(engine.getSpeed()) + " per sec");
 		builder.textLine("Parallel Level : " + formatParallelLevel(engine.getParallelLevel()));
 		builder.textLine(EMPTY);
+		builder.textLine("Full Count : " + longFormat.format(engine.getFullCount()));
+		builder.textLine("Full Speed : " + longFormat.format(engine.getFullSpeed()) + " per sec");
+		builder.textLine("Full Parallel Level : " + formatParallelLevel(engine.getFullParallelLevel()));
+		builder.textLine(EMPTY);
 		builder.textLine("Evaluation : ");
 		builder.isFocusable(false);
 		result.add(builder.build());

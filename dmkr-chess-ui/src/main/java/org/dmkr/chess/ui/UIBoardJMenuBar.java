@@ -7,8 +7,6 @@ import org.dmkr.chess.ui.listeners.UIListener;
 import javax.swing.*;
 import java.util.List;
 
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-
 public class UIBoardJMenuBar extends JMenuBar {
 
     @Inject
@@ -19,7 +17,7 @@ public class UIBoardJMenuBar extends JMenuBar {
         listenerTypes.stream()
             .map(injector::getInstance)
             .map(UIListener.class::cast)
-            .filter(listener -> isNotBlank(listener.getDisplayedName()))
+            .filter(UIListener::isJMenuListener)
             .map(UIBoardJMenuBar::createJMenuItem)
             .forEach(file::add);
     }
