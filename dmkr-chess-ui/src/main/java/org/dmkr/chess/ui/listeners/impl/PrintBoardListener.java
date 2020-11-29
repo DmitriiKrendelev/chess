@@ -1,5 +1,6 @@
 package org.dmkr.chess.ui.listeners.impl;
 
+import com.google.inject.name.Named;
 import org.dmkr.chess.api.Board;
 import org.dmkr.chess.api.BoardEngine;
 import org.dmkr.chess.engine.api.AsyncEngine;
@@ -17,7 +18,7 @@ public class PrintBoardListener extends AbstractPressAndTypedListener {
 	private final AsyncEngine<BoardEngine> engine;
 	
 	@Inject
-	private PrintBoardListener(BoardEngine board, AsyncEngine<BoardEngine> engine) {
+	private PrintBoardListener(BoardEngine board, @Named("engine1") AsyncEngine<BoardEngine> engine) {
 		super(CTRL, VK_P, null, null);
 		this.board = board;
 		this.engine = engine;

@@ -21,6 +21,7 @@ public class UIListenersModule extends AbstractModule {
                     SavePositionListener.class,
                     LoadPositionListener.class,
                     MovesRollbackListener.class,
+                    PauseListener.class,
                     ExitListener.class
             );
 

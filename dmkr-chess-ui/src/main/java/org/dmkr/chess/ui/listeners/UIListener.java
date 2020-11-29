@@ -12,7 +12,7 @@ public interface UIListener  extends EventListener {
     }
 
     default boolean isJMenuListener() {
-        return isNotBlank(getDisplayedName());
+        return isNotEmpty(getDisplayedName());
     }
 
     default KeyStroke getRunKeys() {

@@ -18,4 +18,10 @@ public interface AsyncEngine<T extends BoardEngine> extends ProgressProvider, Ev
 		}
 		return ProgressProvider.super.getBestLine();
 	}
+
+	void pause();
+
+	void resume();
+
+	boolean isPaused();
 }

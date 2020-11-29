@@ -39,6 +39,12 @@ public interface ProgressProvider {
 
 	double getFullParallelLevel();
 
+	void pause();
+
+	void resume();
+
+	boolean isPaused();
+
 	default BestLine getBestLine() {
 		final SortedSet<BestLine> evaluation = getCurrentEvaluation();
 		if (isEmpty(evaluation)) {

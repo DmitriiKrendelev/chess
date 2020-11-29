@@ -59,7 +59,7 @@ public class PiecesDragAndDropListener extends MouseAdapter implements UIListene
 		}
 		
 		final Field toField = coordsHelper.resolveField(x, y, player);
-		uiComponent.onMove(Move.moveOf(fromField, toField));
+		uiComponent.doPlayerMove(Move.moveOf(fromField, toField));
 	}
 	
 	@Override

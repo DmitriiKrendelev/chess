@@ -1,9 +1,10 @@
 package org.dmkr.chess.engine.minimax;
 
-import static java.lang.System.currentTimeMillis;
+import com.google.common.util.concurrent.AtomicDouble;
+import lombok.RequiredArgsConstructor;
+import org.dmkr.chess.api.model.Move;
+import org.dmkr.chess.engine.api.ProgressProvider;
 
-import static org.dmkr.chess.api.utils.MoveUtils.valueOf;
-import static java.util.Comparator.comparing;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -13,15 +14,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.dmkr.chess.api.model.Move;
-import org.dmkr.chess.engine.api.ProgressProvider;
+import static com.google.common.base.Preconditions.*;
+import static com.google.common.collect.ImmutableSortedSet.*;
+import static java.lang.System.*;
+import static java.util.Comparator.*;
+import static org.dmkr.chess.api.utils.MoveUtils.*;
 
-import com.google.common.util.concurrent.AtomicDouble;
-
-import static com.google.common.collect.ImmutableSortedSet.copyOf;
-import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.base.Preconditions.checkNotNull;
-
+@RequiredArgsConstructor
 public class ProgressProviderImpl implements ProgressProvider {
 	private final AtomicDouble currentProgressPercent = new AtomicDouble();
 	private final AtomicBoolean inProgress = new AtomicBoolean();
@@ -39,6 +38,9 @@ public class ProgressProviderImpl implements ProgressProvider {
 	private final AtomicLong fullTime = new AtomicLong();
 	private final AtomicLong fullTotalTime = new AtomicLong();
 
+	private final AtomicBoolean inPaused = new AtomicBoolean();
+	private final AtomicLong pausedTime = new AtomicLong();
+	private final AtomicLong pauseStart = new AtomicLong();
 
 	private static final Comparator<BestLine> linesComparator = comparing(BestLine::getLineValue).thenComparing(bestLine -> valueOf(bestLine.getMoves().get(0))).reversed();
 	
@@ -67,6 +69,7 @@ public class ProgressProviderImpl implements ProgressProvider {
 		finalEvalution = Optional.ofNullable(finalEvalution).orElseGet(() -> checkNotNull(getCurrentEvaluation()));
 		currentEvalution.clear();
 		inProgress.set(false);
+		inPaused.set(false);
 
 		fullTime.addAndGet(time.get());
 		fullCount.addAndGet(currentCount.get());
@@ -82,6 +85,10 @@ public class ProgressProviderImpl implements ProgressProvider {
 		finalEvalution = null;
 		currentEvalution.clear();
 		currentTotalCalculationTime.set(0);
+
+		inPaused.set(false);
+		pausedTime.set(0);
+		pauseStart.set(0);
 	}
 
 	void setFinalEvalution(SortedSet<BestLine> finalEvalution) {
@@ -113,7 +120,11 @@ public class ProgressProviderImpl implements ProgressProvider {
 
 	@Override
 	public int getCurrentTimeInProgress() {
-		return (int) (isInProgress() ? (currentTimeMillis() - start.get()) : time.get());
+		if (inPaused.get()) {
+			return (int) (pauseStart.get() - start.get() - pausedTime.get());
+		}
+
+		return (int) (isInProgress() ? (currentTimeMillis() - start.get() - pausedTime.get()) : time.get());
 	}
 	
 	@Override
@@ -175,5 +186,22 @@ public class ProgressProviderImpl implements ProgressProvider {
 	@Override
 	public double getFullParallelLevel() {
 		return ((double) getFullTotalTime()) / ((double) getFullTime());
+	}
+
+	@Override
+	public void pause() {
+		inPaused.set(true);
+		pauseStart.set(currentTimeMillis());
+	}
+
+	@Override
+	public void resume() {
+		inPaused.set(false);
+		pausedTime.addAndGet(currentTimeMillis() - pauseStart.get());
+	}
+
+	@Override
+	public boolean isPaused() {
+		return inPaused.get();
 	}
 }

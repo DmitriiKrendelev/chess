@@ -18,7 +18,7 @@ public class UIBoardConfigs {
 
 	public static final UIBoardConfig DEFAULT_UI_CONFIG = UIBoardConfig.builder()
 			.title(ENGINE_NAME_AND_VERSION)
-			.size(new Dimension(1000, 700))
+			.size(new Dimension(1100, 700))
 			.backGroundPathForWhite("ui/style1/board/empty_board_white.png")
 			.backGroundPathForBlack("ui/style1/board/empty_board_black.png")
 			.piecesFolderPath("ui/style1/pieces/")
@@ -29,7 +29,8 @@ public class UIBoardConfigs {
 			.pieceMovingSpeed(100)
 			
 			// Text
-			.textPosition(new UIPoint(641, 54))
+			.textPosition1(new UIPoint(641, 54))
+			.textPosition2(new UIPoint(871, 54))
 			.textStyle(new Font("Chess UI Text Style", BOLD, 12))
 			.textColor(getAlphaColor(0, 0, 200, 1.00d))
 			.focusedTextColor(getAlphaColor(0, 0, 50, 1.00d))

@@ -25,7 +25,8 @@ public class UIBoardConfig {
 	private final String backGroundPathForBlack;
 	private final String piecesFolderPath;
 	private final String cursorsFolderPath;
-	private final UIPoint textPosition;
+	private final UIPoint textPosition1;
+	private final UIPoint textPosition2;
 	private final Font textStyle;
 	private final Color textColor;
 	private final Color focusedTextColor;

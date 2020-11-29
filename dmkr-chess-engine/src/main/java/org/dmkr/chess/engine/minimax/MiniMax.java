@@ -15,6 +15,7 @@ import org.dmkr.chess.engine.minimax.tree.TreeBuildingStrategyImpl;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -26,6 +27,7 @@ import static org.dmkr.chess.engine.api.EvaluationHistoryManager.*;
 import static org.dmkr.chess.engine.function.EvaluationFunctionUtils.*;
 
 public class MiniMax<T extends BoardEngine> implements AsyncEngine<T>, ProgressProvider, AutoCloseable {
+	private static final long PAUSE_CHECK_TIMEOUT = 100L;
     private final TreeBuildingStrategy rootLevelTreeStrategy;
 	private final boolean isAsynchronous;
 	private final boolean enableLinesCutOff;
@@ -42,7 +44,7 @@ public class MiniMax<T extends BoardEngine> implements AsyncEngine<T>, ProgressP
 
 	private final List<Pair<Move, Future<BestLine>>> moveCalculationTasks = new CopyOnWriteArrayList<>();
 	private final AtomicInteger zeroLevelBestValue = new AtomicInteger(MIN_VALUE + 1);
-	
+
 	private Future<?> task;
 	
 	public static class MiniMaxBuilder<T extends BoardEngine> {
@@ -174,7 +176,7 @@ public class MiniMax<T extends BoardEngine> implements AsyncEngine<T>, ProgressP
 	
 	private int miniMax(T board, MiniMaxContext<T> context) throws InterruptedException {
 		if (!context.isOponentMove()) {
-			checkInterrupted();
+			checkPausedOrInterrupted();
 		}
 		
 		final List<MoveValue> minimaxValuesStack = context.getMinimaxValuesStack();
@@ -229,9 +231,13 @@ public class MiniMax<T extends BoardEngine> implements AsyncEngine<T>, ProgressP
 		moveCalculationTasks.clear();
 	}
 	
-	private void checkInterrupted() throws InterruptedException {
+	private void checkPausedOrInterrupted() throws InterruptedException {
 		if (Thread.currentThread().isInterrupted()) {
 			throw new InterruptedException();
+		}
+
+		while (progress.isPaused()) {
+			TimeUnit.MILLISECONDS.sleep(PAUSE_CHECK_TIMEOUT);
 		}
 	}
 	

@@ -1,6 +1,7 @@
 package org.dmkr.chess.ui;
 
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import org.dmkr.chess.api.Board;
 import org.dmkr.chess.api.BoardEngine;
 import org.dmkr.chess.api.model.ColoredPiece;
@@ -20,7 +21,6 @@ import org.dmkr.chess.ui.listeners.impl.BestLineVisualizerListener;
 import org.dmkr.chess.ui.listeners.impl.PiecesDragAndDropListener;
 import org.dmkr.chess.ui.visualize.BestLineVisualizer;
 
-import javax.inject.Named;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -28,7 +28,6 @@ import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import static java.lang.System.currentTimeMillis;
 import static java.util.Collections.emptySet;
@@ -41,8 +40,8 @@ public class UIBoardJComponent extends JComponent implements AutoCloseable {
 	@Inject private Player player;
 	@Inject private UIBoardConfig config;
 	@Inject private BoardEngine board;
-	@Inject private AsyncEngine<BoardEngine> engine;
-
+	@Inject @Named("engine1") private AsyncEngine<BoardEngine> engine1;
+	@Inject @Named("engine2") private AsyncEngine<BoardEngine> engine2;
 
 	@Inject private UIMousePositionHelper mousePositionHelper;
 
@@ -60,10 +59,12 @@ public class UIBoardJComponent extends JComponent implements AutoCloseable {
 
 	public void run() {
 	    if (player.isBoardInvertedForPlayer(board)) {
-			engine.run(board);
-        }
+			engine1.run(board);
+        } else if (player.isReadOnly()) {
+	    	engine2.run(board);
+		}
 
-		oponentMoveExecutorService.scheduleWithFixedDelay(this::doOponentMove, 0, config.getRepaintTimeoutMillis(), MILLISECONDS);
+		oponentMoveExecutorService.scheduleWithFixedDelay(this::doEngineMove, 0, config.getRepaintTimeoutMillis(), MILLISECONDS);
 	}
 	
 	@Override
@@ -100,10 +101,14 @@ public class UIBoardJComponent extends JComponent implements AutoCloseable {
             }
 		}
 		
-		resetCursor(pressedField, mouseAtField, isPressed);
+		resetCursor(mouseAtField, isPressed);
 
 		drawProgressBar(g);
-		textHelper.drawText((Graphics2D) g);
+
+		textHelper.drawText((Graphics2D) g, engine1, config.getTextPosition1());
+		if (player.isReadOnly()) {
+			textHelper.drawText((Graphics2D) g, engine2, config.getTextPosition2());
+		}
 		drawBestMove(g);
 
 		repaint();
@@ -122,13 +127,13 @@ public class UIBoardJComponent extends JComponent implements AutoCloseable {
 	}
 	
 	private void drawPossibleMoves(Field pressedField, Graphics g) {
-		if (pressedField == null) {
+		if (pressedField == null || player.isReadOnly()) {
 			return;
 		}
 		
 	    draw(pressedField, config.getPressedFieldColor(), g);
 	    
-	    if (!engine.isInProgress()) {
+	    if (!engine1.isInProgress()) {
 	    	board.getAllowedMovesFields().getOrDefault(pressedField, emptySet()).forEach(f -> draw(f, config.getAllowedMovesColor(), g));
 	    }
 	}
@@ -164,11 +169,12 @@ public class UIBoardJComponent extends JComponent implements AutoCloseable {
 	}
 
 	private void drawBestMove(Graphics g) {
-		if (!engine.isInProgress() && (config.getArrowDrawDelayMillis() + engine.getEvaluationFinishedTime()) < currentTimeMillis()) {
+		// TODO
+		if (!engine1.isInProgress() && (config.getArrowDrawDelayMillis() + engine1.getEvaluationFinishedTime()) < currentTimeMillis()) {
 			return;
 		}
 
-		final BestLine bestLine = engine.getBestLine();
+		final BestLine bestLine = engine1.getBestLine();
 		final Move bestMove = Optional.ofNullable(bestLine)
 				.map(BestLine::getMoves)
 				.map(moves -> moves.isEmpty() ? null : moves.get(0))
@@ -180,7 +186,7 @@ public class UIBoardJComponent extends JComponent implements AutoCloseable {
 		}
 	}
 	
-	private void drawProgressBar(Graphics g) {
+	private void drawProgressBar(Graphics g) { // TODO
 		final UIRect progressBar = config.getProgressBar();
 		final Color progressBarColor = config.getProgressBarColor();
 		final Color progressBarBorderColor = config.getProgressBarColor();
@@ -192,15 +198,15 @@ public class UIBoardJComponent extends JComponent implements AutoCloseable {
 		progressBar.draw((Graphics2D) g, progressBarBorderColor);
 		
 		g.setColor(progressBarColor);
-		g.fillRect(progressBar.x(), progressBar.y(), (int) (progressBar.getWidth() * engine.getCurrentProgressPerUnit()), progressBar.getHight());
+		g.fillRect(progressBar.x(), progressBar.y(), (int) (progressBar.getWidth() * engine1.getCurrentProgressPerUnit()), progressBar.getHight());
 	
-		textHelper.drawSingleRow(engine.getCurrentProgressPercents() + "%",
+		textHelper.drawSingleRow(engine1.getCurrentProgressPercents() + "%",
 				progressBar.x() + (progressBar.getWidth() / 2),
 				progressBar.y() + (progressBar.getHight() / 2),
 				(Graphics2D) g);
 	}
 	
-	private void resetCursor(Field pressedField, Field mouseAtField, boolean isPressed) {
+	private void resetCursor(Field mouseAtField, boolean isPressed) {
 		final boolean mouseAtPiece = mouseAtField != null && !board.at(mouseAtField).isNull();
 		
 		if (isPressed || mouseAtPiece) {
@@ -210,29 +216,54 @@ public class UIBoardJComponent extends JComponent implements AutoCloseable {
 		}
 	}
 	
-	public void onMove(Move move) {
-		if (engine.isInProgress() || !board.getAllowedMoves().contains(move)) {
+	public void doPlayerMove(Move move) {
+		if (player.isReadOnly() || engine1.isInProgress() || !board.getAllowedMoves().contains(move)) {
 			return;
 		}
 		
 		bestLineVisualizerListener.clear();
 		board.applyMove(move);
 		repaint();
-		engine.run(board);
-	}
-	
-	private void doOponentMove() {
-		if (!player.isBoardInvertedForPlayer(board) || engine.isInProgress()) {
-			return;
-		}
-		final Move oponentMove = engine.getBestMove();
-		final ColoredPiece piece = board.at(oponentMove.from());
-		movingPieceHolder.set(coordsHelper.new MovingPiece(oponentMove, piece, player, () -> movingPieceHolder.set(null)));
-		board.applyMove(oponentMove);
+		engine1.run(board);
 	}
 
+	private void doEngineMove() {
+		doEngine1Move();
+		doEngine2Move();
+	}
+
+	private void doEngine1Move() {
+		if (!player.isBoardInvertedForPlayer(board) || engine1.isInProgress()) {
+			return;
+		}
+		final Move move = engine1.getBestMove();
+		final ColoredPiece piece = board.at(move.from());
+		movingPieceHolder.set(coordsHelper.new MovingPiece(move, piece, player, () -> movingPieceHolder.set(null)));
+		board.applyMove(move);
+		if (player.isReadOnly()) {
+			engine2.run(board);
+		}
+	}
+	
+	private void doEngine2Move() {
+		if (player.isBoardInvertedForPlayer(board) || engine2.isInProgress()) {
+			return;
+		}
+		final Move move = engine2.getBestMove();
+		final ColoredPiece piece = board.at(move.from());
+		movingPieceHolder.set(coordsHelper.new MovingPiece(move, piece, player, () -> movingPieceHolder.set(null)));
+		board.applyMove(move);
+		if (player.isReadOnly()) {
+			engine1.run(board);
+		}
+	}
+
+	private void validateComponent() {
+
+    }
+
 	public boolean isBestLineVisualisationEnabled() {
-		return paintComponentOverride.get() == null && !engine.isInProgress();
+		return !player.isReadOnly() && paintComponentOverride.get() == null && !engine1.isInProgress();
 	}
 	
 	public void startBestLineVisualisation(BestLine bestLine) {
@@ -253,7 +284,8 @@ public class UIBoardJComponent extends JComponent implements AutoCloseable {
 	public void close() throws Exception {
         System.out.println("Close: " + getClass().getSimpleName());
 		oponentMoveExecutorService.shutdownNow();
-		engine.close();
+		engine1.close();
+		engine2.close();
 		setVisible(false);
 	}
 }

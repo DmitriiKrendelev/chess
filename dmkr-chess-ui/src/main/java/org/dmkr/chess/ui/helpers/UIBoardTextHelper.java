@@ -35,14 +35,12 @@ public class UIBoardTextHelper {
 	private final Player player;
 	private final UIMousePositionHelper mousePositionHelper;
 	private final BestLineVisualizerListener bestLineVisualizerListener;
-	private final AsyncEngine<BoardEngine> engine;
 	private final BoardEngine board;
 
 
 	private final Color textColor;
 	private final Color focusedTextColor;
 	private final Color focusedAreaColor;
-	private final UIPoint textPosition;
 	private final Font textStyle;
 	
 	private final DecimalFormat longFormat = new DecimalFormat("###,###,###,###");
@@ -58,19 +56,16 @@ public class UIBoardTextHelper {
 			UIBoardConfig config,
 			UIMousePositionHelper mousePositionHelper,
 			BestLineVisualizerListener bestLineVisualizerListener,
-			AsyncEngine<BoardEngine> engine,
 			BoardEngine board) {
 
 		this.player = player;
 	    this.mousePositionHelper = mousePositionHelper;
 		this.bestLineVisualizerListener = bestLineVisualizerListener;
-		this.engine = engine;
 		this.board = board;
 
 		this.textColor = config.getTextColor();
 		this.focusedTextColor = config.getFocusedTextColor();
 		this.focusedAreaColor = config.getFocusedAreaColor();
-		this.textPosition = config.getTextPosition();
 		this.textStyle = config.getTextStyle();
 	}
 	
@@ -82,24 +77,24 @@ public class UIBoardTextHelper {
 		new UIText(text).draw(g, textStyle, x, y);
 	}
 
-	public void drawText(Graphics2D g) {
+	public void drawText(Graphics2D g, AsyncEngine<BoardEngine> engine, UIPoint textPosition) {
 		final ArrayList<UITextBlock> result = new ArrayList<>();
 		
-		result.addAll(getEvaluationText());
-		result.addAll(getProgressText());
+		result.addAll(getEvaluationText(engine));
+		result.addAll(getProgressText(engine));
 
 		final UIPointMutable mutableTextPosition = new UIPointMutable(textPosition, x -> x, y -> y + textStyle.getSize());
 		result.forEach(uiTextBlock -> uiTextBlock.draw(g, mutableTextPosition));
 	}
 	
-	private List<UITextBlock> getEvaluationText() {
+	private List<UITextBlock> getEvaluationText(AsyncEngine<BoardEngine> engine) {
 		return evaluationTextCache.updateAndGet(cached -> {
 			final int halfMoves = board.movesHistorySize();
-			return cached.getKey() == halfMoves ? cached : of(halfMoves, singletonList(calculateEvaluationText()));
+			return cached.getKey() == halfMoves ? cached : of(halfMoves, singletonList(calculateEvaluationText(engine)));
 		}).getValue();
 	}
 	
-	private UITextBlock calculateEvaluationText() {
+	private UITextBlock calculateEvaluationText(AsyncEngine<BoardEngine> engine) {
 		final UITextBlockBuilder builder = uiTextBlockBuilder();
 		builder.textLine("Game :");
 		builder.textLine("     " + board.moveNumber() + "-th move : " + (board.isInverted() ? "Black" : "White"));
@@ -126,7 +121,7 @@ public class UIBoardTextHelper {
 		return builder.build(); 
 	}
 	
-	private List<UITextBlock> getProgressText() {
+	private List<UITextBlock> getProgressText(AsyncEngine<BoardEngine> engine) {
 		final List<UITextBlock> currentProgressText = progressTextCache.updateAndGet((Pair<Move, List<UITextBlock>> cache) -> {
 			final Move cacheKey = cache.getKey();
 			final Move currentMove = engine.getCurrentMove();
@@ -135,7 +130,7 @@ public class UIBoardTextHelper {
 				return of(null, Collections.emptyList());
 			}
 
-			return cacheKey == currentMove ? cache : of(currentMove, calculateProgressText());
+			return cacheKey == currentMove ? cache : of(currentMove, calculateProgressText(engine));
 		}).getValue();
 
 		final UITextBlock timeProgress = uiTextBlockBuilder()
@@ -148,7 +143,7 @@ public class UIBoardTextHelper {
 		return result;
 	}
 	
-	private List<UITextBlock> calculateProgressText() {
+	private List<UITextBlock> calculateProgressText(AsyncEngine<BoardEngine> engine) {
 		final List<UITextBlock> result = new ArrayList<>();
 		final UITextBlockBuilder builder = uiTextBlockBuilder();
 
@@ -161,6 +156,7 @@ public class UIBoardTextHelper {
 		builder.textLine("Full Count : " + longFormat.format(engine.getFullCount()));
 		builder.textLine("Full Speed : " + longFormat.format(engine.getFullSpeed()) + " per sec");
 		builder.textLine("Full Parallel Level : " + formatParallelLevel(engine.getFullParallelLevel()));
+		builder.textLine("Full Time : " + formatDurationMillis(engine.getFullTime()));
 		builder.textLine(EMPTY);
 		builder.textLine("Evaluation : ");
 		builder.isFocusable(false);

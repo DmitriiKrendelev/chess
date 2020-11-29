@@ -1,5 +1,6 @@
 package org.dmkr.chess.ui.listeners.impl;
 
+import com.google.inject.name.Named;
 import org.dmkr.chess.api.Board;
 import org.dmkr.chess.api.BoardEngine;
 import org.dmkr.chess.engine.api.AsyncEngine;
@@ -20,7 +21,7 @@ public class MovesRollbackListener extends AbstractPressAndTypedListener {
 	private final Board board;
 	
 	@Inject
-	private MovesRollbackListener(BoardEngine board, AsyncEngine<BoardEngine> engine) {
+	private MovesRollbackListener(BoardEngine board, @Named("engine1") AsyncEngine<BoardEngine> engine) {
 		super(CTRL, VK_Z, "Undo", getKeyStroke("ctrl Z"));
 		this.board = board;
 		this.engine = engine;
