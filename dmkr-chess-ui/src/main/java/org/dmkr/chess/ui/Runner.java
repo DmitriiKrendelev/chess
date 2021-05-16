@@ -26,7 +26,7 @@ public class Runner {
         final Player player = player()
                 .name("Test Player")
                 .color(BLACK)
-                .isReadOnly(true)
+                .isReadOnly(false)
                 .build();
 
         final BoardEngine board = newInitialPositionBoard();
@@ -61,16 +61,11 @@ public class Runner {
         return minimax()
                 .treeStrategyCreator(() ->
                                 treeBuildingStrategy()
-                                        .onLevel1(nBestMoves(5))
-                                        .onLevel2(nBestMoves(5))
-                                        .onLevel3(nBestMoves(5))
-                                        .onLevel4(nBestMoves(5))
-                                        .onLevel5(nBestMoves(5))
-//                                    .onLevel1(allMoves())
-//                                    .onLevel2(nBestMoves(16))
-//                                    .onLevel3(nBestMoves(12))
-//                                    .onLevel4(capturedMoves(2, 4))
-//                                    .onLevel5(capturedMoves(2, 4))
+                                    .onLevel1(allMoves())
+                                    .onLevel2(nBestMoves(16))
+                                    .onLevel3(nBestMoves(12))
+                                    .onLevel4(capturedMoves(2, 4))
+                                    .onLevel5(capturedMoves(2, 4))
                 )
                 .evaluationFunctionAware((EvaluationFunctionAware) EvaluationFunctionAware.of(EvaluationFunctionAllBit.INSTANCE))
                 .evaluationHistoryManager(new EvaluationHistoryManagerImpl())
