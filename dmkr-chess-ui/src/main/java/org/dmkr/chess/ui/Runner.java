@@ -6,6 +6,7 @@ import org.dmkr.chess.engine.api.AsyncEngine;
 import org.dmkr.chess.engine.api.EvaluationFunctionAware;
 import org.dmkr.chess.engine.board.impl.EvaluationHistoryManagerImpl;
 import org.dmkr.chess.engine.function.bit.EvaluationFunctionAllBit;
+import org.dmkr.chess.engine.random.RandomMoveEngine;
 import org.dmkr.chess.ui.guice.SaveAndLoadPositionModule;
 import org.dmkr.chess.ui.guice.UIHelpersModule;
 import org.dmkr.chess.ui.guice.UIListenersModule;
@@ -26,7 +27,7 @@ public class Runner {
         final Player player = player()
                 .name("Test Player")
                 .color(BLACK)
-                .isReadOnly(false)
+                .isReadOnly(true)
                 .build();
 
         final BoardEngine board = newInitialPositionBoard();
@@ -41,7 +42,7 @@ public class Runner {
                 Guice.createInjector(
                         UIModule.builder()
                                 .player(player)
-                                .engine1(engine())
+                                .engine1(randomMoveEngine())
                                 .engine2(engine())
                                 .board(board)
                                 .build(),
@@ -72,6 +73,10 @@ public class Runner {
                 .isAsynchronous(true)
                 .parallelLevel(4)
                 .build();
+    }
+
+    public static AsyncEngine<BoardEngine> randomMoveEngine() {
+        return new RandomMoveEngine<>();
     }
 
 }

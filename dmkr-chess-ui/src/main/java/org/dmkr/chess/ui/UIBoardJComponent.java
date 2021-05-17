@@ -228,39 +228,26 @@ public class UIBoardJComponent extends JComponent implements AutoCloseable {
 	}
 
 	private void doEngineMove() {
-		doEngine1Move();
-		doEngine2Move();
+		doEngineMove(engine1);
+		if (player.isReadOnly()) {
+			doEngineMove(engine2);
+		}
 	}
 
-	private void doEngine1Move() {
-		if (!player.isBoardInvertedForPlayer(board) || engine1.isInProgress()) {
+	private void doEngineMove(AsyncEngine<BoardEngine> engine) {
+		final boolean firstEngineToMove = engine == engine1;
+		if (player.isBoardInvertedForPlayer(board) != firstEngineToMove || engine.isInProgress()) {
 			return;
 		}
-		final Move move = engine1.getBestMove();
+
+		final Move move = engine.getBestMove();
 		final ColoredPiece piece = board.at(move.from());
 		movingPieceHolder.set(coordsHelper.new MovingPiece(move, piece, player, () -> movingPieceHolder.set(null)));
 		board.applyMove(move);
 		if (player.isReadOnly()) {
-			engine2.run(board);
+			(firstEngineToMove ? engine2 : engine1).run(board);
 		}
 	}
-	
-	private void doEngine2Move() {
-		if (player.isBoardInvertedForPlayer(board) || engine2.isInProgress()) {
-			return;
-		}
-		final Move move = engine2.getBestMove();
-		final ColoredPiece piece = board.at(move.from());
-		movingPieceHolder.set(coordsHelper.new MovingPiece(move, piece, player, () -> movingPieceHolder.set(null)));
-		board.applyMove(move);
-		if (player.isReadOnly()) {
-			engine1.run(board);
-		}
-	}
-
-	private void validateComponent() {
-
-    }
 
 	public boolean isBestLineVisualisationEnabled() {
 		return !player.isReadOnly() && paintComponentOverride.get() == null && !engine1.isInProgress();

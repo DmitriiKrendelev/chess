@@ -1,6 +1,7 @@
 package org.dmkr.chess.ui.helpers;
 
 import com.google.inject.Inject;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.dmkr.chess.api.BoardEngine;
@@ -70,8 +71,15 @@ public class UIBoardTextHelper {
 	}
 	
 	private final AtomicReference<Pair<Move, List<UITextBlock>>> progressTextCache = new AtomicReference<>(of(null, emptyList()));
-	private final AtomicReference<Pair<Integer, List<UITextBlock>>> evaluationTextCache = new AtomicReference<>(of(-1, emptyList()));
-	
+	private final AtomicReference<EvaluationTextCacheKey> evaluationTextCache = new AtomicReference<>(new EvaluationTextCacheKey(-1, null, null));
+
+	@RequiredArgsConstructor
+	private static class EvaluationTextCacheKey {
+		private final int halfMoves;
+		private final AsyncEngine<BoardEngine> engine;
+		private final List<UITextBlock> evaluationText;
+	}
+
 	public void drawSingleRow(String text, int x, int y, Graphics2D g) {
 		g.setColor(textColor);
 		new UIText(text).draw(g, textStyle, x, y);
@@ -90,8 +98,8 @@ public class UIBoardTextHelper {
 	private List<UITextBlock> getEvaluationText(AsyncEngine<BoardEngine> engine) {
 		return evaluationTextCache.updateAndGet(cached -> {
 			final int halfMoves = board.movesHistorySize();
-			return cached.getKey() == halfMoves ? cached : of(halfMoves, singletonList(calculateEvaluationText(engine)));
-		}).getValue();
+			return cached.halfMoves == halfMoves && cached.engine == engine ? cached : new EvaluationTextCacheKey(halfMoves, engine, singletonList(calculateEvaluationText(engine)));
+		}).evaluationText;
 	}
 	
 	private UITextBlock calculateEvaluationText(AsyncEngine<BoardEngine> engine) {

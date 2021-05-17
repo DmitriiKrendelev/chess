@@ -34,6 +34,10 @@ public class BestLine {
 		return new BestLine(moves, lineValue, lineValueChange, duration);
 	}
 
+	public static BestLine of(Move move) {
+		return new BestLine(ImmutableList.of(move), 0, 0, 0);
+	}
+
 	public boolean isCached() {
 		return duration == CACHED_BEST_LINE_DURATION;
 	}
